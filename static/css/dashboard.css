@@ -46,3 +46,59 @@ body.dark-mode .text-muted {
 body.dark-mode .navbar-brand {
     color: #f1f1f1 !important;
 }
+
+/* Task list drag visuals */
+#taskList .list-group-item {
+    cursor: grab;
+    user-select: none;
+}
+
+#taskList .dragging {
+    opacity: 0.5;
+}
+
+body.dark-mode #taskCard,
+body.dark-mode .list-group-item {
+    background-color: #1e1e1e;
+    color: #f1f1f1;
+}
+
+body.dark-mode #taskInput {
+    background-color: #2a2a2a;
+    color: #f1f1f1;
+    border: 1px solid #555;
+}
+/* Checkbox + Delete styling */
+.task-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.task-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
+}
+
+.task-left input[type="checkbox"] {
+    transform: scale(1.2);
+}
+
+.task-text.completed {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.delete-btn {
+    border: none;
+    background: none;
+    color: #dc3545;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+body.dark-mode .delete-btn {
+    color: #ff6b6b;
+}
