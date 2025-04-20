@@ -1,0 +1,49 @@
+body {
+    background-color: #F6FAFF;
+    height: 100vh;
+}
+
+.left-panel {
+    background-color: #F6FAFF;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem;
+}
+
+.right-panel {
+    background-color: #A3C4EB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-container {
+    max-width: 400px;
+    width: 100%;
+}
+
+.logo h2 {
+    color: #173B64;
+    margin-bottom: 2rem;
+}
+
+h1, label, .register-link {
+    color: #173B64;
+}
+
+.btn-custom {
+    background-color: #FFDE70;
+    color: #173B64;
+    font-weight: bold;
+    border: none;
+}
+
+.btn-custom:hover {
+    background-color: #f5ce4c;
+}
+
+img {
+    max-width: 80%;
+    border-radius: 10px;
+}
