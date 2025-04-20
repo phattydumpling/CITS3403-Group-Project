@@ -1,0 +1,7 @@
+.data-visualization-placeholder {
+    height: 200px;
+    background-color: #f1f1f1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+
+<body>
+
+    <!-- Top Nav Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light px-4 border-bottom">
+        <a class="navbar-brand" href="#">App Name</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+            aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-4">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Dashboard</a>
+                </li>
+
+                <!-- Study Area Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        Study Area
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Study Session</a></li>
+                        <li><a class="dropdown-item" href="#">Task Overview</a></li>
+                        <li><a class="dropdown-item" href="#">Lecture Log</a></li>
+                        <li><a class="dropdown-item" href="#">Assessments</a></li>
+                        <li><a class="dropdown-item" href="#">Resources</a></li>
+
+                    </ul>
+                </li>
+
+                <!-- Care Page Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        Care Page
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Mental Health</a></li>
+                        <li><a class="dropdown-item" href="#">Wellness Check</a></li>
+                        <li><a class="dropdown-item" href="#">Study Break</a></li>
+                        <li><a class="dropdown-item" href="#">Study Tips</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Share Data</a>
+                </li>
+            </ul>
+
+            <!-- Right-side Login/Sign Up -->
+            <div class="d-flex">
+                <a href="#" class="btn btn-outline-primary me-2">Login</a>
+                <a href="#" class="btn btn-primary">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="container-fluid mt-4 px-4">
+        <!-- Welcome Text -->
+        <h2>Welcome Back, [User]!</h2>
+        <p class="text-muted">Here’s a quick summary of your study progress.</p>
+
+        <!-- Grid Layout: Study Insights + Calendar -->
+        <div class="row">
+            <!-- Study Insights -->
+            <div class="col-md-8 mb-4">
+                <div class="card p-3">
+                    <h5>Study Insights</h5>
+                        <div class="data-visualization-placeholder">
+                        <p class="text-muted">[Data Visualisation Placeholder]</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar -->
+            <div class="col-md-4 mb-4">
+                <div class="card p-3">
+                    <h5>Calendar</h5>
+                    <input type="date" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
