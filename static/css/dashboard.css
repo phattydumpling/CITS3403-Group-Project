@@ -5,3 +5,44 @@
     justify-content: center;
     align-items: center;
 }
+
+/* Default Light Mode Styles */
+.data-visualization-placeholder {
+    height: 200px;
+    background-color: #f1f1f1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Dark Mode Overrides */
+body.dark-mode {
+    background-color: #121212;
+    color: #f1f1f1;
+}
+
+body.dark-mode .navbar,
+body.dark-mode .dropdown-menu,
+body.dark-mode .card {
+    background-color: #1e1e1e !important;
+    color: #f1f1f1 !important;
+}
+
+body.dark-mode .nav-link,
+body.dark-mode .dropdown-item {
+    color: #f1f1f1 !important;
+}
+
+body.dark-mode .data-visualization-placeholder {
+    background-color: #2c2c2c;
+}
+
+/* Muted text */
+body.dark-mode .text-muted {
+    color: #bbbbbb !important;
+}
+
+/* Navbar brand color*/
+body.dark-mode .navbar-brand {
+    color: #f1f1f1 !important;
+}
