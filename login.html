@@ -1,28 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>Login - Smart Study Scheduler</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/login.css">
 </head>
-
 <body>
 
-    <h1>Name of Web App</h1>
+    <!-- Logo at Top-Left Corner -->
+    <div class="logo">
+        <h2>Smart Study Scheduler</h2>
+    </div>
 
-    <form action="/login" method="POST">
-        <label for="username">Username (or email)</label><br>
-        <input type="text" id="username" name="username" required><br><br>
+    <div class="container-fluid h-100">
+        <div class="row h-100">
 
-        <label for="password">Password</label><br>
-        <input type="password" id="password" name="password" required><br><br>
+            <!-- Left Panel -->
+            <div class="col-md-6 left-panel">
+                <div class="form-container">
+                    <h1 class="mb-4">Login</h1>
 
-        <button type="submit">Login</button>
-    </form>
+                    <form action="/login" method="POST">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" id="username" name="username" class="form-control" required>
+                        </div>
 
-    <p>Don't have an account? <a href="/register">Sign up</a>.</p>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" id="password" name="password" class="form-control" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-custom w-100">Login</button>
+                    </form>
+
+                    <p class="register-link mt-3">Don't have an account? <a href="/register">Create one</a></p>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="col-md-6 right-panel">
+                <img src="/static/images/duck_placeholder.png" alt="Study image">
+            </div>
+
+        </div>
+    </div>
 
 </body>
-
 </html>
