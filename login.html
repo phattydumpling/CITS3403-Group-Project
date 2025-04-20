@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Smart Study Scheduler</title>
+    <link rel="stylesheet" href="/static/css/login.css">
+</head>
+
+<body>
+
+    <h1>Name of Web App</h1>
+
+    <form action="/login" method="POST">
+        <label for="username">Username (or email)</label><br>
+        <input type="text" id="username" name="username" required><br><br>
+
+        <label for="password">Password</label><br>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <p>Don't have an account? <a href="/register">Sign up</a>.</p>
+
+</body>
+
+</html>
