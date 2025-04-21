@@ -125,20 +125,53 @@
             font-weight: 600;
             margin-top: 15px;
         }
+        /* === TOP NAVIGATION BAR STYLES === */
+        .top-nav {
+            background-color: #F6FAFF;
+            border-top: 2px solid #A3C4EB;
+            border-bottom: 2px solid #A3C4EB;
+            padding: 14px 0;
+            margin-top: -12px;
+        }
+
+        .top-nav ul {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .top-nav a {
+            text-decoration: none;
+            color: #333;
+            font-size: 1.05rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .top-nav a:hover,
+        .top-nav a:focus {
+            color: #337DFF;
+            font-weight: 600;
+        }
+
     </style>
 </head>
 <body>
 
     <!-- === HEADER SECTION WITH TITLE AND DUCK LOGO === -->
     <header class="welcome-header">
-        <h1>💻 Welcome to your Study Space! 🎓📖🎧ྀི</h1>
-
+        <h1>💻 Welcome to your Study Space! 🎓📖🎧ྀི</h1> 
         <!-- Duck image acts as a logo and interactive element -->
         <div class="duck-container">
             <img src="duck_placeholder.png" alt="Duck Logo" class="logo-right" onclick="openModal()">
             <div class="speech-bubble">quack quack 🐥</div> <!-- Tooltip bubble -->
         </div>
     </header>
+    <!-- Placeholder for the navbar -->
+    <div id="navbar-placeholder"></div>
 
     <!-- === HIDDEN MODAL FOR ACHIEVEMENTS === -->
     <div class="modal" id="achievementsModal">
@@ -153,7 +186,15 @@
             <button class="close-btn" onclick="closeModal()">Close</button>
         </div>
     </div>
-
+    <!-- === SCRIPT FOR THE NAVIGATION BAR === -->
+    <script>
+        fetch('navigationbartrial.html')
+            .then(res => res.text())
+            .then(data => {
+                document.getElementById('navbar-placeholder').innerHTML = data;
+            });
+    </script>
+    
     <!-- === SCRIPT FOR POPUP FUNCTIONALITY === -->
     <script>
         // Show the modal when duck is clicked
