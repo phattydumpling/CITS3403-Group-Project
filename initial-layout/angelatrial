@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Study Space</title>
+
+    <!-- Google Fonts: Using Inter for a clean, modern feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* === GLOBAL STYLES === */
+        body {
+            background-color: #F6FAFF; /* Light blueish background for a calm study vibe */
+            font-family: 'Inter', sans-serif; /* Main font for the website */
+            margin: 0; /* Remove default spacing */
+        }
+
+        /* === HEADER STYLING === */
+        .welcome-header {
+            background-color: #A3C4EB; /* Soft blue header */
+            margin-top: 2.5%; 
+            padding: 10px 20px;
+            display: flex; /* Flexbox layout for side-by-side title and logo */
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+
+        h1 {
+            font-size: 2.3rem;
+            color: #FFDE70; /* Yellow text for contrast */
+            margin: 0;
+        }
+
+        /* === DUCK IMAGE STYLING === */
+        .duck-container {
+            position: relative; /* Needed for absolute positioning of the speech bubble */
+            display: inline-block;
+        }
+
+        .logo-right {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%; /* Make it circular */
+            object-fit: cover; /* Ensures image doesn't stretch */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease; /* Smooth zoom effect */
+            cursor: pointer; /* Indicates it's clickable */
+        }
+
+        .logo-right:hover {
+            transform: scale(1.1); /* Slight zoom on hover */
+        }
+
+        /* === SPEECH BUBBLE ON HOVER === */
+        .speech-bubble {
+            position: absolute;
+            bottom: 100%; /* Above the duck */
+            right: 0;
+            background-color: #ffffff;
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            opacity: 0; /* Hidden by default */
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+        }
+
+        .speech-bubble::after {
+            content: "";
+            position: absolute;
+            top: 100%; /* Little triangle pointer */
+            right: 15px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: #ffffff transparent transparent transparent;
+        }
+
+        /* Show the speech bubble when hovering over duck */
+        .duck-container:hover .speech-bubble {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* === POPUP MODAL STYLES === */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5); /* Dark background overlay */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            padding: 20px 30px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            animation: popUp 0.3s ease; /* Pop-in animation */
+        }
+
+        @keyframes popUp {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .close-btn {
+            background-color: #A3C4EB;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #333;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- === HEADER SECTION WITH TITLE AND DUCK LOGO === -->
+    <header class="welcome-header">
+        <h1>💻 Welcome to your Study Space! 🎓📖🎧ྀི</h1>
+
+        <!-- Duck image acts as a logo and interactive element -->
+        <div class="duck-container">
+            <img src="duck_placeholder.png" alt="Duck Logo" class="logo-right" onclick="openModal()">
+            <div class="speech-bubble">quack quack 🐥</div> <!-- Tooltip bubble -->
+        </div>
+    </header>
+
+    <!-- === HIDDEN MODAL FOR ACHIEVEMENTS === -->
+    <div class="modal" id="achievementsModal">
+        <div class="modal-content">
+            <h2>🎉 Your Achievements</h2>
+            <ul style="text-align: left;">
+                <li>✅ Finished Week 7 Lectures</li>
+                <li>✅ Submitted Philosophy Essay</li>
+                <li>✅ Went to all study groups</li>
+                <li>⭐ Drank water & took breaks!</li>
+            </ul>
+            <button class="close-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- === SCRIPT FOR POPUP FUNCTIONALITY === -->
+    <script>
+        // Show the modal when duck is clicked
+        function openModal() {
+            document.getElementById('achievementsModal').style.display = 'flex';
+        }
+
+        // Close the modal
+        function closeModal() {
+            document.getElementById('achievementsModal').style.display = 'none';
+        }
+
+        // Extra UX: Allow closing the modal by clicking outside the popup
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('achievementsModal');
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
