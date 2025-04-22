@@ -150,3 +150,20 @@ body.dark-mode #calendar {
     background-color: #1e1e1e;
     color: #f1f1f1;
 }
+
+#taskForm input[type="date"] {
+    font-size: 0.9rem;
+}
+
+.delete-btn {
+    border: none;
+    background: transparent;
+    color: #dc3545;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+body.dark-mode .delete-btn {
+    color: #ff6b6b;
+}

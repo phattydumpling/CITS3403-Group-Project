@@ -10,27 +10,24 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // =====================
+    // GLOBAL CALENDAR INSTANCE
+    // =====================
+    let calendar = null;
+
+    // =====================
     // FULLCALENDAR SETUP
     // =====================
     const calendarEl = document.getElementById('calendar');
     if (calendarEl) {
-        const calendar = new FullCalendar.Calendar(calendarEl, {
+        calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             height: 'auto',
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'dayGridMonth,timeGridWeek'
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
             events: [
-                {
-                    title: 'Assignment Due',
-                    start: new Date().toISOString().split('T')[0]
-                },
-                {
-                    title: 'Group Study',
-                    start: new Date(new Date().setDate(new Date().getDate() + 3)).toISOString().split('T')[0]
-                }
             ]
         });
         calendar.render();
@@ -42,23 +39,40 @@ document.addEventListener('DOMContentLoaded', function () {
     const taskForm = document.getElementById('taskForm');
     const taskInput = document.getElementById('taskInput');
     const taskColor = document.getElementById('taskColor');
+    const taskDueDate = document.getElementById('taskDueDate');
     const taskList = document.getElementById('taskList');
 
-    if (taskForm && taskInput && taskList && taskColor) {
+    if (taskForm && taskInput && taskColor && taskDueDate && taskList) {
         taskForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const taskText = taskInput.value.trim();
             const selectedColor = taskColor.value;
-            if (taskText !== "") {
-                const li = createTaskItem(taskText, selectedColor);
+            const dueDate = taskDueDate.value;
+
+            if (taskText && dueDate) {
+                let calendarEvent = null;
+
+                // ✅ Add to calendar ONCE here
+                if (calendar) {
+                    calendarEvent = calendar.addEvent({
+                        title: taskText,
+                        start: dueDate,
+                        allDay: true
+                    });
+                }
+
+                // Pass calendarEvent to the task element
+                const li = createTaskItem(taskText, selectedColor, calendarEvent);
                 taskList.appendChild(li);
+
                 taskInput.value = '';
-                taskColor.value = 'yellow'; // reset default
+                taskColor.value = 'yellow';
+                taskDueDate.value = '';
             }
         });
     }
 
-    function createTaskItem(text, color = 'yellow') {
+    function createTaskItem(text, color = 'yellow', calendarEvent = null) {
         const li = document.createElement('li');
         li.className = 'task-item';
         li.draggable = true;
@@ -69,12 +83,27 @@ document.addEventListener('DOMContentLoaded', function () {
         const span = document.createElement('span');
         span.textContent = text;
 
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn ms-auto';
+        deleteBtn.innerHTML = '&times;';
+        deleteBtn.title = 'Delete task';
+
+        deleteBtn.addEventListener('click', () => {
+            if (calendarEvent) {
+                calendarEvent.remove(); // Remove from calendar
+            }
+            li.remove(); // Remove from list
+        });
+
         li.appendChild(dot);
         li.appendChild(span);
+        li.appendChild(deleteBtn);
 
         addDragEvents(li);
         return li;
     }
+
+
 
     // =====================
     // DRAG-AND-DROP SORTING
