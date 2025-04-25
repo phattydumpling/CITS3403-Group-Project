@@ -181,16 +181,18 @@
             font-weight: 600;
         }
 
+        /* Style the toggle button container */
         .dark-mode-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
+            position: fixed; /* Fixes the toggle button position relative to the viewport */
+            bottom: 20px; /* Positions it 20px from the bototm of the screen */
+            right: 20px; /* Positions it 20px from the right of the screen */
             background-color: var(--bg-color);
             padding: 10px;
             border-radius: 50%;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
+        /* The switch container */
         .switch{
             position: relative;
             display: inline-block;
@@ -198,12 +200,14 @@
             height: 28px;
         }
 
+        /* Hide the checkbox input itself */
         .switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
 
+        /* The slider itself */
         .slider{
             position: absolute;
             cursor: pointer;
@@ -214,8 +218,13 @@
             background-color: #ccc;
             transition: .4s;
             border-radius: 34px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px;
         }
-
+        
+        /* Round the slider when toggled */
         .slider:before {
             position: absolute;
             content: "";
@@ -228,12 +237,20 @@
             border-radius: 50%;
         }
 
+        /* Change the background color to blue when dark mode is on */
         input:checked + .slider {
             background-color: #66aaff;
         }
 
+        /* Move the slider to the right when dark mode is on */
         input:checked + .slider:before {
             transform: translateX(22px);
+        }
+
+        /* Style for moon and sun icons */
+        .icon{
+            font-size: 16px;
+            transition: opacity 0.3s ease;
         }
     </style>
 </head>
@@ -264,6 +281,8 @@
             <button class="close-btn" onclick="closeModal()">Close</button>
         </div>
     </div>
+
+    <!-- DARK MODE TOGGLE === -->
     <div class="dark-mode-toggle">
         <label class="switch">
             <input type="checkbox" id="darkModeToggle">
