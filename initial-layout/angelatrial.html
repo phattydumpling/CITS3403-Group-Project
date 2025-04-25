@@ -318,6 +318,11 @@
         <p>Log your study sessions and goals.</p>
     </div>
 
+    <div id="datalog-content" class="tab-content" style="display: none;">
+        <h2>Data Log</h2>
+        <p>View you and your friend's data analysis here.</p>
+    </div>
+
     <!-- === SCRIPT FOR TAB SWITCHING === -->
     <script>
         fetch('navigationbartrial.html')
@@ -330,16 +335,19 @@
                 const studylogTab = document.getElementById('studylog-tab');
                 const restlogTab = document.getElementById('restlog-tab');
                 const studysessionsTab = document.getElementById('studysessions-tab');
-    
+                const datalogTab = document.getElementById('datalog-tab');
+
                 const dashboardContent = document.getElementById('dashboard-content');
                 const studylogContent = document.getElementById('studylog-content');
                 const restlogContent = document.getElementById('restlog-content');
                 const studysessionsContent = document.getElementById('studysessions-content');
-    
+                const datalogContent = document.getElementById('datalog-content');
+
                 dashboardContent.style.display = 'block';
                 studylogContent.style.display = 'none';
                 restlogContent.style.display = 'none';
                 studysessionsContent.style.display = 'none';
+                datalogContent.style.display = 'none';
     
                 dashboardTab.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -363,6 +371,12 @@
                     e.preventDefault();
                     showContent(studysessionsContent);
                     setActiveTab(studysessionsTab);
+                });
+
+                datalogTab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showContent(datalogContent);
+                    setActiveTab(datalogTab);
                 });
     
                 function showContent(contentToShow) {
