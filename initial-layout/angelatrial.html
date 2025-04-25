@@ -35,6 +35,10 @@
             --nav-link-color: #f5f5f5;
             --nav-link-hover: #66aaff;
         }
+        .dark-mode .tab-content {
+        color: white;
+        }
+
     
         body {
             background-color: var(--bg-color);
@@ -265,7 +269,7 @@
             <div class="speech-bubble">quack quack 🐥</div> <!-- Tooltip bubble -->
         </div>
     </header>
-    <!-- Placeholder for the navbar -->
+
     <div id="navbar-placeholder"></div>
 
     <!-- === HIDDEN MODAL FOR ACHIEVEMENTS === -->
@@ -292,13 +296,90 @@
             </span>
         </label>
     </div>
+
+    <!-- Tab Content Sections -->
+    <div id="dashboard-content" class="tab-content">
+        <h2>Dashboard</h2>
+        <p>Welcome to your Dashboard.</p>
+    </div>
     
-    <!-- === SCRIPT FOR THE NAVIGATION BAR === -->
+    <div id="studylog-content" class="tab-content" style="display: none;">
+        <h2>Study Log</h2>
+        <p>Track your study progress here.</p>
+    </div>
+    
+    <div id="restlog-content" class="tab-content" style="display: none;">
+        <h2>Rest Log</h2>
+        <p>Monitor your rest periods here.</p>
+    </div>
+    
+    <div id="studysessions-content" class="tab-content" style="display: none;">
+        <h2>Study Sessions</h2>
+        <p>Log your study sessions and goals.</p>
+    </div>
+
+    <!-- === SCRIPT FOR TAB SWITCHING === -->
     <script>
         fetch('navigationbartrial.html')
             .then(res => res.text())
             .then(data => {
                 document.getElementById('navbar-placeholder').innerHTML = data;
+    
+                // Now tabs exist — safe to run tab switching logic!
+                const dashboardTab = document.getElementById('dashboard-tab');
+                const studylogTab = document.getElementById('studylog-tab');
+                const restlogTab = document.getElementById('restlog-tab');
+                const studysessionsTab = document.getElementById('studysessions-tab');
+    
+                const dashboardContent = document.getElementById('dashboard-content');
+                const studylogContent = document.getElementById('studylog-content');
+                const restlogContent = document.getElementById('restlog-content');
+                const studysessionsContent = document.getElementById('studysessions-content');
+    
+                dashboardContent.style.display = 'block';
+                studylogContent.style.display = 'none';
+                restlogContent.style.display = 'none';
+                studysessionsContent.style.display = 'none';
+    
+                dashboardTab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showContent(dashboardContent);
+                    setActiveTab(dashboardTab);
+                });
+    
+                studylogTab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showContent(studylogContent);
+                    setActiveTab(studylogTab);
+                });
+    
+                restlogTab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showContent(restlogContent);
+                    setActiveTab(restlogTab);
+                });
+    
+                studysessionsTab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showContent(studysessionsContent);
+                    setActiveTab(studysessionsTab);
+                });
+    
+                function showContent(contentToShow) {
+                    const allContents = document.querySelectorAll('.tab-content');
+                    allContents.forEach(function(content) {
+                        content.style.display = 'none';
+                    });
+                    contentToShow.style.display = 'block';
+                }
+    
+                function setActiveTab(activeTab) {
+                    const allTabs = document.querySelectorAll('.top-nav a');
+                    allTabs.forEach(function(tab) {
+                        tab.classList.remove('active');
+                    });
+                    activeTab.classList.add('active');
+                }
             });
     </script>
     
@@ -323,6 +404,7 @@
         });
     </script>
 
+    <!-- === SCRIPT FOR DARK MODE TOGGLE === -->
     <script>
         const darkModeToggle = document.getElementById('darkModeToggle');
 
