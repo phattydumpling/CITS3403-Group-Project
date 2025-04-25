@@ -5,135 +5,159 @@
 
     <!-- Google Fonts: Using Inter for a clean, modern feel -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    
     <style>
-        /* === GLOBAL STYLES === */
-        body {
-            background-color: #F6FAFF; /* Light blueish background for a calm study vibe */
-            font-family: 'Inter', sans-serif; /* Main font for the website */
-            margin: 0; /* Remove default spacing */
+        :root {
+            --bg-color: #F6FAFF;
+            --header-bg-color: #A3C4EB;
+            --header-text-color: #FFDE70;
+            --bubble-bg-color: #ffffff;
+            --bubble-text-color: #333;
+            --modal-bg-color: #ffffff;
+            --close-btn-bg-color: #A3C4EB;
+            --close-btn-text-color: #333;
+            --nav-bg-color: #F6FAFF;
+            --nav-border-color: #A3C4EB;
+            --nav-link-color: #333;
+            --nav-link-hover: #337DFF;
         }
-
-        /* === HEADER STYLING === */
+    
+        .dark-mode {
+            --bg-color: #1e1e1e;
+            --header-bg-color: #2c3e50;
+            --header-text-color: #f5f5f5;
+            --bubble-bg-color: #3a3a3a;
+            --bubble-text-color: #f5f5f5;
+            --modal-bg-color: #2a2a2a;
+            --close-btn-bg-color: #2c3e50;
+            --close-btn-text-color: #f5f5f5;
+            --nav-bg-color: #1e1e1e;
+            --nav-border-color: #2c3e50;
+            --nav-link-color: #f5f5f5;
+            --nav-link-hover: #66aaff;
+        }
+    
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+        }
+    
         .welcome-header {
-            background-color: #A3C4EB; /* Soft blue header */
-            margin-top: 2.5%; 
+            background-color: var(--header-bg-color);
+            margin-top: 2.5%;
             padding: 10px 20px;
-            display: flex; /* Flexbox layout for side-by-side title and logo */
+            display: flex;
             justify-content: space-between;
             align-items: center;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-
+    
         h1 {
             font-size: 2.3rem;
-            color: #FFDE70; /* Yellow text for contrast */
+            color: var(--header-text-color);
             margin: 0;
         }
-
-        /* === DUCK IMAGE STYLING === */
+    
         .duck-container {
-            position: relative; /* Needed for absolute positioning of the speech bubble */
+            position: relative;
             display: inline-block;
         }
-
+    
         .logo-right {
             width: 80px;
             height: 80px;
-            border-radius: 50%; /* Make it circular */
-            object-fit: cover; /* Ensures image doesn't stretch */
+            border-radius: 50%;
+            object-fit: cover;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-            transition: transform 0.3s ease; /* Smooth zoom effect */
-            cursor: pointer; /* Indicates it's clickable */
+            transition: transform 0.3s ease;
+            cursor: pointer;
         }
-
+    
         .logo-right:hover {
-            transform: scale(1.1); /* Slight zoom on hover */
+            transform: scale(1.1);
         }
-
-        /* === SPEECH BUBBLE ON HOVER === */
+    
         .speech-bubble {
             position: absolute;
-            bottom: 100%; /* Above the duck */
+            bottom: 100%;
             right: 0;
-            background-color: #ffffff;
-            color: #333;
+            background-color: var(--bubble-bg-color);
+            color: var(--bubble-text-color);
             padding: 8px 12px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             font-size: 0.9rem;
             white-space: nowrap;
-            opacity: 0; /* Hidden by default */
+            opacity: 0;
             transform: translateY(10px);
             transition: opacity 0.3s ease, transform 0.3s ease;
             pointer-events: none;
         }
-
+    
         .speech-bubble::after {
             content: "";
             position: absolute;
-            top: 100%; /* Little triangle pointer */
+            top: 100%;
             right: 15px;
             border-width: 6px;
             border-style: solid;
-            border-color: #ffffff transparent transparent transparent;
+            border-color: var(--bubble-bg-color) transparent transparent transparent;
         }
-
-        /* Show the speech bubble when hovering over duck */
+    
         .duck-container:hover .speech-bubble {
             opacity: 1;
             transform: translateY(0);
         }
-
-        /* === POPUP MODAL STYLES === */
+    
         .modal {
-            display: none; /* Hidden by default */
+            display: none;
             position: fixed;
             z-index: 1000;
             left: 0;
             top: 0;
             width: 100vw;
             height: 100vh;
-            background-color: rgba(0, 0, 0, 0.5); /* Dark background overlay */
+            background-color: rgba(0, 0, 0, 0.5);
             justify-content: center;
             align-items: center;
         }
-
+    
         .modal-content {
-            background-color: #ffffff;
+            background-color: var(--modal-bg-color);
             padding: 20px 30px;
             border-radius: 16px;
             text-align: center;
             max-width: 400px;
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-            animation: popUp 0.3s ease; /* Pop-in animation */
+            animation: popUp 0.3s ease;
+            color: var(--bubble-text-color);
         }
-
+    
         @keyframes popUp {
             from { transform: scale(0.8); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
-
+    
         .close-btn {
-            background-color: #A3C4EB;
+            background-color: var(--close-btn-bg-color);
             border: none;
             padding: 8px 16px;
             border-radius: 8px;
             cursor: pointer;
-            color: #333;
+            color: var(--close-btn-text-color);
             font-weight: 600;
             margin-top: 15px;
         }
-        /* === TOP NAVIGATION BAR STYLES === */
+    
         .top-nav {
-            background-color: #F6FAFF;
-            border-top: 2px solid #A3C4EB;
-            border-bottom: 2px solid #A3C4EB;
+            background-color: var(--nav-bg-color);
+            border-top: 2px solid var(--nav-border-color);
+            border-bottom: 2px solid var(--nav-border-color);
             padding: 14px 0;
             margin-top: -12px;
         }
-
+    
         .top-nav ul {
             display: flex;
             justify-content: center;
@@ -142,21 +166,75 @@
             margin: 0;
             padding: 0;
         }
-
+    
         .top-nav a {
             text-decoration: none;
-            color: #333;
+            color: var(--nav-link-color);
             font-size: 1.05rem;
             font-weight: 500;
             transition: color 0.2s ease;
         }
-
+    
         .top-nav a:hover,
         .top-nav a:focus {
-            color: #337DFF;
+            color: var(--nav-link-hover);
             font-weight: 600;
         }
 
+        .dark-mode-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--bg-color);
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .switch{
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider{
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #66aaff;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
     </style>
 </head>
 <body>
@@ -186,6 +264,12 @@
             <button class="close-btn" onclick="closeModal()">Close</button>
         </div>
     </div>
+    <div class="dark-mode-toggle">
+        <label class=""switch">
+            <input type="checkbox" id="darkModeToggle">
+            <span class="slider"></span>
+        </label>
+    </div>
     <!-- === SCRIPT FOR THE NAVIGATION BAR === -->
     <script>
         fetch('navigationbartrial.html')
@@ -213,6 +297,14 @@
             if (e.target === modal) {
                 modal.style.display = 'none';
             }
+        });
+    </script>
+
+    <script>
+        const darkModeToggle = document.getElementById('darkModeToggle');
+
+        darkModeToggle.addEventListener('change', function() {
+            document.body.classList.toggle('dark-mode', this.checked);
         });
     </script>
 </body>
