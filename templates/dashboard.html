@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <title>Dashboard</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- FullCalendar CSS -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
@@ -15,125 +15,136 @@
     <link rel="stylesheet" href="/static/css/dashboard.css">
 </head>
 
-<body>
-
+<body class="bg-white text-black dark:bg-gray-900 dark:text-white">
     <!-- Top Nav Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light px-4 border-bottom">
-        <a class="navbar-brand" href="#">App Name</a>
-
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
-            aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarMain">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-4">
-                <li class="nav-item"><a class="nav-link" href="#">Dashboard</a></li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Study Area</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Study Session</a></li>
-                        <li><a class="dropdown-item" href="#">Task Overview</a></li>
-                        <li><a class="dropdown-item" href="#">Lecture Log</a></li>
-                        <li><a class="dropdown-item" href="#">Assessments</a></li>
-                        <li><a class="dropdown-item" href="#">Resources</a></li>
+    <nav class="flex items-center justify-between flex-wrap bg-gray-100 dark:bg-gray-800 p-4 border-b">
+        <div class="flex items-center flex-shrink-0 mr-6">
+            <a href="#" class="text-xl font-semibold">App Name</a>
+        </div>
+        <div class="block lg:hidden">
+            <button id="nav-toggle"
+                class="flex items-center px-3 py-2 border rounded text-gray-600 dark:text-gray-300 border-gray-600 dark:border-gray-300">
+                <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <title>Menu</title>
+                    <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" />
+                </svg>
+            </button>
+        </div>
+        <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto hidden" id="nav-content">
+            <div class="text-sm lg:flex-grow">
+                <a href="/templates/dashboard.html"
+                    class="block mt-4 lg:inline-block lg:mt-0 text-gray-700 dark:text-gray-300 hover:text-blue-600 mr-4">Dashboard</a>
+                <div class="relative group inline-block mr-4">
+                    <button class="inline-flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-600">Study Area
+                        <svg class="fill-current h-4 w-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M5.516 7.548L10 12l4.484-4.452z" />
+                        </svg>
+                    </button>
+                    <ul
+                        class="absolute hidden text-gray-700 pt-1 group-hover:block bg-white dark:bg-gray-800 rounded shadow-lg">
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="/templates/study_session.html">Study Session</a></li>
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="/templates//task_overview.html">Task Overview</a></li>
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="/templates/lecture_log.html">Lecture Log</a></li>
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="/templates/assessments.html">Assessments</a></li>
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="/templates/resources.html">Resources</a></li>
                     </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Care Page</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Mental Health</a></li>
-                        <li><a class="dropdown-item" href="#">Wellness Check</a></li>
-                        <li><a class="dropdown-item" href="#">Study Break</a></li>
-                        <li><a class="dropdown-item" href="#">Study Tips</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item"><a class="nav-link" href="#">Share Data</a></li>
-            </ul>
-
-            <!-- Dark Mode + Auth Buttons -->
-            <div class="d-flex align-items-center">
-                <div class="form-check form-switch me-3">
-                    <input class="form-check-input" type="checkbox" id="darkModeToggle">
-                    <label class="form-check-label" for="darkModeToggle">Dark Mode</label>
                 </div>
-                <a href="#" class="btn btn-outline-primary me-2">Login</a>
-                <a href="#" class="btn btn-primary">Sign Up</a>
+                <div class="relative group inline-block mr-4">
+                    <button class="inline-flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-600">Care Page
+                        <svg class="fill-current h-4 w-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M5.516 7.548L10 12l4.484-4.452z" />
+                        </svg>
+                    </button>
+                    <ul
+                        class="absolute hidden text-gray-700 pt-1 group-hover:block bg-white dark:bg-gray-800 rounded shadow-lg">
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="/templates/mental_health.html">Mental Health</a></li>
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="/templates/wellness_check.html">Wellness Check</a></li>
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="/templates/study_break.html">Study Break</a></li>
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="/templates/study_tips.html">Study Tips</a></li>
+                    </ul>
+                </div>
+                <a href="/templates/share_data.html"
+                    class="block mt-4 lg:inline-block lg:mt-0 text-gray-700 dark:text-gray-300 hover:text-blue-600">Share Data</a>
+            </div>
+            <div class="flex items-center space-x-4 mt-4 lg:mt-0">
+                <label for="darkModeToggle" class="flex items-center cursor-pointer">
+                    <input id="darkModeToggle" type="checkbox" class="sr-only">
+                    <div class="relative">
+                        <div class="block bg-gray-600 w-10 h-6 rounded-full"></div>
+                        <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transform transition-transform duration-300"></div>
+                    </div>
+                    <span class="ml-3 text-gray-700 dark:text-gray-300">Dark Mode</span>
+                </label>
+                <a href="#"
+                    class="px-4 py-2 border border-blue-500 text-blue-500 rounded hover:bg-blue-500 hover:text-white">Login</a>
+                <a href="#" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Sign Up</a>
             </div>
         </div>
     </nav>
 
     <!-- Main Content Area -->
-    <div class="container-fluid mt-4 px-4">
-        <!-- Welcome Text -->
-        <h2>Welcome Back, [User]!</h2>
-        <p class="text-muted">Here’s a quick summary of your study progress.</p>
+    <div class="container mx-auto mt-8 px-4">
+        <h2 class="text-2xl font-semibold">Welcome Back, [User]!</h2>
+        <p class="text-gray-500">Here’s a quick summary of your study progress.</p>
 
         <!-- Study Insights -->
-        <div class="row">
-            <div class="col-md-12 mb-4">
-                <div class="card p-3">
-                    <h5>Study Insights</h5>
-                    <div class="data-visualization-placeholder">
-                        <p class="text-muted">[Data Visualisation Placeholder]</p>
-                    </div>
+        <div class="grid grid-cols-1 gap-6 mt-6">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                <h5 class="text-lg font-semibold mb-4">Study Insights</h5>
+                <div class="data-visualization-placeholder">
+                    <p class="text-gray-500">[Data Visualisation Placeholder]</p>
                 </div>
             </div>
         </div>
 
         <!-- To-Do + Calendar -->
-        <div class="row">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
             <!-- To-Do List -->
-            <div class="col-md-8">
-                <div class="card p-4">
-                    <h5 class="mb-3">To-Do List</h5>
-            
-                    <!-- Task Creation Form -->
-                    <form id="taskForm" class="row g-2 mb-3 align-items-center">
-                        <div class="col-sm-4">
-                            <input type="text" id="taskInput" class="form-control" placeholder="New task" required>
-                        </div>
-                        <div class="col-sm-2">
-                            <select id="taskColor" class="form-select">
-                                <option value="yellow">🟡</option>
-                                <option value="red">🔴</option>
-                                <option value="purple">🟣</option>
-                                <option value="green">🟢</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-3">
-                            <input type="date" id="taskDueDate" class="form-control" required>
-                        </div>
-                        <div class="col-sm-3">
-                            <button type="submit" class="btn btn-primary w-100">Add Task</button>
-                        </div>
-                    </form>
-
-            
-                    <ul class="list-unstyled sortable-list" id="taskList">
-                        <li class="task-item" draggable="true"><span class="task-dot yellow"></span> Update contractor agreement
-                        </li>
-                        <li class="task-item" draggable="true"><span class="task-dot red"></span> How to manage event planning</li>
-                        <li class="task-item" draggable="true"><span class="task-dot purple"></span> Plan for next year</li>
-                        <li class="task-item" draggable="true"><span class="task-dot yellow"></span> Finalize project scope</li>
-                    </ul>
-                </div>
+            <div class="md:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                <h5 class="text-lg font-semibold mb-4">To-Do List</h5>
+                <form id="taskForm" class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
+                    <input type="text" id="taskInput" class="col-span-2 p-2 border rounded" placeholder="New task"
+                        required>
+                    <select id="taskColor" class="p-2 border rounded">
+                        <option value="yellow">🟡</option>
+                        <option value="red">🔴</option>
+                        <option value="purple">🔸</option>
+                        <option value="green">🟢</option>
+                    </select>
+                    <input type="date" id="taskDueDate" class="p-2 border rounded" required>
+                    <button type="submit"
+                        class="col-span-4 sm:col-span-1 p-2 bg-blue-500 text-white rounded hover:bg-blue-600">Add
+                        Task</button>
+                </form>
+                <ul id="taskList" class="sortable-list space-y-2">
+                    <li class="task-item" draggable="true"><span class="task-dot yellow"></span> Update contractor
+                        agreement</li>
+                    <li class="task-item" draggable="true"><span class="task-dot red"></span> How to manage event
+                        planning</li>
+                    <li class="task-item" draggable="true"><span class="task-dot purple"></span> Plan for next year</li>
+                    <li class="task-item" draggable="true"><span class="task-dot yellow"></span> Finalize project scope
+                    </li>
+                </ul>
             </div>
 
             <!-- Calendar -->
-            <div class="col-md-4">
-                <div class="card p-3">
-                    <h5 class="mb-3">Calendar</h5>
-                    <div id="calendar"></div>
-                </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+                <h5 class="text-lg font-semibold mb-4">Calendar</h5>
+                <div id="calendar"></div>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap + FullCalendar + Custom JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="/static/js/dashboard.js"></script>
+    <script>
+        // Navbar toggle for mobile
+        document.getElementById('nav-toggle').addEventListener('click', function () {
+            const navContent = document.getElementById('nav-content');
+            navContent.classList.toggle('hidden');
+        });
+    </script>
 </body>
 
 </html>
