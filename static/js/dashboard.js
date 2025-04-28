@@ -19,6 +19,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // =====================
+    // Navbar toggle for mobile
+    // =====================
+    document.getElementById('nav-toggle').addEventListener('click', function () {
+        const navContent = document.getElementById('nav-content');
+        navContent.classList.toggle('hidden');
+    });
+
+    // =====================
     // GLOBAL CALENDAR INSTANCE
     // =====================
     let calendar = null;
