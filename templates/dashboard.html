@@ -6,31 +6,28 @@
 <!-- Main Content Area -->
 <div class="container mx-auto mt-8 px-4">
     <h2 class="text-2xl font-semibold">Welcome Back, [User]!</h2>
-    <p class="text-gray-500 dark:text-gray-400">Here’s a quick summary of your study progress.</p>
+    <p class="text-muted">Here’s a quick summary of your study progress.</p>
 
     <!-- Study Insights -->
-    <div class="grid grid-cols-1 gap-6 mt-6">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-            <h5 class="text-lg font-semibold mb-4">Study Insights</h5>
-            <!-- Chart.js Graph -->
-            <canvas id="studyChart" width="400" height="200"></canvas>
-        </div>
+    <div class="card p-6 rounded-lg shadow mt-6">
+        <h5 class="text-lg font-semibold mb-4">Study Insights</h5>
+        <canvas id="studyChart" width="400" height="200"></canvas>
     </div>
 
-    <!-- To-Do + Calendar Section -->
+    <!-- To-Do List + Calendar Section -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
         <!-- To-Do List -->
-        <div class="md:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <div class="card p-6 rounded-lg shadow md:col-span-2">
             <h5 class="text-lg font-semibold mb-4">To-Do List</h5>
             <form id="taskForm" class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
-                <input type="text" id="taskInput" class="col-span-2 p-2 border rounded dark:bg-gray-700" placeholder="New task" required>
-                <select id="taskColor" class="p-2 border rounded dark:bg-gray-700">
+                <input type="text" id="taskInput" class="col-span-2 p-2 border rounded" placeholder="New task" required>
+                <select id="taskColor" class="p-2 border rounded">
                     <option value="yellow">🟡</option>
                     <option value="red">🔴</option>
                     <option value="purple">🟣</option>
                     <option value="green">🟢</option>
                 </select>
-                <input type="date" id="taskDueDate" class="p-2 border rounded dark:bg-gray-700" required>
+                <input type="date" id="taskDueDate" class="p-2 border rounded" required>
                 <button type="submit" class="col-span-4 sm:col-span-1 p-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                     Add Task
                 </button>
@@ -45,7 +42,7 @@
         </div>
 
         <!-- Calendar -->
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+        <div class="card p-6 rounded-lg shadow">
             <h5 class="text-lg font-semibold mb-4">Calendar</h5>
             <div id="calendar"></div>
         </div>
