@@ -34,6 +34,10 @@ def assessments():
 def resources():
     return render_template('resources.html')
 
+@app.route('/health_carer')
+def health_carer():
+    return render_template('health_carer.html')
+
 @app.route('/mental_health')
 def mental_health():
     return render_template('mental_health.html')
@@ -54,6 +58,9 @@ def study_tips():
 def share_data():
     return render_template('share_data.html')
 
+@app.route('/study_area')
+def study_area():
+    return render_template('study_area.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
