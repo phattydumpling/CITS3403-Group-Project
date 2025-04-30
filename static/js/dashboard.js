@@ -110,4 +110,70 @@ document.addEventListener("DOMContentLoaded", function () {
             lineChart.update();
         });
     }
+
+    // Todo list functionality
+    const taskForm = document.getElementById("taskForm");
+    const taskInput = document.getElementById("taskInput");
+    const taskList = document.getElementById("taskList");
+
+    if (taskForm && taskInput && taskList) {
+        taskForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const text = taskInput.value.trim();
+            if (!text) return;
+            const li = createTaskItem(text);
+            taskList.appendChild(li);
+            taskInput.value = "";
+        });
+
+        let dragged = null;
+
+        function addDragEvents(item) {
+            item.addEventListener("dragstart", () => {
+                dragged = item;
+                item.classList.add("dragging");
+            });
+
+            item.addEventListener("dragend", () => {
+                item.classList.remove("dragging");
+                dragged = null;
+            });
+
+            item.addEventListener("dragover", (e) => e.preventDefault());
+
+            item.addEventListener("drop", (e) => {
+                e.preventDefault();
+                if (dragged && dragged !== item) {
+                    const items = [...taskList.children];
+                    const dropIndex = items.indexOf(item);
+                    const dragIndex = items.indexOf(dragged);
+                    if (dragIndex < dropIndex) {
+                        taskList.insertBefore(dragged, item.nextSibling);
+                    } else {
+                        taskList.insertBefore(dragged, item);
+                    }
+                }
+            });
+        }
+
+        function createTaskItem(text) {
+            const li = document.createElement("li");
+            li.className = "flex items-center justify-between p-2 border rounded dark:bg-gray-700 dark:text-white bg-gray-50 cursor-grab";
+            li.draggable = true;
+
+            const span = document.createElement("span");
+            span.textContent = text;
+
+            const del = document.createElement("button");
+            del.innerHTML = "&times;";
+            del.className = "text-red-500 hover:text-red-700 text-lg font-bold ml-4 focus:outline-none";
+            del.onclick = () => li.remove();
+
+            li.appendChild(span);
+            li.appendChild(del);
+
+            addDragEvents(li);
+            return li;
+        }
+    }
 });

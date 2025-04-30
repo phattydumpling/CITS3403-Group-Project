@@ -42,41 +42,19 @@
             </div>
         </div>
 
-        <!-- Latest Campaign Table Preview -->
+        <!-- To-Do List Card -->
         <div class="bg-white dark:bg-gray-800 p-6 rounded shadow">
-            <div class="flex justify-between mb-2">
-                <h4 class="text-md font-semibold">Latest Campaign</h4>
-                <a href="#" class="text-xs text-orange-500 hover:underline">View more</a>
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="text-md font-semibold">To-Do List</h4>
+                <form id="taskForm" class="flex gap-2">
+                    <input type="text" id="taskInput" placeholder="New task..."
+                        class="p-2 border rounded dark:bg-gray-700 dark:text-white" required>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Add</button>
+                </form>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="text-left text-gray-400">
-                            <th class="py-2">Name</th>
-                            <th class="py-2">Date</th>
-                            <th class="py-2">Age</th>
-                            <th class="py-2">Gender</th>
-                            <th class="py-2">Location</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-gray-700 dark:text-gray-200">
-                        <tr class="border-t border-gray-100 dark:border-gray-700">
-                            <td class="py-2">Kathryn Murphy</td>
-                            <td class="py-2">13 Aug 2021</td>
-                            <td class="py-2">42</td>
-                            <td class="py-2">Female</td>
-                            <td class="py-2">Singapore</td>
-                        </tr>
-                        <tr class="border-t border-gray-100 dark:border-gray-700">
-                            <td class="py-2">Floyd Miles</td>
-                            <td class="py-2">13 Aug 2021</td>
-                            <td class="py-2">36</td>
-                            <td class="py-2">Male</td>
-                            <td class="py-2">Singapore</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <ul id="taskList" class="sortable-list space-y-2">
+                <!-- Tasks will be injected here -->
+            </ul>
         </div>
     </div>
 
