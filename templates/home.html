@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Welcome to App Name{% endblock %}
+{% block title %}Welcome to Smart Study Scheduler{% endblock %}
 
 {% block content %}
-<div class="text-center py-20">
-    <h1 class="text-4xl font-bold mb-4">Welcome to SmartStudy 📘</h1>
+<div class="text-center py-20 bg-white dark:bg-gray-900">
+    <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">Welcome to SmartStudy 📘</h1>
     <p class="text-lg text-gray-600 dark:text-gray-300 mb-6">
         Your personalized study dashboard to track tasks, sessions, and wellness.
     </p>
@@ -14,4 +14,58 @@
             Up</a>
     </div>
 </div>
+
+<!-- ABOUT SECTION -->
+<section class="bg-gray-50 dark:bg-gray-800 py-20">
+    <div class="max-w-6xl mx-auto px-6 text-center">
+        <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">Your Companion for Smarter, Stress-Free
+            Learning</h2>
+        <p class="text-gray-700 dark:text-gray-300 text-lg max-w-3xl mx-auto mb-12">
+            We believe that productivity should never come at the cost of well-being. Smart Study Scheduler helps you
+            structure study sessions, set realistic goals, and stay on track without burnout.
+        </p>
+        <div class="grid md:grid-cols-3 gap-6 text-left">
+            <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow">
+                <h3 class="text-xl font-bold text-blue-600 dark:text-blue-300 mb-2">📅 Study Planning</h3>
+                <p class="text-gray-600 dark:text-gray-200">Create daily and weekly schedules tailored to your academic
+                    needs and learning style.</p>
+            </div>
+            <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow">
+                <h3 class="text-xl font-bold text-blue-600 dark:text-blue-300 mb-2">✅ Goal Tracking</h3>
+                <p class="text-gray-600 dark:text-gray-200">Set, track, and complete study goals with interactive to-do
+                    lists and visual progress indicators.</p>
+            </div>
+            <div class="bg-white dark:bg-gray-700 p-6 rounded-lg shadow">
+                <h3 class="text-xl font-bold text-blue-600 dark:text-blue-300 mb-2">📊 Insights & Wellness</h3>
+                <p class="text-gray-600 dark:text-gray-200">Monitor productivity trends and balance workload to avoid
+                    burnout and stay motivated.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- METRICS -->
+<section class="py-16 bg-white dark:bg-gray-900 text-center">
+    <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+            <p class="text-4xl font-bold text-blue-600 dark:text-blue-400">1,000+</p>
+            <p class="text-gray-700 dark:text-gray-300">Study Hours Logged</p>
+        </div>
+        <div>
+            <p class="text-4xl font-bold text-blue-600 dark:text-blue-400">500+</p>
+            <p class="text-gray-700 dark:text-gray-300">Goals Completed</p>
+        </div>
+        <div>
+            <p class="text-4xl font-bold text-blue-600 dark:text-blue-400">🌟</p>
+            <p class="text-gray-700 dark:text-gray-300">Built by Students, for Students</p>
+        </div>
+    </div>
+</section>
+
+<!-- JOIN CTA -->
+<section class="py-16 bg-blue-50 dark:bg-blue-900 text-center">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Join SmartStudy Now</h2>
+    <p class="text-gray-700 dark:text-gray-300 mb-6">Your personalized study dashboard to track tasks, sessions, and wellness.</p>
+    <a href="{{ url_for('signup') }}" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Sign Up</a>
+</section>
 {% endblock %}
