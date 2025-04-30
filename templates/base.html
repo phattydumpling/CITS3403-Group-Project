@@ -19,7 +19,10 @@
     <!-- Top Nav Bar -->
     <nav class="flex items-center justify-between flex-wrap bg-gray-100 dark:bg-gray-800 p-4 border-b">
         <div class="flex items-center flex-shrink-0 mr-6">
-            <a href="{{ url_for('dashboard') }}" class="text-xl font-semibold text-gray-900 dark:text-white">App Name</a>
+            <a href="{% if session.get('username') %}{{ url_for('dashboard') }}{% else %}{{ url_for('home') }}{% endif %}"
+                class="text-xl font-semibold text-gray-900 dark:text-white">
+                App Name
+            </a>
         </div>
 
         <div class="block lg:hidden">
@@ -34,57 +37,103 @@
 
         <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto hidden" id="nav-content">
             <div class="text-sm lg:flex-grow">
+                {% if session.get('username') %}
                 <a href="{{ url_for('dashboard') }}"
                     class="block mt-4 lg:inline-block lg:mt-0 text-gray-700 dark:text-gray-300 hover:text-blue-600 mr-4">Dashboard</a>
 
-                <!-- Dropdowns -->
+                <!-- Dropdowns only for logged-in users -->
+                <!-- Study Area Dropdown -->
                 <div class="relative group inline-block mr-4">
-                    <a href="{{ url_for('study_area') }}" class="inline-flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-600">
+                    <a href="{{ url_for('study_area') }}"
+                        class="inline-flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-600">
                         Study Area
                         <svg class="fill-current h-4 w-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                             <path d="M5.516 7.548L10 12l4.484-4.452z" />
                         </svg>
                     </a>
-                    <ul class="absolute hidden text-gray-700 pt-1 group-hover:block bg-white dark:bg-gray-800 rounded shadow-lg">
-                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="{{ url_for('study_session') }}">Study Session</a></li>
-                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="{{ url_for('task_overview') }}">Task Overview</a></li>
-                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="{{ url_for('lecture_log') }}">Lecture Log</a></li>
-                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="{{ url_for('assessments') }}">Assessments</a></li>
-                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="{{ url_for('resources') }}">Resources</a></li>
+                    <ul
+                        class="absolute hidden text-gray-700 pt-1 group-hover:block bg-white dark:bg-gray-800 rounded shadow-lg">
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                href="{{ url_for('study_session') }}">Study Session</a></li>
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                href="{{ url_for('task_overview') }}">Task Overview</a></li>
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                href="{{ url_for('lecture_log') }}">Lecture Log</a></li>
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                href="{{ url_for('assessments') }}">Assessments</a></li>
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                href="{{ url_for('resources') }}">Resources</a></li>
                     </ul>
                 </div>
 
+                <!-- Care Page Dropdown -->
                 <div class="relative group inline-block mr-4">
-                    <a href="{{ url_for('health_carer') }}" class="inline-flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-600">
+                    <a href="{{ url_for('health_carer') }}"
+                        class="inline-flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-600">
                         Care Page
                         <svg class="fill-current h-4 w-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                             <path d="M5.516 7.548L10 12l4.484-4.452z" />
                         </svg>
                     </a>
-                    <ul class="absolute hidden text-gray-700 pt-1 group-hover:block bg-white dark:bg-gray-800 rounded shadow-lg">
-                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="{{ url_for('mental_health') }}">Mental Health</a></li>
-                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="{{ url_for('wellness_check') }}">Wellness Check</a></li>
-                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="{{ url_for('study_break') }}">Study Break</a></li>
-                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700" href="{{ url_for('study_tips') }}">Study Tips</a></li>
+                    <ul
+                        class="absolute hidden text-gray-700 pt-1 group-hover:block bg-white dark:bg-gray-800 rounded shadow-lg">
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                href="{{ url_for('mental_health') }}">Mental Health</a></li>
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                href="{{ url_for('wellness_check') }}">Wellness Check</a></li>
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                href="{{ url_for('study_break') }}">Study Break</a></li>
+                        <li><a class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                href="{{ url_for('study_tips') }}">Study Tips</a></li>
                     </ul>
-                </div>                
+                </div>
 
                 <a href="{{ url_for('share_data') }}"
-                    class="block mt-4 lg:inline-block lg:mt-0 text-gray-700 dark:text-gray-300 hover:text-blue-600">Share Data</a>
+                    class="block mt-4 lg:inline-block lg:mt-0 text-gray-700 dark:text-gray-300 hover:text-blue-600">Share
+                    Data</a>
+                {% endif %}
             </div>
 
+            <!-- Right side buttons -->
             <div class="flex items-center space-x-4 mt-4 lg:mt-0">
+                <!-- Dark Mode Toggle -->
                 <label for="darkModeToggle" class="flex items-center cursor-pointer">
                     <input id="darkModeToggle" type="checkbox" class="sr-only">
                     <div class="relative">
                         <div class="block bg-gray-600 w-10 h-6 rounded-full"></div>
-                        <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transform transition-transform duration-300"></div>
+                        <div
+                            class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transform transition-transform duration-300">
+                        </div>
                     </div>
                     <span class="ml-3 text-gray-700 dark:text-gray-300">Dark Mode</span>
                 </label>
 
-                <a href="{{ url_for('login') }}" class="px-4 py-2 border border-blue-500 text-blue-500 rounded hover:bg-blue-500 hover:text-white">Login</a>
-                <a href="{{ url_for('signup') }}" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Sign Up</a>
+                {% if session.get('username') %}
+                <div class="relative group inline-block">
+                    <button class="inline-flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-600 font-medium">
+                        {{ session['username'] }}
+                        <svg class="ml-1 w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M5.516 7.548L10 12l4.484-4.452z" />
+                        </svg>
+                    </button>
+                    <ul
+                        class="absolute hidden right-0 pt-1 group-hover:block bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded shadow-lg min-w-[160px] z-50">
+                        <li><a href="{{ url_for('dashboard') }}"
+                                class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700">Dashboard</a></li>
+                        <li><a href="{{ url_for('assessments') }}"
+                                class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700">Profile</a></li>
+                        <li><a href="{{ url_for('assessments') }}"
+                                class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700">Settings</a></li>
+                        <li><a href="{{ url_for('logout') }}"
+                                class="block px-4 py-2 hover:bg-red-100 dark:hover:bg-red-600 text-red-600 dark:text-red-400">Logout</a></li>
+                    </ul>
+                </div>
+                {% else %}
+                <a href="{{ url_for('login') }}"
+                    class="px-4 py-2 border border-blue-500 text-blue-500 rounded hover:bg-blue-500 hover:text-white">Login</a>
+                <a href="{{ url_for('signup') }}"
+                    class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Sign Up</a>
+                {% endif %}
             </div>
         </div>
     </nav>
@@ -101,4 +150,5 @@
 
     {% block scripts %}{% endblock %}
 </body>
+
 </html>
