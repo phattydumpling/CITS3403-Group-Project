@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Welcome to App Name{% endblock %}
+
+{% block content %}
+<div class="text-center py-20">
+    <h1 class="text-4xl font-bold mb-4">Welcome to SmartStudy 📘</h1>
+    <p class="text-lg text-gray-600 dark:text-gray-300 mb-6">
+        Your personalized study dashboard to track tasks, sessions, and wellness.
+    </p>
+    <div class="space-x-4">
+        <a href="{{ url_for('login') }}" class="px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600">Log In</a>
+        <a href="{{ url_for('signup') }}"
+            class="px-6 py-3 border border-blue-500 text-blue-500 rounded hover:bg-blue-500 hover:text-white">Sign
+            Up</a>
+    </div>
+</div>
+{% endblock %}
