@@ -41,4 +41,73 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // Hardcoded data for the line chart for time studied
+    const lineChartEl = document.getElementById("lineChart");
+    const viewSelect = document.getElementById("timeViewSelect");
+
+    if (lineChartEl && viewSelect) {
+        const ctx = lineChartEl.getContext("2d");
+
+        const dailyData = {
+            labels: ["12AM", "4AM", "8AM", "12PM", "4PM", "8PM", "12AM"],
+            datasets: [{
+                label: "Hours Studied",
+                data: [0, 0.5, 1.5, 2, 1, 0, 4],
+                borderColor: "#f59e0b", // amber
+                fill: false,
+                tension: 0.4
+            }]
+        };
+
+        const weeklyData = {
+            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            datasets: [{
+                label: "Hours Studied",
+                data: [2, 3, 1.5, 2.5, 3, 0, 1],
+                borderColor: "#3b82f6", // blue
+                fill: false,
+                tension: 0.4
+            }]
+        };
+
+        const monthlyData = {
+            labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+            datasets: [{
+                label: "Hours Studied",
+                data: [8, 12, 9, 15],
+                borderColor: "#10b981", // green
+                fill: false,
+                tension: 0.4
+            }]
+        };
+
+        const chartConfig = {
+            type: "line",
+            data: weeklyData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        const lineChart = new Chart(ctx, chartConfig);
+
+        // Handle dropdown change
+        viewSelect.addEventListener("change", function () {
+            const selected = viewSelect.value;
+            if (selected === "day") {
+                lineChart.data = dailyData;
+            } else if (selected === "month") {
+                lineChart.data = monthlyData;
+            } else {
+                lineChart.data = weeklyData;
+            }
+            lineChart.update();
+        });
+    }
 });
