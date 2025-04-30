@@ -110,22 +110,21 @@
 
                 {% if session.get('username') %}
                 <div class="relative group inline-block">
-                    <button class="inline-flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-600 font-medium">
+                    <a href="{{ url_for('assessments') }}"
+                        class="inline-flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-600 font-medium">
                         {{ session['username'] }}
                         <svg class="ml-1 w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                             <path d="M5.516 7.548L10 12l4.484-4.452z" />
                         </svg>
-                    </button>
+                    </a>
                     <ul
                         class="absolute hidden right-0 pt-1 group-hover:block bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded shadow-lg min-w-[160px] z-50">
-                        <li><a href="{{ url_for('dashboard') }}"
-                                class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700">Dashboard</a></li>
                         <li><a href="{{ url_for('assessments') }}"
-                                class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700">Profile</a></li>
-                        <li><a href="{{ url_for('assessments') }}"
-                                class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700">Settings</a></li>
+                            class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700">Profile</a></li>
+                        <li><a href="{{ url_for('assessments') }}" 
+                            class="block px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700">Profile</a></li>
                         <li><a href="{{ url_for('logout') }}"
-                                class="block px-4 py-2 hover:bg-red-100 dark:hover:bg-red-600 text-red-600 dark:text-red-400">Logout</a></li>
+                            class="block px-4 py-2 hover:bg-red-100 dark:hover:bg-red-600 text-red-600 dark:text-red-400">Logout</a></li>
                     </ul>
                 </div>
                 {% else %}
