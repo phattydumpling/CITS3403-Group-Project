@@ -13,7 +13,7 @@ def create_app():
     app.secret_key = 'your-secret-key'  # Required for session handling
 
     # Database configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///study_planner.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///study_planner.sqlite'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # CSRF Protection
