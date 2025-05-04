@@ -56,3 +56,122 @@ body.dark-mode .navbar-brand {
     transition: transform 0.1s ease;
     z-index: 10;
 }
+
+:root {
+    --primary-bg: #F6FAFF;
+    --accent-yellow: #FFDE70;
+    --secondary-blue: #A3C4EB;
+    --primary-blue: #173B64;
+}
+
+/* Base styles */
+body {
+    background-color: var(--primary-bg);
+    color: var(--primary-blue);
+}
+
+/* Navigation styles */
+nav {
+    background-color: white !important;
+    border-bottom: 2px solid var(--secondary-blue) !important;
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: var(--primary-blue);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-blue);
+    color: var(--primary-blue);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-blue);
+    color: var(--primary-blue);
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: var(--accent-yellow);
+    color: var(--primary-blue);
+}
+
+/* Card styles */
+.card {
+    background-color: white;
+    border: 1px solid var(--secondary-blue);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(23, 59, 100, 0.1);
+}
+
+/* Link styles */
+a {
+    color: var(--primary-blue);
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--secondary-blue);
+}
+
+/* Dark mode overrides */
+.dark {
+    --primary-bg: #173B64;
+    --primary-blue: #F6FAFF;
+    --secondary-blue: #A3C4EB;
+    --accent-yellow: #FFDE70;
+}
+
+.dark body {
+    background-color: var(--primary-bg);
+    color: var(--primary-blue);
+}
+
+.dark nav {
+    background-color: #1a1a1a !important;
+    border-bottom: 2px solid var(--secondary-blue) !important;
+}
+
+.dark .card {
+    background-color: #1a1a1a;
+    border-color: var(--secondary-blue);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--primary-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-blue);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-blue);
+}
+
+/* Focus styles */
+:focus {
+    outline: 2px solid var(--accent-yellow);
+    outline-offset: 2px;
+}
+
+/* Form elements */
+input, select, textarea {
+    border: 1px solid var(--secondary-blue);
+    border-radius: 4px;
+    padding: 8px;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px var(--accent-yellow);
+}
