@@ -2,6 +2,7 @@ from app import create_app, db
 from app.models import User
 from werkzeug.security import generate_password_hash
 import os
+from flask_migrate import upgrade
 
 def init_db():
     app = create_app()
@@ -13,8 +14,8 @@ def init_db():
         pass
 
     with app.app_context():
-        # Create all tables
-        db.create_all()
+        # Run any pending migrations
+        upgrade()
         
         # Check if we already have users
         if User.query.first() is None:
