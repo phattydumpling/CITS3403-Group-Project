@@ -24,10 +24,6 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
-    # Create database tables
-    with app.app_context():
-        db.create_all()
-
     # Initialize routes
     from app.routes import init_routes
     init_routes(app)
