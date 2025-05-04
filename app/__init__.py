@@ -14,6 +14,10 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///study_planner.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+    # CSRF Protection
+    app.config['WTF_CSRF_ENABLED'] = True
+    app.config['WTF_CSRF_SECRET_KEY'] = 'your-csrf-secret-key'  # Change this to a secure secret key
+
     # Initialize the database
     db.init_app(app)
 
