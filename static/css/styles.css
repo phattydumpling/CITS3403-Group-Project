@@ -41,6 +41,60 @@ body.dark-mode .navbar-brand {
     color: #f1f1f1 !important;
 }
 
+/* ===============================
+   Dashboard Card Hover Effects
+   =============================== */
+.dashboard-card {
+    transition: all 0.3s ease;
+    transform: translateY(0);
+    border: 1px solid transparent;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(23, 59, 100, 0.1);
+    border-color: var(--secondary-blue);
+}
+
+/* Overview Cards */
+.overview-card {
+    transition: all 0.3s ease;
+    background: linear-gradient(145deg, #ffffff, #f6f6f6);
+}
+
+.overview-card:hover {
+    background: linear-gradient(145deg, #f6f6f6, #ffffff);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(23, 59, 100, 0.1);
+}
+
+/* Chart Cards */
+.chart-card {
+    transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(23, 59, 100, 0.1);
+}
+
+/* Dark mode card hover effects */
+.dark .dashboard-card:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent-yellow);
+}
+
+.dark .overview-card {
+    background: linear-gradient(145deg, #1e1e1e, #2c2c2c);
+}
+
+.dark .overview-card:hover {
+    background: linear-gradient(145deg, #2c2c2c, #1e1e1e);
+}
+
+.dark .chart-card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+}
 
 /* ===============================
    Custom Styles for Sortable List

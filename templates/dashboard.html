@@ -8,26 +8,26 @@
     <div class="lg:col-span-3 space-y-6">
         <!-- Overview Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+            <div class="overview-card bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
                 <p class="text-sm text-muted">Hours Studied</p>
                 <p class="text-2xl font-bold">128</p>
             </div>
-            <div class="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+            <div class="overview-card bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
                 <p class="text-sm text-muted">Tasks Completed</p>
                 <p class="text-2xl font-bold">42</p>
             </div>
-            <div class="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+            <div class="overview-card bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
                 <p class="text-sm text-muted">Current Week</p>
                 <p class="text-2xl font-bold">Week 7</p>
             </div>
-            <div class="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+            <div class="overview-card bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
                 <p class="text-sm text-muted">Upcoming Tasks</p>
                 <p class="text-2xl font-bold">3</p>
             </div>
         </div>
 
         <!-- Time Studied Line Chart -->
-        <div class="bg-white dark:bg-gray-800 p-6 rounded shadow">
+        <div class="chart-card dashboard-card bg-white dark:bg-gray-800 p-6 rounded shadow">
             <div class="flex justify-between items-center mb-4">
                 <h4 class="text-md font-semibold">Time Studied</h4>
                 <select id="timeViewSelect"
@@ -77,7 +77,7 @@
         </div>
 
         <!-- Unit Distribution Donut Chart -->
-        <div class="bg-white dark:bg-gray-800 p-4 rounded shadow">
+        <div class="chart-card dashboard-card bg-white dark:bg-gray-800 p-4 rounded shadow">
             <h4 class="text-md font-semibold mb-2">Unit Distribution</h4>
             <div class="relative h-52">
                 <canvas id="donutChart"></canvas>
