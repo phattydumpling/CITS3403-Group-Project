@@ -117,14 +117,64 @@ document.addEventListener("DOMContentLoaded", function () {
     const taskList = document.getElementById("taskList");
 
     if (taskForm && taskInput && taskList) {
-        taskForm.addEventListener("submit", (e) => {
+        // Load existing tasks
+        loadTasks();
+
+        taskForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const text = taskInput.value.trim();
             if (!text) return;
-            const li = createTaskItem(text);
-            taskList.appendChild(li);
-            taskInput.value = "";
+
+            try {
+                const response = await fetch('/api/tasks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ title: text })
+                });
+
+                if (response.ok) {
+                    const task = await response.json();
+                    const li = createTaskItem(task);
+                    taskList.insertBefore(li, taskList.firstChild);
+                    taskInput.value = "";
+                } else {
+                    console.error('Failed to create task');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
         });
+
+        async function loadTasks() {
+            try {
+                const response = await fetch('/api/tasks');
+                if (response.ok) {
+                    const tasks = await response.json();
+                    taskList.innerHTML = '';
+                    tasks.forEach(task => {
+                        const li = createTaskItem(task);
+                        taskList.appendChild(li);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+            }
+        }
+
+        async function deleteTask(taskId) {
+            try {
+                const response = await fetch(`/api/tasks/${taskId}`, {
+                    method: 'DELETE'
+                });
+                if (!response.ok) {
+                    console.error('Failed to delete task');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
 
         let dragged = null;
 
@@ -156,18 +206,22 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
-        function createTaskItem(text) {
+        function createTaskItem(task) {
             const li = document.createElement("li");
             li.className = "flex items-center justify-between p-2 border rounded dark:bg-gray-700 dark:text-white bg-gray-50 cursor-grab";
             li.draggable = true;
+            li.dataset.taskId = task.id;
 
             const span = document.createElement("span");
-            span.textContent = text;
+            span.textContent = task.title;
 
             const del = document.createElement("button");
             del.innerHTML = "&times;";
             del.className = "text-red-500 hover:text-red-700 text-lg font-bold ml-4 focus:outline-none";
-            del.onclick = () => li.remove();
+            del.onclick = async () => {
+                await deleteTask(task.id);
+                li.remove();
+            };
 
             li.appendChild(span);
             li.appendChild(del);

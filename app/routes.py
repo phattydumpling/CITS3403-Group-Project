@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, session, flash
+from flask import render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.models import User, StudySession, Task, WellnessCheck
@@ -157,4 +157,83 @@ def init_routes(app):
         session.pop('user_id', None)
         # Clear all flash messages
         session.pop('_flashes', None)
-        return redirect(url_for('home')) 
+        return redirect(url_for('home'))
+
+    @app.route('/api/tasks', methods=['GET'])
+    def get_tasks():
+        if 'user_id' not in session:
+            return jsonify({'error': 'Not logged in'}), 401
+        
+        tasks = Task.query.filter_by(user_id=session['user_id']).order_by(Task.created_at.desc()).all()
+        return jsonify([{
+            'id': task.id,
+            'title': task.title,
+            'status': task.status,
+            'priority': task.priority,
+            'created_at': task.created_at.isoformat()
+        } for task in tasks])
+
+    @app.route('/api/tasks', methods=['POST'])
+    def create_task():
+        if 'user_id' not in session:
+            return jsonify({'error': 'Not logged in'}), 401
+        
+        data = request.get_json()
+        if not data or 'title' not in data:
+            return jsonify({'error': 'Title is required'}), 400
+        
+        task = Task(
+            user_id=session['user_id'],
+            title=data['title'],
+            status='pending',
+            priority='medium'
+        )
+        db.session.add(task)
+        db.session.commit()
+        
+        return jsonify({
+            'id': task.id,
+            'title': task.title,
+            'status': task.status,
+            'priority': task.priority,
+            'created_at': task.created_at.isoformat()
+        }), 201
+
+    @app.route('/api/tasks/<int:task_id>', methods=['DELETE'])
+    def delete_task(task_id):
+        if 'user_id' not in session:
+            return jsonify({'error': 'Not logged in'}), 401
+        
+        task = Task.query.filter_by(id=task_id, user_id=session['user_id']).first()
+        if not task:
+            return jsonify({'error': 'Task not found'}), 404
+        
+        db.session.delete(task)
+        db.session.commit()
+        return '', 204
+
+    @app.route('/api/tasks/<int:task_id>', methods=['PUT'])
+    def update_task(task_id):
+        if 'user_id' not in session:
+            return jsonify({'error': 'Not logged in'}), 401
+        
+        task = Task.query.filter_by(id=task_id, user_id=session['user_id']).first()
+        if not task:
+            return jsonify({'error': 'Task not found'}), 404
+        
+        data = request.get_json()
+        if 'title' in data:
+            task.title = data['title']
+        if 'status' in data:
+            task.status = data['status']
+        if 'priority' in data:
+            task.priority = data['priority']
+        
+        db.session.commit()
+        return jsonify({
+            'id': task.id,
+            'title': task.title,
+            'status': task.status,
+            'priority': task.priority,
+            'created_at': task.created_at.isoformat()
+        }) 
