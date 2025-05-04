@@ -1,15 +1,4 @@
 /* ===============================
-   Study Insights Placeholder
-   =============================== */
-   .data-visualization-placeholder {
-    height: 200px;
-    background-color: #f1f1f1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* ===============================
    Default Light Mode
    =============================== */
 body {
@@ -53,96 +42,190 @@ body.dark-mode .navbar-brand {
 }
 
 /* ===============================
-   Task Dot Colors (Category Indicators)
+   Dashboard Card Hover Effects
    =============================== */
-.task-dot {
-    height: 10px;
-    width: 10px;
-    border-radius: 9999px;
-    /* fully round */
-    display: inline-block;
-    margin-right: 10px;
+.dashboard-card {
+    transition: all 0.3s ease;
+    transform: translateY(0);
+    border: 1px solid transparent;
 }
 
-.task-dot.red {
-    background-color: #ef4444;
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(23, 59, 100, 0.1);
+    border-color: var(--secondary-blue);
 }
 
-.task-dot.yellow {
-    background-color: #facc15;
+/* Overview Cards */
+.overview-card {
+    transition: all 0.3s ease;
+    background: linear-gradient(145deg, #ffffff, #f6f6f6);
 }
 
-.task-dot.purple {
-    background-color: #8b5cf6;
+.overview-card:hover {
+    background: linear-gradient(145deg, #f6f6f6, #ffffff);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(23, 59, 100, 0.1);
 }
 
-.task-dot.green {
-    background-color: #22c55e;
+/* Chart Cards */
+.chart-card {
+    transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(23, 59, 100, 0.1);
+}
+
+/* Dark mode card hover effects */
+.dark .dashboard-card:hover {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent-yellow);
+}
+
+.dark .overview-card {
+    background: linear-gradient(145deg, #1e1e1e, #2c2c2c);
+}
+
+.dark .overview-card:hover {
+    background: linear-gradient(145deg, #2c2c2c, #1e1e1e);
+}
+
+.dark .chart-card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
 }
 
 /* ===============================
-   Task Items (Draggable)
+   Custom Styles for Sortable List
    =============================== */
-.task-item {
-    padding: 8px 12px;
-    border-radius: 0.5rem;
-    margin-bottom: 5px;
-    background-color: #f8f9fa;
-    cursor: grab;
-    display: flex;
-    align-items: center;
-    transition: background 0.2s;
+.sortable-list {
+    list-style: none;
+    padding: 0;
 }
 
-.task-item.dragging {
+.sortable-list .dragging {
     opacity: 0.5;
-    background-color: #e2e8f0;
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+    z-index: 10;
 }
 
-body.dark-mode .task-item {
-    background-color: #2a2a2a;
-    color: #f1f1f1;
+:root {
+    --primary-bg: #F6FAFF;
+    --accent-yellow: #FFDE70;
+    --secondary-blue: #A3C4EB;
+    --primary-blue: #173B64;
 }
 
-body.dark-mode .task-item.dragging {
-    background-color: #3a3a3a;
+/* Base styles */
+body {
+    background-color: var(--primary-bg);
+    color: var(--primary-blue);
 }
 
-/* ===============================
-   Delete Button
-   =============================== */
-.delete-btn {
-    border: none;
-    background: transparent;
-    color: #dc3545;
-    font-size: 1.2rem;
-    cursor: pointer;
-    margin-left: auto;
+/* Navigation styles */
+nav {
+    background-color: white !important;
+    border-bottom: 2px solid var(--secondary-blue) !important;
 }
 
-body.dark-mode .delete-btn {
-    color: #ff6b6b;
+/* Button styles */
+.btn-primary {
+    background-color: var(--primary-blue);
+    color: white;
+    transition: all 0.3s ease;
 }
 
-/* ===============================
-   FullCalendar Container Styling
-   =============================== */
-#calendar {
-    max-width: 100%;
-    font-size: 0.85rem;
+.btn-primary:hover {
+    background-color: var(--secondary-blue);
+    color: var(--primary-blue);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-blue);
+    color: var(--primary-blue);
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: var(--accent-yellow);
+    color: var(--primary-blue);
+}
+
+/* Card styles */
+.card {
     background-color: white;
-    padding: 5px;
-    border-radius: 0.5rem;
+    border: 1px solid var(--secondary-blue);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(23, 59, 100, 0.1);
 }
 
-body.dark-mode #calendar {
-    background-color: #1e1e1e;
-    color: #f1f1f1;
+/* Link styles */
+a {
+    color: var(--primary-blue);
+    transition: color 0.3s ease;
 }
 
-/* ===============================
-   Date Input Styling
-   =============================== */
-#taskForm input[type="date"] {
-    font-size: 0.9rem;
+a:hover {
+    color: var(--secondary-blue);
+}
+
+/* Dark mode overrides */
+.dark {
+    --primary-bg: #173B64;
+    --primary-blue: #F6FAFF;
+    --secondary-blue: #A3C4EB;
+    --accent-yellow: #FFDE70;
+}
+
+.dark body {
+    background-color: var(--primary-bg);
+    color: var(--primary-blue);
+}
+
+.dark nav {
+    background-color: #1a1a1a !important;
+    border-bottom: 2px solid var(--secondary-blue) !important;
+}
+
+.dark .card {
+    background-color: #1a1a1a;
+    border-color: var(--secondary-blue);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--primary-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-blue);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-blue);
+}
+
+/* Focus styles */
+:focus {
+    outline: 2px solid var(--accent-yellow);
+    outline-offset: 2px;
+}
+
+/* Form elements */
+input, select, textarea {
+    border: 1px solid var(--secondary-blue);
+    border-radius: 4px;
+    padding: 8px;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px var(--accent-yellow);
 }

@@ -1,62 +1,98 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Dashboard Preview{% endblock %}
 
 {% block content %}
-<!-- Main Content Area -->
-<div class="container mx-auto mt-8 px-4">
-    <h2 class="text-2xl font-semibold">Welcome Back, [User]!</h2>
-    <p class="text-muted">Here’s a quick summary of your study progress.</p>
-
-    <!-- Study Insights -->
-    <div class="card p-6 rounded-lg shadow mt-6">
-        <h5 class="text-lg font-semibold mb-4">Study Insights</h5>
-        <canvas id="studyChart" width="400" height="200"></canvas>
-    </div>
-
-    <!-- To-Do List + Calendar Section -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-        <!-- To-Do List -->
-        <div class="card p-6 rounded-lg shadow md:col-span-2">
-            <h5 class="text-lg font-semibold mb-4">To-Do List</h5>
-            <form id="taskForm" class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
-                <input type="text" id="taskInput" class="col-span-2 p-2 border rounded" placeholder="New task" required>
-                <select id="taskColor" class="p-2 border rounded">
-                    <option value="yellow">🟡</option>
-                    <option value="red">🔴</option>
-                    <option value="purple">🟣</option>
-                    <option value="green">🟢</option>
-                </select>
-                <input type="date" id="taskDueDate" class="p-2 border rounded" required>
-                <button type="submit" class="col-span-4 sm:col-span-1 p-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                    Add Task
-                </button>
-            </form>
-
-            <ul id="taskList" class="sortable-list space-y-2">
-                <li class="task-item" draggable="true"><span class="task-dot yellow"></span> Update contractor agreement</li>
-                <li class="task-item" draggable="true"><span class="task-dot red"></span> How to manage event planning</li>
-                <li class="task-item" draggable="true"><span class="task-dot purple"></span> Plan for next year</li>
-                <li class="task-item" draggable="true"><span class="task-dot yellow"></span> Finalize project scope</li>
-            </ul>
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 p-6">
+    <!-- Left Panel (Main Area) -->
+    <div class="lg:col-span-3 space-y-6">
+        <!-- Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="overview-card bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+                <p class="text-sm text-muted">Hours Studied</p>
+                <p class="text-2xl font-bold">128</p>
+            </div>
+            <div class="overview-card bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+                <p class="text-sm text-muted">Tasks Completed</p>
+                <p class="text-2xl font-bold">42</p>
+            </div>
+            <div class="overview-card bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+                <p class="text-sm text-muted">Current Week</p>
+                <p class="text-2xl font-bold">Week 7</p>
+            </div>
+            <div class="overview-card bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+                <p class="text-sm text-muted">Upcoming Tasks</p>
+                <p class="text-2xl font-bold">3</p>
+            </div>
         </div>
 
-        <!-- Calendar -->
-        <div class="card p-6 rounded-lg shadow">
-            <h5 class="text-lg font-semibold mb-4">Calendar</h5>
-            <div id="calendar"></div>
+        <!-- Time Studied Line Chart -->
+        <div class="chart-card dashboard-card bg-white dark:bg-gray-800 p-6 rounded shadow">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="text-md font-semibold">Time Studied</h4>
+                <select id="timeViewSelect"
+                    class="text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-none rounded px-2 py-1">
+                    <option value="day">Day</option>
+                    <option value="week" selected>Week</option>
+                    <option value="month">Month</option>
+                </select>
+            </div>
+            <div class="relative h-60">
+                <canvas id="lineChart"></canvas>
+            </div>
+        </div>
+
+        <!-- To-Do List Card -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded shadow">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="text-md font-semibold">To-Do List</h4>
+                <form id="taskForm" class="flex gap-2">
+                    <input type="text" id="taskInput" placeholder="New task..."
+                        class="p-2 border rounded dark:bg-gray-700 dark:text-white" required>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Add</button>
+                </form>
+            </div>
+            <ul id="taskList" class="sortable-list space-y-2">
+                <!-- Tasks will be injected here -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Right Panel (Sidebar Cards) -->
+    <div class="space-y-6">
+        <!-- User Info -->
+        <div class="bg-white dark:bg-gray-800 p-4 rounded shadow flex items-center space-x-4">
+            <img src="/static/images/duck_placeholder.png" alt="User"
+                class="w-10 h-10 rounded-full">
+            <div>
+                <p class="text-sm font-semibold">{{ session['username'] }}</p>
+                <p class="text-xs text-gray-500">Student</p>
+            </div>
+        </div>
+
+        <!-- Weekly Earnings Chart -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded shadow">
+            <h4 class="text-md font-semibold mb-2">Calendar</h4>
+            <div id="flatCalendar" class="flatpickr-container"></div>
+        </div>
+
+        <!-- Unit Distribution Donut Chart -->
+        <div class="chart-card dashboard-card bg-white dark:bg-gray-800 p-4 rounded shadow">
+            <h4 class="text-md font-semibold mb-2">Unit Distribution</h4>
+            <div class="relative h-52">
+                <canvas id="donutChart"></canvas>
+            </div>
+            <div class="mt-4 text-center">
+                <p class="text-sm">Total Units Studied</p>
+                <p class="text-xl font-bold">4</p>
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- FullCalendar.js -->
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-
-<!-- Dashboard Page Script -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}

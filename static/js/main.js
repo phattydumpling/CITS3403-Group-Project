@@ -1,3 +1,17 @@
+// Tailwind Configuration
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                primary: '#173B64',
+                secondary: '#A3C4EB',
+                accent: '#FFDE70',
+                background: '#F6FAFF',
+            }
+        }
+    }
+};
+
 document.addEventListener('DOMContentLoaded', function () {
     const toggle = document.getElementById('darkModeToggle');
     const dot = document.querySelector('.dot'); // the small circle
