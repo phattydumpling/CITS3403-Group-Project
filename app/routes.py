@@ -16,13 +16,18 @@ def init_routes(app):
     def login():
         form = LoginForm()
         if form.validate_on_submit():
-            user = User.query.filter_by(username=form.username.data).first()
+            # Try to find user by username or email
+            user = User.query.filter(
+                (User.username == form.username_or_email.data) |
+                (User.email == form.username_or_email.data)
+            ).first()
+            
             if user and check_password_hash(user.password, form.password.data):
                 session['username'] = user.username
                 session['user_id'] = user.id
                 flash('Login successful!', 'success')
                 return redirect(url_for('dashboard'))
-            flash('Invalid username or password', 'error')
+            flash('Invalid username/email or password', 'error')
         return render_template('login.html', form=form)
 
     @app.route('/dashboard')
@@ -150,5 +155,6 @@ def init_routes(app):
     def logout():
         session.pop('username', None)
         session.pop('user_id', None)
-        flash('You have been logged out successfully.', 'success')
+        # Clear all flash messages
+        session.pop('_flashes', None)
         return redirect(url_for('home')) 

@@ -4,9 +4,9 @@ from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationE
 from app.models import User
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[
+    username_or_email = StringField('Username or Email', validators=[
         DataRequired(),
-        Length(min=3, max=80, message="Username must be between 3 and 80 characters")
+        Length(min=3, max=120, message="Input must be between 3 and 120 characters")
     ])
     password = PasswordField('Password', validators=[
         DataRequired(),

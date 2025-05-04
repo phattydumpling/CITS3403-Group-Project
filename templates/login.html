@@ -32,10 +32,10 @@
                 <form method="POST" class="space-y-6">
                     {{ form.csrf_token }}
                     <div>
-                        {{ form.username.label(class="block text-[#173B64] mb-2") }}
-                        {{ form.username(class="w-full px-4 py-2 border border-[#A3C4EB] rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFDE70]") }}
-                        {% if form.username.errors %}
-                            {% for error in form.username.errors %}
+                        {{ form.username_or_email.label(class="block text-[#173B64] mb-2") }}
+                        {{ form.username_or_email(class="w-full px-4 py-2 border border-[#A3C4EB] rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFDE70]") }}
+                        {% if form.username_or_email.errors %}
+                            {% for error in form.username_or_email.errors %}
                                 <p class="text-red-500 text-sm mt-1">{{ error }}</p>
                             {% endfor %}
                         {% endif %}
