@@ -446,4 +446,12 @@ def init_routes(app):
             return redirect(url_for('login'))
         user = User.query.get(session['user_id'])
         pending_requests = FriendRequest.query.filter_by(to_user_id=user.id, status='pending').all()
-        return render_template('notifications.html', pending_requests=pending_requests) 
+        return render_template('notifications.html', pending_requests=pending_requests)
+
+    @app.context_processor
+    def inject_pending_requests():
+        if 'user_id' in session:
+            user = User.query.get(session['user_id'])
+            pending_count = FriendRequest.query.filter_by(to_user_id=user.id, status='pending').count()
+            return dict(pending_requests_count=pending_count)
+        return dict(pending_requests_count=0) 
