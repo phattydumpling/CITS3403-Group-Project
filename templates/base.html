@@ -20,7 +20,7 @@
     <nav class="flex items-center justify-between flex-wrap bg-white p-4 border-b border-secondary">
         <div class="flex items-center flex-shrink-0 mr-6">
             <a href="{% if session.get('username') %}{{ url_for('dashboard') }}{% else %}{{ url_for('home') }}{% endif %}"
-                class="text-xl font-semibold text-primary hover:text-secondary transition-colors duration-300">
+                class="text-xl font-semibold text-primary hover:text-secondary transition-colors duration-300 fade-transition">
                 StudyTracker
             </a>
         </div>
@@ -39,20 +39,20 @@
             <div class="text-sm lg:flex-grow">
                 {% if session.get('username') %}
                 <a href="{{ url_for('dashboard') }}"
-                    class="block mt-4 lg:inline-block lg:mt-0 text-primary hover:text-secondary transition-colors duration-300 mr-4">Dashboard</a>
+                    class="block mt-4 lg:inline-block lg:mt-0 text-primary hover:text-secondary transition-colors duration-300 mr-6 fade-transition">Dashboard</a>
 
                 <!-- Dropdowns only for logged-in users -->
                 <!-- Study Area Dropdown -->
-                <div class="relative group inline-block mr-4">
+                <div class="relative group inline-block mr-6">
                     <a href="{{ url_for('study_area') }}"
-                        class="inline-flex items-center text-primary hover:text-secondary transition-colors duration-300">
+                        class="inline-flex items-center text-primary hover:text-secondary transition-colors duration-300 fade-transition">
                         Study Area
                         <svg class="fill-current h-4 w-4 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                             <path d="M5.516 7.548L10 12l4.484-4.452z" />
                         </svg>
                     </a>
                     <ul
-                        class="absolute hidden text-primary pt-1 group-hover:block bg-white rounded shadow-lg border border-secondary">
+                        class="absolute hidden text-primary pt-1 group-hover:block bg-white rounded shadow-lg border border-secondary min-w-[200px]">
                         <li><a class="block px-4 py-2 hover:bg-secondary hover:text-white transition-colors duration-300"
                                 href="{{ url_for('study_session') }}">Study Session</a></li>
                         <li><a class="block px-4 py-2 hover:bg-secondary hover:text-white transition-colors duration-300"
@@ -66,23 +66,20 @@
                     </ul>
                 </div>
 
-                <!-- Care Page Dropdown -->
-                <div class="relative group inline-block mr-4">
-                    <a href="{{ url_for('health_carer') }}"
-                        class="inline-flex items-center text-primary hover:text-secondary transition-colors duration-300">
-                        Care Page
-                        </svg>
-                    </a>
-                </div>
+                <!-- Care Page Link -->
+                <a href="{{ url_for('health_carer') }}"
+                    class="block mt-4 lg:inline-block lg:mt-0 text-primary hover:text-secondary transition-colors duration-300 mr-6 fade-transition">
+                    Care Page
+                </a>
 
                 <a href="{{ url_for('share_data') }}"
-                    class="block mt-4 lg:inline-block lg:mt-0 text-primary hover:text-secondary transition-colors duration-300">Share
+                    class="block mt-4 lg:inline-block lg:mt-0 text-primary hover:text-secondary transition-colors duration-300 fade-transition">Share
                     Data</a>
                 {% endif %}
             </div>
 
             <!-- Right side buttons -->
-            <div class="flex items-center space-x-4 mt-4 lg:mt-0">
+            <div class="flex items-center space-x-6 mt-4 lg:mt-0">
                 <!-- Dark Mode Toggle -->
                 <label for="darkModeToggle" class="flex items-center cursor-pointer">
                     <input id="darkModeToggle" type="checkbox" class="sr-only">
@@ -98,7 +95,7 @@
                 {% if session.get('username') %}
                 <div class="relative group inline-block">
                     <a href="{{ url_for('profile') }}"
-                        class="inline-flex items-center text-primary hover:text-secondary transition-colors duration-300 font-medium">
+                        class="inline-flex items-center text-primary hover:text-secondary transition-colors duration-300 font-medium fade-transition">
                         {{ session['username'] }}
                         <svg class="ml-1 w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                             <path d="M5.516 7.548L10 12l4.484-4.452z" />
@@ -123,7 +120,7 @@
     </nav>
 
     <!-- Main Content Here -->
-    <div class="container mx-auto my-8 px-4">
+    <div class="container mx-auto my-8 px-4 page-content">
         {% block content %}
         {% endblock %}
     </div>

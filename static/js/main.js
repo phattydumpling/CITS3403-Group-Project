@@ -36,4 +36,29 @@ document.addEventListener('DOMContentLoaded', function () {
         const navContent = document.getElementById('nav-content');
         navContent.classList.toggle('hidden');
     });
+
+    // Fade Transitions for Navigation
+    const navLinks = document.querySelectorAll('nav a');
+    const pageContent = document.querySelector('.page-content');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Only apply transition if it's not an external link
+            if (!this.getAttribute('href').startsWith('http')) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                
+                // Add fade-out class to current content
+                pageContent.classList.add('fade-out');
+                
+                // Wait for fade-out animation to complete
+                setTimeout(() => {
+                    window.location.href = href;
+                }, 300);
+            }
+        });
+    });
+
+    // Remove fade-out class when page loads
+    pageContent.classList.remove('fade-out');
 });
