@@ -271,8 +271,20 @@ def init_routes(app):
             # Update password if provided
             if current_password and new_password:
                 if check_password_hash(user.password, current_password):
-                    user.password = generate_password_hash(new_password)
-                    flash('Password updated successfully', 'success')
+                    # Validate new password requirements
+                    if len(new_password) < 8:
+                        flash('Password must be at least 8 characters long', 'error')
+                    elif not any(c.isupper() for c in new_password):
+                        flash('Password must contain at least one uppercase letter', 'error')
+                    elif not any(c.islower() for c in new_password):
+                        flash('Password must contain at least one lowercase letter', 'error')
+                    elif not any(c.isdigit() for c in new_password):
+                        flash('Password must contain at least one number', 'error')
+                    elif not any(c in '!@#$%^&*(),.?":{}|<>' for c in new_password):
+                        flash('Password must contain at least one special character', 'error')
+                    else:
+                        user.password = generate_password_hash(new_password)
+                        flash('Password updated successfully', 'success')
                 else:
                     flash('Current password is incorrect', 'error')
             

@@ -53,7 +53,7 @@
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h1 class="text-2xl font-bold text-primary mb-6">Account Settings</h1>
                 
-                <form method="POST" class="space-y-6">
+                <form method="POST" class="space-y-6" id="profileForm">
                     <!-- Personal Information -->
                     <div class="space-y-4">
                         <h3 class="text-lg font-semibold text-primary">Personal Information</h3>
@@ -84,6 +84,42 @@
                                 <label for="new_password" class="block text-sm font-medium text-gray-700">New Password</label>
                                 <input type="password" name="new_password" id="new_password"
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary">
+                                <!-- Password Requirements -->
+                                <div class="mt-2 text-sm text-gray-600">
+                                    <p class="font-medium mb-2">Password must contain:</p>
+                                    <ul class="space-y-1">
+                                        <li class="flex items-center" id="length">
+                                            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                            At least 8 characters
+                                        </li>
+                                        <li class="flex items-center" id="uppercase">
+                                            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                            One uppercase letter
+                                        </li>
+                                        <li class="flex items-center" id="lowercase">
+                                            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                            One lowercase letter
+                                        </li>
+                                        <li class="flex items-center" id="number">
+                                            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                            One number
+                                        </li>
+                                        <li class="flex items-center" id="special">
+                                            <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                            One special character
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -100,4 +136,56 @@
         </div>
     </div>
 </div>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const newPassword = document.getElementById('new_password');
+    const requirements = {
+        length: document.getElementById('length'),
+        uppercase: document.getElementById('uppercase'),
+        lowercase: document.getElementById('lowercase'),
+        number: document.getElementById('number'),
+        special: document.getElementById('special')
+    };
+
+    function checkPassword(password) {
+        const checks = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /[0-9]/.test(password),
+            special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+        };
+
+        // Update visual indicators
+        for (const [requirement, element] of Object.entries(requirements)) {
+            const icon = element.querySelector('svg');
+            if (checks[requirement]) {
+                element.classList.add('text-green-600');
+                element.classList.remove('text-gray-400');
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />';
+            } else {
+                element.classList.remove('text-green-600');
+                element.classList.add('text-gray-400');
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
+            }
+        }
+
+        return Object.values(checks).every(Boolean);
+    }
+
+    newPassword.addEventListener('input', function() {
+        checkPassword(this.value);
+    });
+
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+        if (newPassword.value && !checkPassword(newPassword.value)) {
+            e.preventDefault();
+            alert('Please ensure your new password meets all requirements.');
+        }
+    });
+});
+</script>
+{% endblock %}
 {% endblock %} 
