@@ -6,17 +6,17 @@ from app.forms import LoginForm, RegistrationForm, StudySessionForm, TaskForm, W
 from datetime import datetime
 
 def init_routes(app):
+    # Authentication Routes
     @app.route('/')
     def home():
-        if 'username' in session:
-            return redirect(url_for('dashboard'))
+        if 'username' not in session:
+            return redirect(url_for('login'))
         return render_template('home.html')
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():
         form = LoginForm()
         if form.validate_on_submit():
-            # Try to find user by username or email
             user = User.query.filter(
                 (User.username == form.username_or_email.data) |
                 (User.email == form.username_or_email.data)
@@ -30,11 +30,42 @@ def init_routes(app):
             flash('Invalid username/email or password', 'error')
         return render_template('login.html', form=form)
 
+    @app.route('/signup', methods=['GET', 'POST'])
+    def signup():
+        form = RegistrationForm()
+        if form.validate_on_submit():
+            hashed_password = generate_password_hash(form.password.data)
+            new_user = User(
+                username=form.username.data,
+                email=form.email.data,
+                password=hashed_password
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Registration successful! Please login.', 'success')
+            return redirect(url_for('login'))
+        return render_template('signup.html', form=form)
+
+    @app.route('/logout')
+    def logout():
+        session.pop('username', None)
+        session.pop('user_id', None)
+        session.pop('_flashes', None)
+        return redirect(url_for('home'))
+
+    # Main Dashboard
     @app.route('/dashboard')
     def dashboard():
         if 'username' not in session:
             return redirect(url_for('login'))
         return render_template('dashboard.html')
+
+    # Study Area Routes
+    @app.route('/study_area')
+    def study_area():
+        if 'username' not in session:
+            return redirect(url_for('login'))
+        return render_template('study_area.html')
 
     @app.route('/study_session', methods=['GET', 'POST'])
     def study_session():
@@ -43,14 +74,14 @@ def init_routes(app):
         
         form = StudySessionForm()
         if form.validate_on_submit():
-            session = StudySession(
+            study_session = StudySession(
                 user_id=session['user_id'],
                 subject=form.subject.data,
                 start_time=form.start_time.data,
                 end_time=form.end_time.data,
                 notes=form.notes.data
             )
-            db.session.add(session)
+            db.session.add(study_session)
             db.session.commit()
             flash('Study session recorded successfully!', 'success')
             return redirect(url_for('dashboard'))
@@ -79,21 +110,30 @@ def init_routes(app):
         tasks = Task.query.filter_by(user_id=session['user_id']).all()
         return render_template('task_overview.html', form=form, tasks=tasks)
 
-    @app.route('/signup', methods=['GET', 'POST'])
-    def signup():
-        form = RegistrationForm()
-        if form.validate_on_submit():
-            hashed_password = generate_password_hash(form.password.data)
-            new_user = User(
-                username=form.username.data,
-                email=form.email.data,
-                password=hashed_password
-            )
-            db.session.add(new_user)
-            db.session.commit()
-            flash('Registration successful! Please login.', 'success')
+    @app.route('/lecture_log')
+    def lecture_log():
+        if 'username' not in session:
             return redirect(url_for('login'))
-        return render_template('signup.html', form=form)
+        return render_template('lecture_log.html')
+
+    @app.route('/assessments')
+    def assessments():
+        if 'username' not in session:
+            return redirect(url_for('login'))
+        return render_template('assessments.html')
+
+    @app.route('/resources')
+    def resources():
+        if 'username' not in session:
+            return redirect(url_for('login'))
+        return render_template('resources.html')
+
+    # Care Page Routes
+    @app.route('/health_carer')
+    def health_carer():
+        if 'username' not in session:
+            return redirect(url_for('login'))
+        return render_template('health_carer.html')
 
     @app.route('/wellness_check', methods=['GET', 'POST'])
     def wellness_check():
@@ -115,50 +155,14 @@ def init_routes(app):
             return redirect(url_for('dashboard'))
         return render_template('wellness_check.html', form=form)
 
-    @app.route('/lecture_log')
-    def lecture_log():
-        return render_template('lecture_log.html')
-
-    @app.route('/assessments')
-    def assessments():
-        return render_template('assessments.html')
-
-    @app.route('/resources')
-    def resources():
-        return render_template('resources.html')
-
-    @app.route('/health_carer')
-    def health_carer():
-        return render_template('health_carer.html')
-
-    @app.route('/mental_health')
-    def mental_health():
-        return render_template('mental_health.html')
-
-    @app.route('/study_break')
-    def study_break():
-        return render_template('study_break.html')
-
-    @app.route('/study_tips')
-    def study_tips():
-        return render_template('study_tips.html')
-
+    # Data Sharing Route
     @app.route('/share_data')
     def share_data():
+        if 'username' not in session:
+            return redirect(url_for('login'))
         return render_template('share_data.html')
 
-    @app.route('/study_area')
-    def study_area():
-        return render_template('study_area.html')
-
-    @app.route('/logout')
-    def logout():
-        session.pop('username', None)
-        session.pop('user_id', None)
-        # Clear all flash messages
-        session.pop('_flashes', None)
-        return redirect(url_for('home'))
-
+    # API Routes for Tasks
     @app.route('/api/tasks', methods=['GET'])
     def get_tasks():
         if 'user_id' not in session:
@@ -236,4 +240,55 @@ def init_routes(app):
             'status': task.status,
             'priority': task.priority,
             'created_at': task.created_at.isoformat()
-        }) 
+        })
+
+    @app.route('/profile', methods=['GET', 'POST'])
+    def profile():
+        if 'username' not in session:
+            return redirect(url_for('login'))
+        
+        user = User.query.get(session['user_id'])
+        if not user:
+            flash('User not found', 'error')
+            return redirect(url_for('dashboard'))
+        
+        if request.method == 'POST':
+            # Handle profile updates
+            email = request.form.get('email')
+            current_password = request.form.get('current_password')
+            new_password = request.form.get('new_password')
+            
+            # Update email if provided
+            if email and email != user.email:
+                # Check if email is already taken
+                existing_user = User.query.filter_by(email=email).first()
+                if existing_user and existing_user.id != user.id:
+                    flash('Email already in use', 'error')
+                else:
+                    user.email = email
+                    flash('Email updated successfully', 'success')
+            
+            # Update password if provided
+            if current_password and new_password:
+                if check_password_hash(user.password, current_password):
+                    # Validate new password requirements
+                    if len(new_password) < 8:
+                        flash('Password must be at least 8 characters long', 'error')
+                    elif not any(c.isupper() for c in new_password):
+                        flash('Password must contain at least one uppercase letter', 'error')
+                    elif not any(c.islower() for c in new_password):
+                        flash('Password must contain at least one lowercase letter', 'error')
+                    elif not any(c.isdigit() for c in new_password):
+                        flash('Password must contain at least one number', 'error')
+                    elif not any(c in '!@#$%^&*(),.?":{}|<>' for c in new_password):
+                        flash('Password must contain at least one special character', 'error')
+                    else:
+                        user.password = generate_password_hash(new_password)
+                        flash('Password updated successfully', 'success')
+                else:
+                    flash('Current password is incorrect', 'error')
+            
+            db.session.commit()
+            return redirect(url_for('profile'))
+        
+        return render_template('profile.html', user=user) 
