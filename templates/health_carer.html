@@ -3,18 +3,104 @@
 {% block title %}Health Carer{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Health Carer</h1>
-<p class="text-gray-500">Take care of yourself!</p>
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Health Carer</h1>
+    <p class="text-gray-600 mb-8">Take care of yourself and maintain a healthy study-life balance.</p>
 
-<h2 class="text-2xl font-bold mb-4">Mental Health</h2>
-<p class="text-gray-500">Mental health resources and tips.</p>
+    <!-- Mental Health Section -->
+    <h2 class="text-2xl font-bold mb-4">Mental Health</h2>
+    <p class="text-gray-500 mb-8">Mental health resources and tips.</p>
 
-<h2 class="text-2xl font-bold mb-4">Study Break</h2>
-<p class="text-gray-500">Relax and refresh your mind.</p>
+    <!-- Study Break Section -->
+    <h2 class="text-2xl font-bold mb-4">Study Break</h2>
+    <p class="text-gray-500 mb-8">Relax and refresh your mind.</p>
 
-<h2 class="text-2xl font-bold mb-4">Wellness Check</h2>
-<p class="text-gray-500">Check-in on your well-being.</p>
+    <!-- Wellness Check Section -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-6">Wellness Check</h2>
+        
+        <!-- Mood Tracker -->
+        <div class="mb-8">
+            <h3 class="text-xl font-semibold mb-4">Mood Tracker</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Mood Input Form -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <form id="moodForm" class="space-y-4">
+                        <div>
+                            <label for="mood" class="block text-sm font-medium text-gray-700 mb-2">How are you feeling today? (1-10)</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="range" id="mood" name="mood" min="1" max="10" step="1" 
+                                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                <span id="moodValue" class="text-lg font-semibold text-primary">5</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="sleep" class="block text-sm font-medium text-gray-700 mb-2">Sleep Quality (1-10)</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="range" id="sleep" name="sleep" min="1" max="10" step="1"
+                                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                <span id="sleepValue" class="text-lg font-semibold text-primary">5</span>
+                            </div>
+                        </div>
 
-<h2 class="text-2xl font-bold mb-4">Study Tips</h2>
-<p class="text-gray-500">Get effective study tips here.</p>
+                        <div>
+                            <label for="reflection" class="block text-sm font-medium text-gray-700 mb-2">Daily Reflection</label>
+                            <textarea id="reflection" name="reflection" rows="4"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+                                placeholder="How are you feeling today? What's on your mind?"></textarea>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
+                            Save Entry
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Mood Graph -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="text-lg font-semibold mb-4">Weekly Mood Overview</h4>
+                    <div class="h-64 bg-white rounded-lg p-4">
+                        <canvas id="moodChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Entries -->
+        <div>
+            <h3 class="text-xl font-semibold mb-4">Recent Entries</h3>
+            <div id="recentEntries" class="space-y-4">
+                {% for entry in mood_entries %}
+                <div class="bg-gray-50 rounded-lg p-4" id="entry-{{ entry.id }}">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-500">{{ entry.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                            <p class="font-medium">Mood: {{ entry.mood_score }}/10</p>
+                            <p class="font-medium">Sleep: {{ entry.sleep_quality }}/10</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-gray-600">{{ entry.reflection }}</p>
+                            <button onclick="deleteEntry('{{ entry.id }}')" 
+                                class="mt-2 text-red-600 hover:text-red-800 text-sm font-medium">
+                                Delete Entry
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Study Tips Section -->
+    <h2 class="text-2xl font-bold mb-4">Study Tips</h2>
+    <p class="text-gray-500">Get effective study tips here.</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/health_carer.js') }}"></script>
 {% endblock %}

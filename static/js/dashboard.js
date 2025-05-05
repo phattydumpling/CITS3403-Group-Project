@@ -230,4 +230,71 @@ document.addEventListener("DOMContentLoaded", function () {
             return li;
         }
     }
+
+    function updateWeeklyMood() {
+        fetch('/api/mood_entries')
+            .then(response => response.json())
+            .then(entries => {
+                // Get entries from the last 7 days in AWST
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                
+                // Convert to AWST (UTC+8)
+                const awstOffset = 8 * 60; // 8 hours in minutes
+                const localOffset = sevenDaysAgo.getTimezoneOffset();
+                sevenDaysAgo.setMinutes(sevenDaysAgo.getMinutes() + localOffset + awstOffset);
+                
+                const recentEntries = entries.filter(entry => {
+                    const entryDate = new Date(entry.created_at);
+                    // Convert entry date to AWST
+                    const entryAwst = new Date(entryDate.getTime() + (entryDate.getTimezoneOffset() + awstOffset) * 60000);
+                    return entryAwst >= sevenDaysAgo;
+                });
+
+                if (recentEntries.length === 0) {
+                    document.getElementById('moodEmoji').textContent = '😐';
+                    document.getElementById('moodScore').textContent = 'N/A';
+                    document.getElementById('moodDateRange').textContent = 'No entries in the past week';
+                    return;
+                }
+
+                // Calculate average mood score
+                const totalScore = recentEntries.reduce((sum, entry) => sum + entry.mood_score, 0);
+                const averageScore = Math.ceil(totalScore / recentEntries.length);
+
+                // Update emoji and score based on average
+                const moodEmoji = document.getElementById('moodEmoji');
+                const moodScore = document.getElementById('moodScore');
+
+                if (averageScore >= 8) {
+                    moodEmoji.textContent = '😊';
+                } else if (averageScore >= 4) {
+                    moodEmoji.textContent = '😐';
+                } else {
+                    moodEmoji.textContent = '😢';
+                }
+
+                moodScore.textContent = averageScore;
+
+                // Update date range display
+                const now = new Date();
+                const awstNow = new Date(now.getTime() + (now.getTimezoneOffset() + awstOffset) * 60000);
+                const awstSevenDaysAgo = new Date(sevenDaysAgo.getTime());
+                
+                const formatDate = (date) => {
+                    return date.toLocaleDateString('en-AU', {
+                        day: 'numeric',
+                        month: 'short',
+                        timeZone: 'Australia/Perth'
+                    });
+                };
+
+                document.getElementById('moodDateRange').textContent = 
+                    `${formatDate(awstSevenDaysAgo)} - ${formatDate(awstNow)}`;
+            })
+            .catch(error => console.error('Error loading mood entries:', error));
+    }
+
+    // Call updateWeeklyMood when the page loads
+    updateWeeklyMood();
 });
