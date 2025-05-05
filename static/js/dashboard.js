@@ -230,4 +230,47 @@ document.addEventListener("DOMContentLoaded", function () {
             return li;
         }
     }
+
+    function updateWeeklyMood() {
+        fetch('/api/mood_entries')
+            .then(response => response.json())
+            .then(entries => {
+                // Get entries from the last 7 days
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                
+                const recentEntries = entries.filter(entry => {
+                    const entryDate = new Date(entry.created_at);
+                    return entryDate >= sevenDaysAgo;
+                });
+
+                if (recentEntries.length === 0) {
+                    document.getElementById('moodEmoji').textContent = '😐';
+                    document.getElementById('moodScore').textContent = 'N/A';
+                    return;
+                }
+
+                // Calculate average mood score
+                const totalScore = recentEntries.reduce((sum, entry) => sum + entry.mood_score, 0);
+                const averageScore = Math.ceil(totalScore / recentEntries.length);
+
+                // Update emoji and score based on average
+                const moodEmoji = document.getElementById('moodEmoji');
+                const moodScore = document.getElementById('moodScore');
+
+                if (averageScore >= 8) {
+                    moodEmoji.textContent = '😊';
+                } else if (averageScore >= 4) {
+                    moodEmoji.textContent = '😐';
+                } else {
+                    moodEmoji.textContent = '😢';
+                }
+
+                moodScore.textContent = averageScore;
+            })
+            .catch(error => console.error('Error loading mood entries:', error));
+    }
+
+    // Call updateWeeklyMood when the page loads
+    updateWeeklyMood();
 });
