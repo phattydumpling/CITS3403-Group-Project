@@ -80,6 +80,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const sleepSlider = document.getElementById('sleep');
     const sleepValue = document.getElementById('sleepValue');
 
+    // Set initial values
+    moodSlider.value = 5;
+    moodValue.textContent = '5';
+    sleepSlider.value = 5;
+    sleepValue.textContent = '5';
+
     moodSlider.addEventListener('input', function() {
         moodValue.textContent = this.value;
     });
@@ -139,10 +145,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add to recent entries
             addEntryToList(entry);
             
-            // Reset form
-            this.reset();
+            // Reset form values
+            moodSlider.value = 5;
             moodValue.textContent = '5';
+            sleepSlider.value = 5;
             sleepValue.textContent = '5';
+            document.getElementById('reflection').value = '';
 
             // Refresh chart data
             return fetch('/api/mood_entries');
