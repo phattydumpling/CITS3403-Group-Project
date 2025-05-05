@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from app.models import User, StudySession, Task, WellnessCheck, MoodEntry
+from app.models import User, StudySession, Task, WellnessCheck, MoodEntry, Friendship
 from app.forms import LoginForm, RegistrationForm, StudySessionForm, TaskForm, WellnessCheckForm
 from datetime import datetime, timedelta
 
@@ -364,4 +364,45 @@ def init_routes(app):
             return jsonify({'message': 'Entry deleted successfully'}), 200
         except Exception as e:
             db.session.rollback()
-            return jsonify({'error': str(e)}), 500 
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/friends', methods=['GET', 'POST'])
+    def friends():
+        if 'username' not in session:
+            return redirect(url_for('login'))
+
+        user = User.query.filter_by(username=session['username']).first()
+        friends = user.friends
+
+        if request.method == 'POST':
+            friend_username = request.form.get('friend_username')
+            friend = User.query.filter_by(username=friend_username).first()
+            if not friend:
+                flash('User not found.', 'error')
+            elif friend == user:
+                flash('You cannot add yourself as a friend.', 'error')
+            elif friend in friends:
+                flash('Already friends.', 'info')
+            else:
+                new_friendship = Friendship(user_id=user.id, friend_id=friend.id)
+                db.session.add(new_friendship)
+                db.session.commit()
+                flash(f'Added {friend.username} as a friend!', 'success')
+            return redirect(url_for('friends'))
+
+        return render_template('friends.html', friends=friends)
+
+    @app.route('/remove_friend/<int:friend_id>', methods=['POST'])
+    def remove_friend(friend_id):
+        if 'username' not in session:
+            return redirect(url_for('login'))
+
+        user = User.query.filter_by(username=session['username']).first()
+        friendship = Friendship.query.filter_by(user_id=user.id, friend_id=friend_id).first()
+        if friendship:
+            db.session.delete(friendship)
+            db.session.commit()
+            flash('Friend removed.', 'success')
+        else:
+            flash('Friendship not found.', 'error')
+        return redirect(url_for('friends')) 

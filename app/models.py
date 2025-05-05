@@ -1,6 +1,12 @@
 from datetime import datetime
 from app import db
 
+class Friendship(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    friend_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    __table_args__ = (db.UniqueConstraint('user_id', 'friend_id', name='_user_friend_uc'),)
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -12,6 +18,13 @@ class User(db.Model):
     study_sessions = db.relationship('StudySession', backref='user', lazy=True)
     tasks = db.relationship('Task', backref='user', lazy=True)
     wellness_checks = db.relationship('WellnessCheck', backref='user', lazy=True)
+    friends = db.relationship(
+        'User',
+        secondary='friendship',
+        primaryjoin=(Friendship.user_id == id),
+        secondaryjoin=(Friendship.friend_id == id),
+        backref='friend_of'
+    )
 
 class StudySession(db.Model):
     id = db.Column(db.Integer, primary_key=True)
