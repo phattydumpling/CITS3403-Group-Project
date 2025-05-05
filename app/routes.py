@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from app.models import User, StudySession, Task, WellnessCheck, MoodEntry
+from app.models import User, StudySession, Task, WellnessCheck, MoodEntry, Friendship, FriendRequest
 from app.forms import LoginForm, RegistrationForm, StudySessionForm, TaskForm, WellnessCheckForm
 from datetime import datetime, timedelta
 
@@ -261,6 +261,9 @@ def init_routes(app):
             flash('User not found', 'error')
             return redirect(url_for('dashboard'))
         
+        # Show pending friend requests
+        pending_requests = FriendRequest.query.filter_by(to_user_id=user.id, status='pending').all()
+        
         if request.method == 'POST':
             # Handle profile updates
             email = request.form.get('email')
@@ -300,7 +303,7 @@ def init_routes(app):
             db.session.commit()
             return redirect(url_for('profile'))
         
-        return render_template('profile.html', user=user)
+        return render_template('profile.html', user=user, pending_requests=pending_requests)
 
     @app.route('/api/mood_entries', methods=['POST'])
     def create_mood_entry():
@@ -364,4 +367,83 @@ def init_routes(app):
             return jsonify({'message': 'Entry deleted successfully'}), 200
         except Exception as e:
             db.session.rollback()
-            return jsonify({'error': str(e)}), 500 
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/friends', methods=['GET', 'POST'])
+    def friends():
+        if 'username' not in session:
+            return redirect(url_for('login'))
+
+        user = User.query.filter_by(username=session['username']).first()
+        friends = user.friends
+
+        if request.method == 'POST':
+            friend_username = request.form.get('friend_username')
+            friend = User.query.filter_by(username=friend_username).first()
+            if not friend:
+                flash('User not found.', 'error')
+            elif friend == user:
+                flash('You cannot add yourself as a friend.', 'error')
+            elif friend in friends:
+                flash('Already friends.', 'info')
+            elif FriendRequest.query.filter_by(from_user_id=user.id, to_user_id=friend.id, status='pending').first():
+                flash('Friend request already sent.', 'info')
+            else:
+                new_request = FriendRequest(from_user_id=user.id, to_user_id=friend.id)
+                db.session.add(new_request)
+                db.session.commit()
+                flash(f'Friend request sent to {friend.username}!', 'success')
+            return redirect(url_for('friends'))
+
+        return render_template('friends.html', friends=friends)
+
+    @app.route('/remove_friend/<int:friend_id>', methods=['POST'])
+    def remove_friend(friend_id):
+        if 'username' not in session:
+            return redirect(url_for('login'))
+
+        user = User.query.filter_by(username=session['username']).first()
+        friendship = Friendship.query.filter_by(user_id=user.id, friend_id=friend_id).first()
+        if friendship:
+            db.session.delete(friendship)
+            db.session.commit()
+            flash('Friend removed.', 'success')
+        else:
+            flash('Friendship not found.', 'error')
+        return redirect(url_for('friends'))
+
+    @app.route('/accept_friend/<int:request_id>', methods=['POST'])
+    def accept_friend(request_id):
+        if 'username' not in session:
+            return redirect(url_for('login'))
+        friend_request = FriendRequest.query.get(request_id)
+        if friend_request and friend_request.to_user.username == session['username'] and friend_request.status == 'pending':
+            # Accept the request
+            friend_request.status = 'accepted'
+            db.session.add(Friendship(user_id=friend_request.to_user_id, friend_id=friend_request.from_user_id))
+            db.session.commit()
+            flash(f'You are now friends with {friend_request.from_user.username}!', 'success')
+        else:
+            flash('Invalid friend request.', 'error')
+        return redirect(url_for('profile'))
+
+    @app.route('/reject_friend/<int:request_id>', methods=['POST'])
+    def reject_friend(request_id):
+        if 'username' not in session:
+            return redirect(url_for('login'))
+        friend_request = FriendRequest.query.get(request_id)
+        if friend_request and friend_request.to_user.username == session['username'] and friend_request.status == 'pending':
+            friend_request.status = 'rejected'
+            db.session.commit()
+            flash('Friend request rejected.', 'info')
+        else:
+            flash('Invalid friend request.', 'error')
+        return redirect(url_for('profile'))
+
+    @app.route('/notifications')
+    def notifications():
+        if 'username' not in session:
+            return redirect(url_for('login'))
+        user = User.query.get(session['user_id'])
+        pending_requests = FriendRequest.query.filter_by(to_user_id=user.id, status='pending').all()
+        return render_template('notifications.html', pending_requests=pending_requests) 
