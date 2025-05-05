@@ -346,4 +346,18 @@ def init_routes(app):
             'sleep_quality': entry.sleep_quality,
             'reflection': entry.reflection,
             'created_at': entry.created_at.isoformat()
-        } for entry in entries]) 
+        } for entry in entries])
+
+    @app.route('/api/mood_entries/<int:entry_id>', methods=['DELETE'])
+    def delete_mood_entry(entry_id):
+        if 'user_id' not in session:
+            return jsonify({'error': 'Not logged in'}), 401
+        
+        entry = MoodEntry.query.filter_by(id=entry_id, user_id=session['user_id']).first()
+        if not entry:
+            return jsonify({'error': 'Entry not found'}), 404
+        
+        db.session.delete(entry)
+        db.session.commit()
+        
+        return jsonify({'message': 'Entry deleted successfully'}), 200 
