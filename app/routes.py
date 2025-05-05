@@ -353,11 +353,15 @@ def init_routes(app):
         if 'user_id' not in session:
             return jsonify({'error': 'Not logged in'}), 401
         
-        entry = MoodEntry.query.filter_by(id=entry_id, user_id=session['user_id']).first()
-        if not entry:
-            return jsonify({'error': 'Entry not found'}), 404
-        
-        db.session.delete(entry)
-        db.session.commit()
-        
-        return jsonify({'message': 'Entry deleted successfully'}), 200 
+        try:
+            entry = MoodEntry.query.filter_by(id=entry_id, user_id=session['user_id']).first()
+            if not entry:
+                return jsonify({'error': 'Entry not found'}), 404
+            
+            db.session.delete(entry)
+            db.session.commit()
+            
+            return jsonify({'message': 'Entry deleted successfully'}), 200
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 500 
