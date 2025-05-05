@@ -1,5 +1,12 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from app import db
+
+class FriendRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    from_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    to_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    status = db.Column(db.String(20), default='pending')  # pending, accepted, rejected
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
 class Friendship(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -12,7 +19,7 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     
     # Relationships
     study_sessions = db.relationship('StudySession', backref='user', lazy=True)
@@ -25,6 +32,8 @@ class User(db.Model):
         secondaryjoin=(Friendship.friend_id == id),
         backref='friend_of'
     )
+    sent_friend_requests = db.relationship('FriendRequest', foreign_keys='FriendRequest.from_user_id', backref='from_user', lazy=True)
+    received_friend_requests = db.relationship('FriendRequest', foreign_keys='FriendRequest.to_user_id', backref='to_user', lazy=True)
 
 class StudySession(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -33,7 +42,7 @@ class StudySession(db.Model):
     end_time = db.Column(db.DateTime)
     subject = db.Column(db.String(100))
     notes = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -43,7 +52,7 @@ class Task(db.Model):
     due_date = db.Column(db.DateTime)
     status = db.Column(db.String(20), default='pending')  # pending, in_progress, completed
     priority = db.Column(db.String(20), default='medium')  # low, medium, high
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
 class WellnessCheck(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -52,7 +61,7 @@ class WellnessCheck(db.Model):
     stress_level = db.Column(db.Integer)  # 1-10 scale
     sleep_hours = db.Column(db.Float)
     notes = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
 class MoodEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -60,6 +69,6 @@ class MoodEntry(db.Model):
     mood_score = db.Column(db.Integer, nullable=False)
     sleep_quality = db.Column(db.Integer, nullable=False)
     reflection = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
     user = db.relationship('User', backref=db.backref('mood_entries', lazy=True)) 
