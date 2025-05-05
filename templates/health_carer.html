@@ -3,18 +3,219 @@
 {% block title %}Health Carer{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Health Carer</h1>
-<p class="text-gray-500">Take care of yourself!</p>
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Health Carer</h1>
+    <p class="text-gray-600 mb-8">Take care of yourself and maintain a healthy study-life balance.</p>
 
-<h2 class="text-2xl font-bold mb-4">Mental Health</h2>
-<p class="text-gray-500">Mental health resources and tips.</p>
+    <!-- Mental Health Section -->
+    <h2 class="text-2xl font-bold mb-4">Mental Health</h2>
+    <p class="text-gray-500 mb-8">Mental health resources and tips.</p>
 
-<h2 class="text-2xl font-bold mb-4">Study Break</h2>
-<p class="text-gray-500">Relax and refresh your mind.</p>
+    <!-- Study Break Section -->
+    <h2 class="text-2xl font-bold mb-4">Study Break</h2>
+    <p class="text-gray-500 mb-8">Relax and refresh your mind.</p>
 
-<h2 class="text-2xl font-bold mb-4">Wellness Check</h2>
-<p class="text-gray-500">Check-in on your well-being.</p>
+    <!-- Wellness Check Section -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-6">Wellness Check</h2>
+        
+        <!-- Mood Tracker -->
+        <div class="mb-8">
+            <h3 class="text-xl font-semibold mb-4">Mood Tracker</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Mood Input Form -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <form id="moodForm" class="space-y-4">
+                        <div>
+                            <label for="mood" class="block text-sm font-medium text-gray-700 mb-2">How are you feeling today? (1-10)</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="range" id="mood" name="mood" min="1" max="10" step="1" 
+                                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                <span id="moodValue" class="text-lg font-semibold text-primary">5</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="sleep" class="block text-sm font-medium text-gray-700 mb-2">Sleep Quality (1-10)</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="range" id="sleep" name="sleep" min="1" max="10" step="1"
+                                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                <span id="sleepValue" class="text-lg font-semibold text-primary">5</span>
+                            </div>
+                        </div>
 
-<h2 class="text-2xl font-bold mb-4">Study Tips</h2>
-<p class="text-gray-500">Get effective study tips here.</p>
+                        <div>
+                            <label for="reflection" class="block text-sm font-medium text-gray-700 mb-2">Daily Reflection</label>
+                            <textarea id="reflection" name="reflection" rows="4"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+                                placeholder="How are you feeling today? What's on your mind?"></textarea>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
+                            Save Entry
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Mood Graph -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="text-lg font-semibold mb-4">Weekly Mood Overview</h4>
+                    <div class="h-64 bg-white rounded-lg p-4">
+                        <canvas id="moodChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Entries -->
+        <div>
+            <h3 class="text-xl font-semibold mb-4">Recent Entries</h3>
+            <div id="recentEntries" class="space-y-4">
+                {% for entry in mood_entries %}
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-500">{{ entry.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                            <p class="font-medium">Mood: {{ entry.mood_score }}/10</p>
+                            <p class="font-medium">Sleep: {{ entry.sleep_quality }}/10</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-gray-600">{{ entry.reflection }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Study Tips Section -->
+    <h2 class="text-2xl font-bold mb-4">Study Tips</h2>
+    <p class="text-gray-500">Get effective study tips here.</p>
+</div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mood slider value display
+    const moodSlider = document.getElementById('mood');
+    const moodValue = document.getElementById('moodValue');
+    const sleepSlider = document.getElementById('sleep');
+    const sleepValue = document.getElementById('sleepValue');
+
+    moodSlider.addEventListener('input', function() {
+        moodValue.textContent = this.value;
+    });
+
+    sleepSlider.addEventListener('input', function() {
+        sleepValue.textContent = this.value;
+    });
+
+    // Initialize mood chart
+    const ctx = document.getElementById('moodChart').getContext('2d');
+    const moodChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Mood',
+                data: [7, 6, 8, 7, 9, 8, 7],
+                borderColor: '#4F46E5',
+                tension: 0.4
+            }, {
+                label: 'Sleep',
+                data: [6, 7, 8, 6, 7, 8, 7],
+                borderColor: '#10B981',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 10
+                }
+            }
+        }
+    });
+
+    // Form submission
+    document.getElementById('moodForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const data = {
+            mood_score: parseInt(moodSlider.value),
+            sleep_quality: parseInt(sleepSlider.value),
+            reflection: document.getElementById('reflection').value
+        };
+
+        fetch('/api/mood_entries', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(entry => {
+            // Add to recent entries
+            addEntryToList(entry);
+            
+            // Reset form
+            this.reset();
+            moodValue.textContent = '5';
+            sleepValue.textContent = '5';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to save entry. Please try again.');
+        });
+    });
+
+    function addEntryToList(entry) {
+        const entriesDiv = document.getElementById('recentEntries');
+        const entryElement = document.createElement('div');
+        entryElement.className = 'bg-gray-50 rounded-lg p-4';
+        entryElement.innerHTML = `
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-sm text-gray-500">${new Date(entry.created_at).toLocaleString()}</p>
+                    <p class="font-medium">Mood: ${entry.mood_score}/10</p>
+                    <p class="font-medium">Sleep: ${entry.sleep_quality}/10</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-600">${entry.reflection}</p>
+                </div>
+            </div>
+        `;
+        entriesDiv.insertBefore(entryElement, entriesDiv.firstChild);
+    }
+
+    // Load initial data for the chart
+    fetch('/api/mood_entries')
+        .then(response => response.json())
+        .then(entries => {
+            // Process entries for the chart
+            const moodData = new Array(7).fill(null);
+            const sleepData = new Array(7).fill(null);
+            
+            entries.forEach(entry => {
+                const date = new Date(entry.created_at);
+                const dayIndex = date.getDay();
+                moodData[dayIndex] = entry.mood_score;
+                sleepData[dayIndex] = entry.sleep_quality;
+            });
+
+            // Update chart data
+            moodChart.data.datasets[0].data = moodData;
+            moodChart.data.datasets[1].data = sleepData;
+            moodChart.update();
+        })
+        .catch(error => console.error('Error loading mood entries:', error));
+});
+</script>
+{% endblock %}
 {% endblock %}

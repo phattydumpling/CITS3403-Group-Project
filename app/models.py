@@ -39,4 +39,14 @@ class WellnessCheck(db.Model):
     stress_level = db.Column(db.Integer)  # 1-10 scale
     sleep_hours = db.Column(db.Float)
     notes = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow) 
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class MoodEntry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    mood_score = db.Column(db.Integer, nullable=False)
+    sleep_quality = db.Column(db.Integer, nullable=False)
+    reflection = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('mood_entries', lazy=True)) 

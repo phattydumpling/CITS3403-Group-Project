@@ -1,9 +1,9 @@
 from flask import render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from app.models import User, StudySession, Task, WellnessCheck
+from app.models import User, StudySession, Task, WellnessCheck, MoodEntry
 from app.forms import LoginForm, RegistrationForm, StudySessionForm, TaskForm, WellnessCheckForm
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def init_routes(app):
     # Authentication Routes
@@ -133,7 +133,16 @@ def init_routes(app):
     def health_carer():
         if 'username' not in session:
             return redirect(url_for('login'))
-        return render_template('health_carer.html')
+        
+        # Get user's mood entries for the past week
+        user = User.query.get(session['user_id'])
+        week_ago = datetime.utcnow() - timedelta(days=7)
+        mood_entries = MoodEntry.query.filter(
+            MoodEntry.user_id == session['user_id'],
+            MoodEntry.created_at >= week_ago
+        ).order_by(MoodEntry.created_at.desc()).all()
+        
+        return render_template('health_carer.html', mood_entries=mood_entries)
 
     @app.route('/wellness_check', methods=['GET', 'POST'])
     def wellness_check():
@@ -291,4 +300,50 @@ def init_routes(app):
             db.session.commit()
             return redirect(url_for('profile'))
         
-        return render_template('profile.html', user=user) 
+        return render_template('profile.html', user=user)
+
+    @app.route('/api/mood_entries', methods=['POST'])
+    def create_mood_entry():
+        if 'user_id' not in session:
+            return jsonify({'error': 'Not logged in'}), 401
+        
+        data = request.get_json()
+        if not data or 'mood_score' not in data or 'sleep_quality' not in data:
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        entry = MoodEntry(
+            user_id=session['user_id'],
+            mood_score=int(data['mood_score']),
+            sleep_quality=int(data['sleep_quality']),
+            reflection=data.get('reflection', '')
+        )
+        
+        db.session.add(entry)
+        db.session.commit()
+        
+        return jsonify({
+            'id': entry.id,
+            'mood_score': entry.mood_score,
+            'sleep_quality': entry.sleep_quality,
+            'reflection': entry.reflection,
+            'created_at': entry.created_at.isoformat()
+        }), 201
+
+    @app.route('/api/mood_entries', methods=['GET'])
+    def get_mood_entries():
+        if 'user_id' not in session:
+            return jsonify({'error': 'Not logged in'}), 401
+        
+        week_ago = datetime.utcnow() - timedelta(days=7)
+        entries = MoodEntry.query.filter(
+            MoodEntry.user_id == session['user_id'],
+            MoodEntry.created_at >= week_ago
+        ).order_by(MoodEntry.created_at.desc()).all()
+        
+        return jsonify([{
+            'id': entry.id,
+            'mood_score': entry.mood_score,
+            'sleep_quality': entry.sleep_quality,
+            'reflection': entry.reflection,
+            'created_at': entry.created_at.isoformat()
+        } for entry in entries]) 
