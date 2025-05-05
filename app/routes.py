@@ -9,8 +9,8 @@ def init_routes(app):
     # Authentication Routes
     @app.route('/')
     def home():
-        if 'username' in session:
-            return redirect(url_for('dashboard'))
+        if 'username' not in session:
+            return redirect(url_for('login'))
         return render_template('home.html')
 
     @app.route('/login', methods=['GET', 'POST'])
@@ -240,4 +240,43 @@ def init_routes(app):
             'status': task.status,
             'priority': task.priority,
             'created_at': task.created_at.isoformat()
-        }) 
+        })
+
+    @app.route('/profile', methods=['GET', 'POST'])
+    def profile():
+        if 'username' not in session:
+            return redirect(url_for('login'))
+        
+        user = User.query.get(session['user_id'])
+        if not user:
+            flash('User not found', 'error')
+            return redirect(url_for('dashboard'))
+        
+        if request.method == 'POST':
+            # Handle profile updates
+            email = request.form.get('email')
+            current_password = request.form.get('current_password')
+            new_password = request.form.get('new_password')
+            
+            # Update email if provided
+            if email and email != user.email:
+                # Check if email is already taken
+                existing_user = User.query.filter_by(email=email).first()
+                if existing_user and existing_user.id != user.id:
+                    flash('Email already in use', 'error')
+                else:
+                    user.email = email
+                    flash('Email updated successfully', 'success')
+            
+            # Update password if provided
+            if current_password and new_password:
+                if check_password_hash(user.password, current_password):
+                    user.password = generate_password_hash(new_password)
+                    flash('Password updated successfully', 'success')
+                else:
+                    flash('Current password is incorrect', 'error')
+            
+            db.session.commit()
+            return redirect(url_for('profile'))
+        
+        return render_template('profile.html', user=user) 
