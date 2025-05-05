@@ -10,7 +10,7 @@ def create_app():
     app = Flask(__name__, 
                 template_folder='../templates',  # Point to the templates directory at root level
                 static_folder='../static')  # Also point to the static directory at root level
-    app.secret_key = 'your-secret-key'  # Required for session handling
+    app.secret_key = os.environ.get('SECRET_KEY', 'dev-key-for-local')  # Required for session handling
 
     # Database configuration
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///study_planner.sqlite'
