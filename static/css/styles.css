@@ -410,3 +410,30 @@ input:focus, select:focus, textarea:focus {
 .animation-delay-2000 {
     animation-delay: 2s;
 }
+
+/* Center Flatpickr calendar in its container */
+.flatpickr-calendar {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    margin: 0 auto !important;
+}
+.flatpickr-months {
+    width: 100% !important;
+}
+.flatpickr-month {
+    width: 100% !important;
+}
+.flatpickr-weekday {
+    width: 14.28% !important;
+}
+.flatpickr-day {
+    width: 14.28% !important;
+    max-width: 14.28% !important;
+}
+.calendar-center-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}

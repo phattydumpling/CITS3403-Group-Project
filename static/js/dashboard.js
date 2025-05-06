@@ -5,7 +5,11 @@ document.addEventListener("DOMContentLoaded", function () {
         flatpickr(calendarDiv, {
             inline: true,
             defaultDate: new Date(),
-            clickOpens: false
+            clickOpens: false,
+            static: true,
+            className: "w-full",
+            monthSelectorType: "static",
+            disableMobile: true
         });
     }
     

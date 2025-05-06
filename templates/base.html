@@ -27,41 +27,43 @@
         </div>
         <!-- Main Nav Links -->
         <div class="flex items-center">
+            {% if session.get('username') %}
             <a href="{{ url_for('dashboard') }}"
-               class="flex items-center px-4 py-2 rounded-lg mr-2 {% if request.endpoint == 'dashboard' %}bg-indigo-100 text-indigo-600 font-semibold{% else %}text-gray-400 hover:text-indigo-600 hover:bg-indigo-50{% endif %}">
+               class="flex items-center px-4 py-2 rounded-lg mr-2 {% if request.endpoint == 'dashboard' %}bg-indigo-100 text-indigo-600 font-semibold{% else %}text-gray-700 hover:text-indigo-600 hover:bg-indigo-50{% endif %}">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 8h2v-2H7v2zm0-4h2v-2H7v2zm0-4h2V7H7v2zm4 8h2v-2h-2v2zm0-4h2v-2h-2v2zm0-4h2V7h-2v2zm4 8h2v-2h-2v2zm0-4h2v-2h-2v2zm0-4h2V7h-2v2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 Dashboard
             </a>
             <a href="{{ url_for('study_area') }}"
-               class="flex items-center px-4 py-2 rounded-lg mr-2 {% if request.endpoint == 'study_area' %}bg-indigo-100 text-indigo-600 font-semibold{% else %}text-gray-400 hover:text-indigo-600 hover:bg-indigo-50{% endif %}">
+               class="flex items-center px-4 py-2 rounded-lg mr-2 {% if request.endpoint == 'study_area' %}bg-indigo-100 text-indigo-600 font-semibold{% else %}text-gray-700 hover:text-indigo-600 hover:bg-indigo-50{% endif %}">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 Study Area
             </a>
             <a href="{{ url_for('health_carer') }}"
-               class="flex items-center px-4 py-2 rounded-lg mr-2 {% if request.endpoint == 'health_carer' %}bg-indigo-100 text-indigo-600 font-semibold{% else %}text-gray-400 hover:text-indigo-600 hover:bg-indigo-50{% endif %}">
+               class="flex items-center px-4 py-2 rounded-lg mr-2 {% if request.endpoint == 'health_carer' %}bg-indigo-100 text-indigo-600 font-semibold{% else %}text-gray-700 hover:text-indigo-600 hover:bg-indigo-50{% endif %}">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M12 8c-1.657 0-3 1.343-3 3 0 1.657 1.343 3 3 3s3-1.343 3-3c0-1.657-1.343-3-3-3zm0 10c-4.418 0-8-1.79-8-4V7c0-2.21 3.582-4 8-4s8 1.79 8 4v7c0 2.21-3.582 4-8 4z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 Care Page
             </a>
             <a href="{{ url_for('share_data') }}"
-               class="flex items-center px-4 py-2 rounded-lg mr-2 {% if request.endpoint == 'share_data' %}bg-indigo-100 text-indigo-600 font-semibold{% else %}text-gray-400 hover:text-indigo-600 hover:bg-indigo-50{% endif %}">
+               class="flex items-center px-4 py-2 rounded-lg mr-2 {% if request.endpoint == 'share_data' %}bg-indigo-100 text-indigo-600 font-semibold{% else %}text-gray-700 hover:text-indigo-600 hover:bg-indigo-50{% endif %}">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M4 4v16h16V4H4zm8 8v4m0 0l-2-2m2 2l2-2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 Share Data
             </a>
             <a href="{{ url_for('friends') }}"
-               class="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg {% if request.endpoint == 'friends' %}bg-gray-100 dark:bg-gray-700{% endif %}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+               class="flex items-center px-4 py-2 rounded-lg mr-2 {% if request.endpoint == 'friends' %}bg-indigo-100 text-indigo-600 font-semibold{% else %}text-gray-700 hover:text-indigo-600 hover:bg-indigo-50{% endif %}">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 Social
             </a>
+            {% endif %}
         </div>
 
         <!-- Auth/User Buttons -->
@@ -75,6 +77,7 @@
                 </div>
                 <span class="ml-3 text-primary">Dark Mode</span>
             </label>
+            {% if session.get('username') %}
             <!-- Notifications Bell Icon -->
             <a href="{{ url_for('notifications') }}" class="relative flex items-center px-2 py-2">
                 <svg class="w-6 h-6 text-gray-400 hover:text-indigo-600 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -84,7 +87,6 @@
                 <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
                 {% endif %}
             </a>
-            {% if session.get('username') %}
             <div class="relative group inline-block">
                 <a href="{{ url_for('profile') }}"
                    class="inline-flex items-center text-primary hover:text-secondary transition-colors duration-300 font-medium">

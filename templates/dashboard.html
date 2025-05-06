@@ -3,6 +3,34 @@
 {% block title %}Dashboard Preview{% endblock %}
 
 {% block content %}
+<style>
+    .flatpickr-calendar {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-shadow: none !important;
+        margin: 0 auto !important;
+    }
+    .flatpickr-months {
+        width: 100% !important;
+    }
+    .flatpickr-month {
+        width: 100% !important;
+    }
+    .flatpickr-weekday {
+        width: 14.28% !important;
+    }
+    .flatpickr-day {
+        width: 14.28% !important;
+        max-width: 14.28% !important;
+    }
+    .calendar-center-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+</style>
+
 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 p-6">
     <!-- Left Panel (Main Area) -->
     <div class="lg:col-span-3 space-y-6">
@@ -105,7 +133,7 @@
         <!-- Weekly Earnings Chart -->
         <div class="bg-white dark:bg-gray-800 p-6 rounded shadow">
             <h4 class="text-md font-semibold mb-2">Calendar</h4>
-            <div id="flatCalendar" class="flatpickr-container"></div>
+            <div class="calendar-center-container"><div id="flatCalendar" class="flatpickr-container w-[280px]"></div></div>
         </div>
 
         <!-- Unit Distribution Donut Chart -->
