@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Wait for the fade-out animation to complete before navigating
                     setTimeout(() => {
                         window.location.href = targetUrl;
-                    }, 300); // Match this with the CSS transition duration
+                    }, 100); // Match this with the CSS transition duration
                 } else {
                     // If page content not found, navigate immediately
                     window.location.href = targetUrl;
