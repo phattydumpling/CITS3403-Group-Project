@@ -313,10 +313,20 @@ input:focus, select:focus, textarea:focus {
 
 /* Page Transition Effects */
 .page-content {
-    opacity: 1;
-    transition: opacity 0.3s ease-in-out;
+    opacity: 0;
+    animation: fadeIn 0.3s ease-in-out forwards;
 }
 
 .page-content.fade-out {
     opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
