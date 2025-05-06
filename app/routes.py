@@ -254,13 +254,13 @@ def init_routes(app):
         if 'username' not in session:
             return redirect(url_for('login'))
         
-        user = User.query.get(session['user_id'])
-        if not user:
+        current_user = User.query.get(session['user_id'])
+        if not current_user:
             flash('User not found', 'error')
             return redirect(url_for('dashboard'))
         
         # Show pending friend requests
-        pending_requests = FriendRequest.query.filter_by(to_user_id=user.id, status='pending').all()
+        pending_requests = FriendRequest.query.filter_by(to_user_id=current_user.id, status='pending').all()
         
         if request.method == 'POST':
             # Handle profile updates
@@ -269,18 +269,18 @@ def init_routes(app):
             new_password = request.form.get('new_password')
             
             # Update email if provided
-            if email and email != user.email:
+            if email and email != current_user.email:
                 # Check if email is already taken
                 existing_user = User.query.filter_by(email=email).first()
-                if existing_user and existing_user.id != user.id:
+                if existing_user and existing_user.id != current_user.id:
                     flash('Email already in use', 'error')
                 else:
-                    user.email = email
+                    current_user.email = email
                     flash('Email updated successfully', 'success')
             
             # Update password if provided
             if current_password and new_password:
-                if check_password_hash(user.password, current_password):
+                if check_password_hash(current_user.password, current_password):
                     # Validate new password requirements
                     if len(new_password) < 8:
                         flash('Password must be at least 8 characters long', 'error')
@@ -293,7 +293,7 @@ def init_routes(app):
                     elif not any(c in '!@#$%^&*(),.?":{}|<>' for c in new_password):
                         flash('Password must contain at least one special character', 'error')
                     else:
-                        user.password = generate_password_hash(new_password)
+                        current_user.password = generate_password_hash(new_password)
                         flash('Password updated successfully', 'success')
                 else:
                     flash('Current password is incorrect', 'error')
@@ -301,7 +301,7 @@ def init_routes(app):
             db.session.commit()
             return redirect(url_for('profile'))
         
-        return render_template('profile.html', user=user, pending_requests=pending_requests)
+        return render_template('profile.html', current_user=current_user, pending_requests=pending_requests)
 
     @app.route('/api/mood_entries', methods=['POST'])
     def create_mood_entry():

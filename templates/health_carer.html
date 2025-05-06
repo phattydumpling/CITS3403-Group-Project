@@ -3,110 +3,142 @@
 {% block title %}Health Carer{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">Health Carer</h1>
-    <p class="text-gray-600 mb-8">Take care of yourself and maintain a healthy study-life balance.</p>
+<div class="h-full w-full bg-gray-50 dark:bg-gray-800">
+    <div class="h-full w-full p-8">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Health Carer</h1>
+            <p class="text-gray-600 dark:text-gray-300 mb-8">Take care of yourself and maintain a healthy study-life balance.</p>
 
-    <!-- Mental Health Section -->
-    <h2 class="text-2xl font-bold mb-4">Mental Health</h2>
-    <p class="text-gray-500 mb-8">Mental health resources and tips.</p>
-
-    <!-- Study Break Section -->
-    <h2 class="text-2xl font-bold mb-4">Study Break</h2>
-    <p class="text-gray-500 mb-8">Relax and refresh your mind.</p>
-
-    <!-- Wellness Check Section -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-2xl font-bold mb-6">Wellness Check</h2>
-        
-        <!-- Mood Tracker -->
-        <div class="mb-8">
-            <h3 class="text-xl font-semibold mb-4">Mood Tracker</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Mood Input Form -->
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <form id="moodForm" class="space-y-4">
-                        <div>
-                            <label for="mood" class="block text-sm font-medium text-gray-700 mb-2">How are you feeling today? (1-10)</label>
-                            <div class="flex items-center space-x-2">
-                                <input type="range" id="mood" name="mood" min="1" max="10" step="1" 
-                                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                                <span id="moodValue" class="text-lg font-semibold text-primary">5</span>
+            <!-- Main Content Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left Column - Mental Health & Study Break -->
+                <div class="space-y-8">
+                    <!-- Mental Health Section -->
+                    <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6">
+                        <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Mental Health</h2>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">Mental health resources and tips.</p>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 dark:bg-gray-600 rounded-lg">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Take a Deep Breath</h3>
+                                <p class="text-gray-600 dark:text-gray-300">Practice deep breathing exercises to reduce stress.</p>
+                            </div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-600 rounded-lg">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Stay Hydrated</h3>
+                                <p class="text-gray-600 dark:text-gray-300">Remember to drink water regularly during study sessions.</p>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Study Break Section -->
+                    <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6">
+                        <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Study Break</h2>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">Relax and refresh your mind.</p>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-gray-50 dark:bg-gray-600 rounded-lg">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Quick Stretch</h3>
+                                <p class="text-gray-600 dark:text-gray-300">Take a 5-minute stretch break to improve circulation.</p>
+                            </div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-600 rounded-lg">
+                                <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Eye Rest</h3>
+                                <p class="text-gray-600 dark:text-gray-300">Look away from the screen every 20 minutes.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Column - Wellness Check -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6">
+                        <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Wellness Check</h2>
                         
-                        <div>
-                            <label for="sleep" class="block text-sm font-medium text-gray-700 mb-2">Sleep Quality (1-10)</label>
-                            <div class="flex items-center space-x-2">
-                                <input type="range" id="sleep" name="sleep" min="1" max="10" step="1"
-                                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                                <span id="sleepValue" class="text-lg font-semibold text-primary">5</span>
+                        <!-- Mood Tracker -->
+                        <div class="mb-8">
+                            <h3 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Mood Tracker</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Mood Input Form -->
+                                <div class="bg-gray-50 dark:bg-gray-600 rounded-lg p-4">
+                                    <form id="moodForm" class="space-y-4">
+                                        <div>
+                                            <label for="mood" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">How are you feeling today? (1-10)</label>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="range" id="mood" name="mood" min="1" max="10" step="1" 
+                                                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                <span id="moodValue" class="text-lg font-semibold text-primary">5</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="sleep" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sleep Quality (1-10)</label>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="range" id="sleep" name="sleep" min="1" max="10" step="1"
+                                                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                                <span id="sleepValue" class="text-lg font-semibold text-primary">5</span>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label for="reflection" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Daily Reflection</label>
+                                            <textarea id="reflection" name="reflection" rows="4"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                                placeholder="How are you feeling today? What's on your mind?"></textarea>
+                                        </div>
+
+                                        <button type="submit"
+                                            class="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
+                                            Save Entry
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Mood Graph -->
+                                <div class="bg-gray-50 dark:bg-gray-600 rounded-lg p-4">
+                                    <h4 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Weekly Mood Overview</h4>
+                                    <div class="h-64 bg-white dark:bg-gray-700 rounded-lg p-4">
+                                        <canvas id="moodChart"></canvas>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
+                        <!-- Recent Entries -->
                         <div>
-                            <label for="reflection" class="block text-sm font-medium text-gray-700 mb-2">Daily Reflection</label>
-                            <textarea id="reflection" name="reflection" rows="4"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
-                                placeholder="How are you feeling today? What's on your mind?"></textarea>
-                        </div>
-
-                        <button type="submit"
-                            class="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
-                            Save Entry
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Mood Graph -->
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <h4 class="text-lg font-semibold mb-4">Weekly Mood Overview</h4>
-                    <div class="h-64 bg-white rounded-lg p-4">
-                        <canvas id="moodChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Entries -->
-        <div>
-            <h3 class="text-xl font-semibold mb-4">Recent Entries</h3>
-            <div id="recentEntries" class="space-y-4">
-                {% for entry in mood_entries %}
-                <div class="bg-gray-50 rounded-lg p-4" id="entry-{{ entry.id }}">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-sm text-gray-500">{{ entry.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
-                            <p class="font-medium">Mood: {{ entry.mood_score }}/10</p>
-                            <p class="font-medium">Sleep: {{ entry.sleep_quality }}/10</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm text-gray-600">{{ entry.reflection }}</p>
-                            <button onclick="deleteEntry('{{ entry.id }}')" 
-                                class="mt-2 text-red-600 hover:text-red-800 text-sm font-medium">
-                                Delete Entry
-                            </button>
+                            <h3 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Recent Entries</h3>
+                            <div id="recentEntries" class="space-y-4">
+                                {% for entry in mood_entries %}
+                                <div class="bg-gray-50 dark:bg-gray-600 rounded-lg p-4" id="entry-{{ entry.id }}">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ entry.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                                            <p class="font-medium text-gray-900 dark:text-white">Mood: {{ entry.mood_score }}/10</p>
+                                            <p class="font-medium text-gray-900 dark:text-white">Sleep: {{ entry.sleep_quality }}/10</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm text-gray-600 dark:text-gray-300">{{ entry.reflection }}</p>
+                                            <button onclick="deleteEntry('{{ entry.id }}')" 
+                                                class="mt-2 text-red-600 hover:text-red-800 text-sm font-medium">
+                                                Delete Entry
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </div>
-                {% endfor %}
             </div>
         </div>
     </div>
-
-    <!-- Study Tips Section -->
-    <h2 class="text-2xl font-bold mb-4">Study Tips</h2>
-    <p class="text-gray-500">Get effective study tips here.</p>
 </div>
 
 <!-- Custom Modal Dialog -->
 <div id="confirmationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
-    <div class="bg-white rounded-lg p-6 max-w-sm mx-4 transform transition-all">
+    <div class="bg-white dark:bg-gray-700 rounded-lg p-6 max-w-sm mx-4 transform transition-all">
         <div class="text-center">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Confirm Deletion</h3>
-            <p class="text-sm text-gray-500 mb-6">Are you sure you want to delete this entry? This action cannot be undone.</p>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Confirm Deletion</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Are you sure you want to delete this entry? This action cannot be undone.</p>
             <div class="flex justify-center space-x-4">
-                <button id="modalCancel" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                <button id="modalCancel" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-600 rounded-md hover:bg-gray-200 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                     Cancel
                 </button>
                 <button id="modalConfirm" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">

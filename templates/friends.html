@@ -1,62 +1,83 @@
 {% extends "base.html" %}
 {% block title %}Friends{% endblock %}
 {% block content %}
-<div class="max-w-xl mx-auto">
-    <h2 class="text-3xl font-bold mb-6 text-center">Your Friends</h2>
+<div class="h-full w-full bg-gray-50 dark:bg-gray-800">
+    <div class="h-full w-full p-8">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Your Friends</h1>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="mb-4">
-                {% for category, message in messages %}
-                    {% if message != 'Login successful!' %}
-                    <div class="p-3 rounded text-center mb-2
-                        {% if category == 'error' %}bg-red-100 text-red-700 border border-red-300{% elif category == 'success' %}bg-green-100 text-green-700 border border-green-300{% elif category == 'info' %}bg-blue-100 text-blue-700 border border-blue-300{% endif %}">
-                        {{ message }}
-                    </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
-
-    <form method="POST" class="flex mb-8 justify-center">
-        <input type="text" name="friend_username" placeholder="Enter username"
-               required
-               class="border border-secondary rounded-l px-4 py-2 focus:outline-none focus:ring-2 focus:ring-secondary w-2/3">
-        <button type="submit"
-                class="bg-primary text-white px-6 py-2 rounded-r hover:bg-secondary transition-colors duration-200">
-            Add Friend
-        </button>
-    </form>
-
-    <div class="bg-white rounded-lg shadow p-6">
-        {% if friends %}
-            <ul>
-                {% for friend in friends %}
-                    <li class="flex items-center justify-between py-3 border-b last:border-b-0 hover:bg-blue-50 transition">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-xl font-bold text-white mr-4">
-                                {{ friend.username[0]|upper }}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-6">
+                        {% for category, message in messages %}
+                            {% if message != 'Login successful!' %}
+                            <div class="p-4 rounded-lg text-center mb-2
+                                {% if category == 'error' %}bg-red-100 text-red-700 border border-red-300 dark:bg-red-900 dark:text-red-200 dark:border-red-700
+                                {% elif category == 'success' %}bg-green-100 text-green-700 border border-green-300 dark:bg-green-900 dark:text-green-200 dark:border-green-700
+                                {% elif category == 'info' %}bg-blue-100 text-blue-700 border border-blue-300 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700{% endif %}">
+                                {{ message }}
                             </div>
-                            <span class="font-medium text-lg text-primary">{{ friend.username }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Add Friend Form -->
+            <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6 mb-8">
+                <form method="POST" class="flex gap-4">
+                    <input type="text" name="friend_username" placeholder="Enter username"
+                           required
+                           class="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-600 dark:text-white">
+                    <button type="submit"
+                            class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
+                        Add Friend
+                    </button>
+                </form>
+            </div>
+
+            <!-- Friends List -->
+            <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6">
+                {% if friends %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for friend in friends %}
+                            <div class="bg-gray-50 dark:bg-gray-600 rounded-lg p-4 flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-xl font-bold text-white">
+                                        {{ friend.username[0]|upper }}
+                                    </div>
+                                    <div>
+                                        <h3 class="font-medium text-gray-900 dark:text-white">{{ friend.username }}</h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Friend since {{ friend.created_at.strftime('%Y-%m-%d') }}</p>
+                                    </div>
+                                </div>
+                                <form method="POST" action="{{ url_for('remove_friend', friend_id=friend.id) }}">
+                                    <button type="submit"
+                                            class="text-red-500 hover:text-white hover:bg-red-500 rounded-full p-2 transition-colors duration-300"
+                                            title="Remove Friend">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                             viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 mx-auto mb-4 text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
                         </div>
-                        <form method="POST" action="{{ url_for('remove_friend', friend_id=friend.id) }}">
-                            <button type="submit"
-                                    class="text-red-500 hover:text-white hover:bg-red-500 rounded-full p-2 transition"
-                                    title="Remove Friend">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                     viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
-                        </form>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <div class="text-center text-gray-500 py-8">No friends yet.</div>
-        {% endif %}
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Friends Yet</h3>
+                        <p class="text-gray-500 dark:text-gray-400">Add friends to share your study progress and stay motivated together.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %} 

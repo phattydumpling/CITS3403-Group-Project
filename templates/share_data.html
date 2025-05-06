@@ -3,6 +3,73 @@
 {% block title %}Share Data{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Share Data</h1>
-<p class="text-gray-500">Share your study progress securely.</p>
+<div class="h-full w-full bg-gray-50 dark:bg-gray-800">
+    <div class="h-full w-full p-8">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Share Data</h1>
+            <p class="text-gray-600 dark:text-gray-300 mb-8">Share your study progress securely.</p>
+
+            <!-- Main Content Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Share Settings -->
+                <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Share Settings</h2>
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Study Progress</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Share your study time and goals</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Mood Tracking</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Share your mood and wellness data</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Share with Friends -->
+                <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Share with Friends</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-600 rounded-lg">
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+                                J
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-medium text-gray-900 dark:text-white">John Doe</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Last shared: 2 hours ago</p>
+                            </div>
+                            <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
+                                Share Now
+                            </button>
+                        </div>
+                        <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-600 rounded-lg">
+                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+                                S
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-medium text-gray-900 dark:text-white">Sarah Smith</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Last shared: 1 day ago</p>
+                            </div>
+                            <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
+                                Share Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
