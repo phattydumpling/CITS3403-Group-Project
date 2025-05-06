@@ -21,19 +21,29 @@ document.addEventListener('DOMContentLoaded', function () {
     const menu = document.getElementById('navbar-menu');
     if (burger && menu) {
         burger.addEventListener('click', function() {
-            menu.classList.remove('hidden');
+            menu.classList.add('open');
+            menu.classList.remove('opacity-0', 'pointer-events-none');
+            menu.classList.add('opacity-100', 'pointer-events-auto');
         });
         // Close menu when clicking the close button
         const closeBtn = menu.querySelector('#navbar-close');
         if (closeBtn) {
             closeBtn.addEventListener('click', function() {
-                menu.classList.add('hidden');
+                menu.classList.remove('open');
+                setTimeout(() => {
+                    menu.classList.remove('opacity-100', 'pointer-events-auto');
+                    menu.classList.add('opacity-0', 'pointer-events-none');
+                }, 300);
             });
         }
         // Close menu when clicking the overlay (but not the sidebar itself)
         menu.addEventListener('click', function(e) {
             if (e.target === menu) {
-                menu.classList.add('hidden');
+                menu.classList.remove('open');
+                setTimeout(() => {
+                    menu.classList.remove('opacity-100', 'pointer-events-auto');
+                    menu.classList.add('opacity-0', 'pointer-events-none');
+                }, 300);
             }
         });
     }
@@ -69,5 +79,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         });
+    });
+
+    // Close mobile menu on resize to desktop (now 1024px)
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 1024 && menu) {
+            menu.classList.remove('open');
+            setTimeout(() => {
+                menu.classList.remove('opacity-100', 'pointer-events-auto');
+                menu.classList.add('opacity-0', 'pointer-events-none');
+            }, 300);
+        }
     });
 });

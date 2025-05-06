@@ -109,21 +109,6 @@ nav a {
     padding: 0.5rem 0;
 }
 
-nav a::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: 0;
-    left: 0;
-    background-color: var(--secondary-blue);
-    transition: width 0.3s ease;
-}
-
-nav a:hover::after {
-    width: 100%;
-}
-
 nav .text-xl {
     font-weight: 600;
     letter-spacing: 0.5px;
@@ -365,4 +350,13 @@ input:focus, select:focus, textarea:focus {
     justify-content: center;
     align-items: center;
     width: 100%;
+}
+
+/* Mobile sidebar menu transitions */
+#navbar-menu .sidebar-panel {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(100%);
+}
+#navbar-menu.open .sidebar-panel {
+    transform: translateX(0);
 }
