@@ -2,138 +2,64 @@
 {% block title %}Welcome to Smart Study Scheduler{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="relative bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 py-20 overflow-hidden">
-    <div class="absolute inset-0 overflow-hidden">
+<!-- Unified Hero + Features Section -->
+<section class="min-h-screen w-full flex flex-col items-center justify-center relative bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 overflow-hidden py-20">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <div class="absolute -top-40 -right-40 w-80 h-80 bg-[#FFDE70] rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
         <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-[#A3C4EB] rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
     </div>
-    <div class="max-w-7xl mx-auto px-6 relative">
-        <div class="text-center max-w-3xl mx-auto">
-            <h1 class="text-5xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">
-                Your Personal Study Success Platform
-            </h1>
-            <p class="text-xl text-gray-600 dark:text-gray-300 mb-8">
-                Smart Study Scheduler helps you achieve academic excellence while maintaining a healthy balance between study and well-being.
-            </p>
-            <div class="flex justify-center gap-4">
-                <a href="{{ url_for('signup') }}" class="px-8 py-4 bg-[#173B64] text-white rounded-lg hover:bg-[#1a4a7d] transition-all duration-300 transform hover:scale-105 font-semibold">
-                    Get Started Free
-                </a>
-                <a href="{{ url_for('login') }}" class="px-8 py-4 bg-white text-[#173B64] rounded-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 font-semibold border border-[#173B64]">
-                    Sign In
-                </a>
-            </div>
+    <div class="relative z-10 text-center max-w-2xl mx-auto px-6 pt-20 pb-12">
+        <h1 class="text-5xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">
+            Your Personal Study Success Platform
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-300 mb-8">
+            Smart Study Scheduler helps you achieve academic excellence while maintaining a healthy balance between study and well-being.
+        </p>
+        <div class="flex justify-center gap-4 mb-16">
+        {% if not session['user_id'] %}
+            <a href="{{ url_for('signup') }}" class="px-8 py-4 bg-[#173B64] text-white rounded-lg hover:bg-[#1a4a7d] transition-all duration-300 transform hover:scale-105 font-semibold">
+                Get Started Free
+            </a>
+            <a href="{{ url_for('login') }}" class="px-8 py-4 bg-white text-[#173B64] rounded-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 font-semibold border border-[#173B64]">
+                Sign In
+            </a>
+        {% endif %}
         </div>
     </div>
-</section>
-
-<!-- Features Section -->
-<section class="py-20 bg-white dark:bg-gray-900">
-    <div class="max-w-7xl mx-auto px-6">
+    <div class="relative z-10 w-full">
         <div class="text-center mb-16">
             <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">Everything You Need to Excel</h2>
             <p class="text-xl text-gray-600 dark:text-gray-300">Comprehensive tools designed specifically for student success</p>
         </div>
-        <div class="grid md:grid-cols-3 gap-8">
-            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-6">
-                    <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Smart Study Planning</h3>
-                <p class="text-gray-600 dark:text-gray-300">Create personalized study schedules that adapt to your learning style and academic goals.</p>
-            </div>
-            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-6">
-                    <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Goal Tracking</h3>
-                <p class="text-gray-600 dark:text-gray-300">Set, monitor, and achieve your academic goals with our intuitive tracking system.</p>
-            </div>
-            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-6">
-                    <svg class="w-6 h-6 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Wellness Insights</h3>
-                <p class="text-gray-600 dark:text-gray-300">Monitor your study patterns and maintain a healthy balance between work and rest.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Stats Section -->
-<section class="py-20 bg-gray-50 dark:bg-gray-800">
-    <div class="max-w-7xl mx-auto px-6">
-        <div class="grid md:grid-cols-4 gap-8 text-center">
-            <div class="bg-white dark:bg-gray-700 p-8 rounded-xl shadow-lg">
-                <p class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">1,000+</p>
-                <p class="text-gray-600 dark:text-gray-300">Study Hours Logged</p>
-            </div>
-            <div class="bg-white dark:bg-gray-700 p-8 rounded-xl shadow-lg">
-                <p class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">500+</p>
-                <p class="text-gray-600 dark:text-gray-300">Goals Completed</p>
-            </div>
-            <div class="bg-white dark:bg-gray-700 p-8 rounded-xl shadow-lg">
-                <p class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">98%</p>
-                <p class="text-gray-600 dark:text-gray-300">User Satisfaction</p>
-            </div>
-            <div class="bg-white dark:bg-gray-700 p-8 rounded-xl shadow-lg">
-                <p class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">24/7</p>
-                <p class="text-gray-600 dark:text-gray-300">Always Available</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Testimonials Section -->
-<section class="py-20 bg-white dark:bg-gray-900">
-    <div class="max-w-7xl mx-auto px-6">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">What Our Users Say</h2>
-            <p class="text-xl text-gray-600 dark:text-gray-300">Join thousands of successful students who have transformed their study habits</p>
-        </div>
-        <div class="grid md:grid-cols-3 gap-8">
-            <div class="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                        <span class="text-blue-600 dark:text-blue-300 font-bold">S</span>
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
                     </div>
-                    <div class="ml-4">
-                        <h4 class="font-semibold text-gray-900 dark:text-white">Sarah M.</h4>
-                        <p class="text-gray-600 dark:text-gray-300">Computer Science</p>
-                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Smart Study Planning</h3>
+                    <p class="text-gray-600 dark:text-gray-300">Create personalized study schedules that adapt to your learning style and academic goals.</p>
                 </div>
-                <p class="text-gray-600 dark:text-gray-300">"This platform has completely transformed how I manage my study time. The goal tracking feature keeps me motivated and on track."</p>
-            </div>
-            <div class="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                        <span class="text-green-600 dark:text-green-300 font-bold">J</span>
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                     </div>
-                    <div class="ml-4">
-                        <h4 class="font-semibold text-gray-900 dark:text-white">James K.</h4>
-                        <p class="text-gray-600 dark:text-gray-300">Engineering</p>
-                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Goal Tracking</h3>
+                    <p class="text-gray-600 dark:text-gray-300">Set, monitor, and achieve your academic goals with our intuitive tracking system.</p>
                 </div>
-                <p class="text-gray-600 dark:text-gray-300">"The wellness insights have helped me maintain a better balance between studying and taking care of myself. Highly recommended!"</p>
-            </div>
-            <div class="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-                        <span class="text-purple-600 dark:text-purple-300 font-bold">E</span>
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
                     </div>
-                    <div class="ml-4">
-                        <h4 class="font-semibold text-gray-900 dark:text-white">Emma R.</h4>
-                        <p class="text-gray-600 dark:text-gray-300">Psychology</p>
-                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Wellness Insights</h3>
+                    <p class="text-gray-600 dark:text-gray-300">Monitor your study patterns and maintain a healthy balance between work and rest.</p>
                 </div>
-                <p class="text-gray-600 dark:text-gray-300">"The study planning tools are intuitive and effective. I've seen a significant improvement in my academic performance."</p>
             </div>
         </div>
     </div>

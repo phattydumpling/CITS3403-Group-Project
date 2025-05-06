@@ -270,24 +270,6 @@ a:hover {
     border-color: var(--secondary-blue);
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--primary-bg);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--secondary-blue);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-blue);
-}
-
 /* Focus styles */
 :focus {
     outline: 2px solid var(--accent-yellow);
