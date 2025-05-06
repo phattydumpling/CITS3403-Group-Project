@@ -20,11 +20,11 @@
 
 <body class="bg-background text-primary h-full flex flex-col">
     <!-- Top Nav Bar -->
-    <nav class="flex items-center bg-white px-6 py-4 shadow justify-between sticky top-0 z-50 text-lg">
+    <nav class="flex items-center bg-white px-6 py-3 shadow justify-between sticky top-0 z-50 text-lg">
         <!-- Logo / App Name -->
         <div class="flex items-center flex-shrink-0 mr-6">
             <a href="{% if session.get('username') %}{{ url_for('dashboard') }}{% else %}{{ url_for('index') }}{% endif %}"
-               class="text-xl font-semibold text-primary hover:text-secondary transition-colors duration-300">
+               class="text-3xl font-extrabold text-primary hover:text-secondary transition-colors duration-300">
                 StudyTracker
             </a>
         </div>
