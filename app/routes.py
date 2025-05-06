@@ -452,6 +452,7 @@ def init_routes(app):
     def inject_pending_requests():
         if 'user_id' in session:
             user = User.query.get(session['user_id'])
-            pending_count = FriendRequest.query.filter_by(to_user_id=user.id, status='pending').count()
-            return dict(pending_requests_count=pending_count)
+            if user:  # Only proceed if user exists
+                pending_count = FriendRequest.query.filter_by(to_user_id=user.id, status='pending').count()
+                return dict(pending_requests_count=pending_count)
         return dict(pending_requests_count=0) 
