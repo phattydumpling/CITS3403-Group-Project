@@ -49,7 +49,7 @@ def init_routes(app):
         session.pop('username', None)
         session.pop('user_id', None)
         session.pop('_flashes', None)
-        return redirect(url_for('home'))
+        return redirect(url_for('index'))
 
     # Main Dashboard
     @app.route('/dashboard')

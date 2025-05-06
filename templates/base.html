@@ -20,7 +20,7 @@
     <nav class="flex items-center bg-white px-6 py-2 shadow justify-between">
         <!-- Logo / App Name -->
         <div class="flex items-center flex-shrink-0 mr-6">
-            <a href="{% if session.get('username') %}{{ url_for('dashboard') }}{% else %}{{ url_for('home') }}{% endif %}"
+            <a href="{% if session.get('username') %}{{ url_for('dashboard') }}{% else %}{{ url_for('index') }}{% endif %}"
                class="text-xl font-semibold text-primary hover:text-secondary transition-colors duration-300">
                 StudyTracker
             </a>
