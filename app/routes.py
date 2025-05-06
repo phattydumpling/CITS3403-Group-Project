@@ -8,10 +8,8 @@ from datetime import datetime, timedelta
 def init_routes(app):
     # Authentication Routes
     @app.route('/')
-    def home():
-        if 'username' not in session:
-            return redirect(url_for('login'))
-        return render_template('home.html')
+    def index():
+        return render_template('index.html')
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():
