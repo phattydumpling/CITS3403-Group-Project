@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Friends{% endblock %}
+{% block title %}Social{% endblock %}
 {% block content %}
 <div class="h-full w-full bg-gray-50 dark:bg-gray-800">
     <div class="h-full w-full p-8">
         <div class="max-w-7xl mx-auto">
-            <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Your Friends</h1>
+            <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Social</h1>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -36,8 +36,51 @@
                 </form>
             </div>
 
+            <!-- Pending Friend Requests -->
+            {% if pending_requests %}
+            <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6 mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Pending Friend Requests</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for request in pending_requests %}
+                        <div class="bg-gray-50 dark:bg-gray-600 rounded-lg p-4 flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-xl font-bold text-white">
+                                    {{ request.from_user.username[0]|upper }}
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">{{ request.from_user.username }}</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Sent {{ request.created_at.strftime('%Y-%m-%d') }}</p>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <form method="POST" action="{{ url_for('accept_friend', request_id=request.id) }}" class="inline">
+                                    <button type="submit"
+                                            class="text-green-500 hover:text-white hover:bg-green-500 rounded-full p-2 transition-colors duration-300"
+                                            title="Accept Request">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('reject_friend', request_id=request.id) }}" class="inline">
+                                    <button type="submit"
+                                            class="text-red-500 hover:text-white hover:bg-red-500 rounded-full p-2 transition-colors duration-300"
+                                            title="Reject Request">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Friends List -->
             <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Your Friends</h2>
                 {% if friends %}
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {% for friend in friends %}
@@ -51,17 +94,15 @@
                                         <p class="text-sm text-gray-500 dark:text-gray-400">Friend since {{ friend.created_at.strftime('%Y-%m-%d') }}</p>
                                     </div>
                                 </div>
-                                <form method="POST" action="{{ url_for('remove_friend', friend_id=friend.id) }}">
-                                    <button type="submit"
-                                            class="text-red-500 hover:text-white hover:bg-red-500 rounded-full p-2 transition-colors duration-300"
-                                            title="Remove Friend">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                             viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M6 18L18 6M6 6l12 12"/>
-                                        </svg>
-                                    </button>
-                                </form>
+                                <button onclick="showRemoveFriendModal('{{ friend.username|e }}', '{{ friend.id|e }}')"
+                                        class="text-red-500 hover:text-white hover:bg-red-500 rounded-full p-2 transition-colors duration-300"
+                                        title="Remove Friend">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                         viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
                             </div>
                         {% endfor %}
                     </div>
@@ -80,4 +121,41 @@
         </div>
     </div>
 </div>
+
+<!-- Remove Friend Confirmation Modal -->
+<div id="removeFriendModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Remove Friend</h3>
+        <p class="text-gray-600 dark:text-gray-300 mb-6">Are you sure you want to remove <span id="friendName" class="font-medium"></span> from your friends list?</p>
+        <div class="flex justify-end space-x-4">
+            <button onclick="hideRemoveFriendModal()"
+                    class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white">
+                Cancel
+            </button>
+            <form id="removeFriendForm" method="POST" class="inline">
+                <button type="submit"
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                    Remove
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showRemoveFriendModal(username, friendId) {
+    document.getElementById('friendName').textContent = username;
+    document.getElementById('removeFriendForm').action = `/remove_friend/${friendId}`;
+    document.getElementById('removeFriendModal').classList.remove('hidden');
+    document.getElementById('removeFriendModal').classList.add('flex');
+}
+
+function hideRemoveFriendModal() {
+    document.getElementById('removeFriendModal').classList.add('hidden');
+    document.getElementById('removeFriendModal').classList.remove('flex');
+}
+</script>
 {% endblock %} 

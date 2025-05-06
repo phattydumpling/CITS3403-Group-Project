@@ -374,6 +374,7 @@ def init_routes(app):
 
         user = User.query.filter_by(username=session['username']).first()
         friends = user.friends
+        pending_requests = FriendRequest.query.filter_by(to_user_id=user.id, status='pending').all()
 
         if request.method == 'POST':
             friend_username = request.form.get('friend_username')
@@ -393,7 +394,7 @@ def init_routes(app):
                 flash(f'Friend request sent to {friend.username}!', 'success')
             return redirect(url_for('friends'))
 
-        return render_template('friends.html', friends=friends)
+        return render_template('friends.html', friends=friends, pending_requests=pending_requests)
 
     @app.route('/remove_friend/<int:friend_id>', methods=['POST'])
     def remove_friend(friend_id):
@@ -437,7 +438,7 @@ def init_routes(app):
             flash(f'You are now friends with {friend_request.from_user.username}!', 'success')
         else:
             flash('Invalid friend request.', 'error')
-        return redirect(url_for('profile'))
+        return redirect(url_for('friends'))
 
     @app.route('/reject_friend/<int:request_id>', methods=['POST'])
     def reject_friend(request_id):
@@ -450,7 +451,7 @@ def init_routes(app):
             flash('Friend request rejected.', 'info')
         else:
             flash('Invalid friend request.', 'error')
-        return redirect(url_for('profile'))
+        return redirect(url_for('friends'))
 
     @app.route('/notifications')
     def notifications():
