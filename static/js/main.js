@@ -17,10 +17,26 @@ document.addEventListener('DOMContentLoaded', function () {
     // =====================
     // Navbar toggle for mobile
     // =====================
-    document.getElementById('nav-toggle').addEventListener('click', function () {
-        const navContent = document.getElementById('nav-content');
-        navContent.classList.toggle('hidden');
-    });
+    const burger = document.getElementById('navbar-burger');
+    const menu = document.getElementById('navbar-menu');
+    if (burger && menu) {
+        burger.addEventListener('click', function() {
+            menu.classList.remove('hidden');
+        });
+        // Close menu when clicking the close button
+        const closeBtn = menu.querySelector('#navbar-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                menu.classList.add('hidden');
+            });
+        }
+        // Close menu when clicking the overlay (but not the sidebar itself)
+        menu.addEventListener('click', function(e) {
+            if (e.target === menu) {
+                menu.classList.add('hidden');
+            }
+        });
+    }
 
     // Page Transitions
     const navLinks = document.querySelectorAll('nav a');
