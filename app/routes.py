@@ -403,9 +403,17 @@ def init_routes(app):
             return redirect(url_for('login'))
 
         user = User.query.filter_by(username=session['username']).first()
-        friendship = Friendship.query.filter_by(user_id=user.id, friend_id=friend_id).first()
-        if friendship:
-            db.session.delete(friendship)
+        
+        # Remove both friendship records
+        friendship1 = Friendship.query.filter_by(user_id=user.id, friend_id=friend_id).first()
+        friendship2 = Friendship.query.filter_by(user_id=friend_id, friend_id=user.id).first()
+        
+        if friendship1:
+            db.session.delete(friendship1)
+        if friendship2:
+            db.session.delete(friendship2)
+            
+        if friendship1 or friendship2:
             db.session.commit()
             flash('Friend removed.', 'success')
         else:
@@ -420,7 +428,13 @@ def init_routes(app):
         if friend_request and friend_request.to_user.username == session['username'] and friend_request.status == 'pending':
             # Accept the request
             friend_request.status = 'accepted'
-            db.session.add(Friendship(user_id=friend_request.to_user_id, friend_id=friend_request.from_user_id))
+            
+            # Create friendship records for both users
+            friendship1 = Friendship(user_id=friend_request.to_user_id, friend_id=friend_request.from_user_id)
+            friendship2 = Friendship(user_id=friend_request.from_user_id, friend_id=friend_request.to_user_id)
+            
+            db.session.add(friendship1)
+            db.session.add(friendship2)
             db.session.commit()
             flash(f'You are now friends with {friend_request.from_user.username}!', 'success')
         else:
