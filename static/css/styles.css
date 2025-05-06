@@ -311,6 +311,7 @@ input:focus, select:focus, textarea:focus {
     opacity: 0;
 }
 
+/* Page Transition Effects */
 .page-content {
     opacity: 1;
     transition: opacity 0.3s ease-in-out;
