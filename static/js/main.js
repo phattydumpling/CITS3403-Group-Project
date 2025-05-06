@@ -13,21 +13,6 @@ tailwind.config = {
 };
 
 document.addEventListener('DOMContentLoaded', function () {
-    const toggle = document.getElementById('darkModeToggle');
-    const dot = document.querySelector('.dot'); // the small circle
-
-    if (toggle) {
-        toggle.addEventListener('change', function () {
-            document.body.classList.toggle('dark-mode');
-
-            // Move the dot
-            if (toggle.checked) {
-                dot.classList.add('translate-x-4');
-            } else {
-                dot.classList.remove('translate-x-4');
-            }
-        });
-    }
 
     // =====================
     // Navbar toggle for mobile

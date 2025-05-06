@@ -6,40 +6,6 @@ body {
     color: #000000;
 }
 
-/* ===============================
-   Dark Mode Styles
-   =============================== */
-body.dark-mode {
-    background-color: #121212;
-    color: #f1f1f1;
-}
-
-body.dark-mode .navbar,
-body.dark-mode .dropdown-menu,
-body.dark-mode .card,
-body.dark-mode .shadow,
-body.dark-mode .rounded-lg {
-    background-color: #1e1e1e !important;
-    color: #f1f1f1 !important;
-}
-
-body.dark-mode .nav-link,
-body.dark-mode .dropdown-item {
-    color: #f1f1f1 !important;
-}
-
-body.dark-mode .data-visualization-placeholder {
-    background-color: #2c2c2c;
-}
-
-body.dark-mode .text-muted,
-body.dark-mode .text-gray-500 {
-    color: #bbbbbb !important;
-}
-
-body.dark-mode .navbar-brand {
-    color: #f1f1f1 !important;
-}
 
 /* ===============================
    Dashboard Card Hover Effects
@@ -185,25 +151,6 @@ nav ul.group-hover\:block li a:hover {
     background-color: var(--secondary-blue);
     color: white !important;
     transform: translateX(5px);
-}
-
-/* Dark mode navbar styles */
-body.dark-mode nav {
-    background-color: #1e1e1e !important;
-    border-bottom: 2px solid var(--secondary-blue) !important;
-}
-
-body.dark-mode nav a {
-    color: #f1f1f1 !important;
-}
-
-body.dark-mode nav a:hover {
-    color: var(--secondary-blue) !important;
-}
-
-body.dark-mode nav ul.group-hover\:block {
-    background-color: #2c2c2c;
-    border: 1px solid var(--secondary-blue);
 }
 
 /* Button styles */

@@ -57,15 +57,6 @@
         <!-- Auth/User Buttons -->
         {% if not (request.endpoint == 'index' and not session.get('username')) %}
         <div class="flex items-center space-x-4">
-            <!-- Dark Mode Toggle -->
-            <label for="darkModeToggle" class="flex items-center cursor-pointer">
-                <input id="darkModeToggle" type="checkbox" class="sr-only">
-                <div class="relative">
-                    <div class="block bg-secondary w-10 h-6 rounded-full"></div>
-                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transform transition-transform duration-300"></div>
-                </div>
-                <span class="ml-3 text-primary">Dark Mode</span>
-            </label>
             {% if session.get('username') %}
             <!-- Notifications Bell Icon -->
             <a href="{{ url_for('notifications') }}" class="relative flex items-center px-2 py-2">
