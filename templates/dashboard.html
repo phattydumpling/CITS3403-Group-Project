@@ -17,8 +17,36 @@
                 <p class="text-2xl font-bold">42</p>
             </div>
             <div class="overview-card bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
-                <p class="text-sm text-muted">Current Week</p>
-                <p class="text-2xl font-bold">Week 7</p>
+                <p class="text-sm text-muted">Time Remaining</p>
+                <div class="space-y-2">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs">Week:</span>
+                            <span id="weekRemaining" class="text-sm font-semibold">Loading...</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
+                            <div id="weekProgress" class="bg-blue-600 h-1.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs">Month:</span>
+                            <span id="monthRemaining" class="text-sm font-semibold">Loading...</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
+                            <div id="monthProgress" class="bg-green-600 h-1.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs">Year:</span>
+                            <span id="yearRemaining" class="text-sm font-semibold">Loading...</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-700">
+                            <div id="yearProgress" class="bg-purple-600 h-1.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="overview-card bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
                 <p class="text-sm text-muted">Weekly Mood</p>
