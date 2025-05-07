@@ -4,6 +4,12 @@ from app import db
 from app.models import User, StudySession, Task, WellnessCheck, MoodEntry, Friendship, FriendRequest
 from app.forms import LoginForm, RegistrationForm, StudySessionForm, TaskForm, WellnessCheckForm
 from datetime import datetime, timedelta
+from flask_login import login_user, logout_user, login_required, current_user
+from app import login_manager
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 def init_routes(app):
     # Authentication Routes
@@ -21,8 +27,7 @@ def init_routes(app):
             ).first()
             
             if user and check_password_hash(user.password, form.password.data):
-                session['username'] = user.username
-                session['user_id'] = user.id
+                login_user(user)
                 flash('Login successful!', 'success')
                 return redirect(url_for('dashboard'))
             flash('Invalid username/email or password', 'error')
@@ -45,35 +50,30 @@ def init_routes(app):
         return render_template('signup.html', form=form)
 
     @app.route('/logout')
+    @login_required
     def logout():
-        session.pop('username', None)
-        session.pop('user_id', None)
-        session.pop('_flashes', None)
+        logout_user()
         return redirect(url_for('index'))
 
     # Main Dashboard
     @app.route('/dashboard')
+    @login_required
     def dashboard():
-        if 'username' not in session:
-            return redirect(url_for('login'))
         return render_template('dashboard.html')
 
     # Study Area Routes
     @app.route('/study_area')
+    @login_required
     def study_area():
-        if 'username' not in session:
-            return redirect(url_for('login'))
         return render_template('study_area.html')
 
     @app.route('/study_session', methods=['GET', 'POST'])
+    @login_required
     def study_session():
-        if 'username' not in session:
-            return redirect(url_for('login'))
-        
         form = StudySessionForm()
         if form.validate_on_submit():
             study_session = StudySession(
-                user_id=session['user_id'],
+                user_id=current_user.id,
                 subject=form.subject.data,
                 start_time=form.start_time.data,
                 end_time=form.end_time.data,
@@ -86,14 +86,12 @@ def init_routes(app):
         return render_template('study_session.html', form=form)
 
     @app.route('/task_overview', methods=['GET', 'POST'])
+    @login_required
     def task_overview():
-        if 'username' not in session:
-            return redirect(url_for('login'))
-        
         form = TaskForm()
         if form.validate_on_submit():
             task = Task(
-                user_id=session['user_id'],
+                user_id=current_user.id,
                 title=form.title.data,
                 description=form.description.data,
                 due_date=form.due_date.data,
@@ -105,52 +103,44 @@ def init_routes(app):
             flash('Task created successfully!', 'success')
             return redirect(url_for('task_overview'))
         
-        tasks = Task.query.filter_by(user_id=session['user_id']).all()
+        tasks = Task.query.filter_by(user_id=current_user.id).all()
         return render_template('task_overview.html', form=form, tasks=tasks)
 
     @app.route('/lecture_log')
+    @login_required
     def lecture_log():
-        if 'username' not in session:
-            return redirect(url_for('login'))
         return render_template('lecture_log.html')
 
     @app.route('/assessments')
+    @login_required
     def assessments():
-        if 'username' not in session:
-            return redirect(url_for('login'))
         return render_template('assessments.html')
 
     @app.route('/resources')
+    @login_required
     def resources():
-        if 'username' not in session:
-            return redirect(url_for('login'))
         return render_template('resources.html')
 
     # Care Page Routes
     @app.route('/health_carer')
+    @login_required
     def health_carer():
-        if 'username' not in session:
-            return redirect(url_for('login'))
-        
         # Get user's mood entries for the past week
-        user = User.query.get(session['user_id'])
         week_ago = datetime.utcnow() - timedelta(days=7)
         mood_entries = MoodEntry.query.filter(
-            MoodEntry.user_id == session['user_id'],
+            MoodEntry.user_id == current_user.id,
             MoodEntry.created_at >= week_ago
         ).order_by(MoodEntry.created_at.desc()).all()
         
         return render_template('health_carer.html', mood_entries=mood_entries)
 
     @app.route('/wellness_check', methods=['GET', 'POST'])
+    @login_required
     def wellness_check():
-        if 'username' not in session:
-            return redirect(url_for('login'))
-        
         form = WellnessCheckForm()
         if form.validate_on_submit():
             check = WellnessCheck(
-                user_id=session['user_id'],
+                user_id=current_user.id,
                 mood_score=int(form.mood_score.data),
                 stress_level=int(form.stress_level.data),
                 sleep_hours=float(form.sleep_hours.data),
@@ -164,18 +154,15 @@ def init_routes(app):
 
     # Data Sharing Route
     @app.route('/share_data')
+    @login_required
     def share_data():
-        if 'username' not in session:
-            return redirect(url_for('login'))
         return render_template('share_data.html')
 
     # API Routes for Tasks
     @app.route('/api/tasks', methods=['GET'])
+    @login_required
     def get_tasks():
-        if 'user_id' not in session:
-            return jsonify({'error': 'Not logged in'}), 401
-        
-        tasks = Task.query.filter_by(user_id=session['user_id']).order_by(Task.created_at.desc()).all()
+        tasks = Task.query.filter_by(user_id=current_user.id).order_by(Task.created_at.desc()).all()
         return jsonify([{
             'id': task.id,
             'title': task.title,
@@ -185,16 +172,14 @@ def init_routes(app):
         } for task in tasks])
 
     @app.route('/api/tasks', methods=['POST'])
+    @login_required
     def create_task():
-        if 'user_id' not in session:
-            return jsonify({'error': 'Not logged in'}), 401
-        
         data = request.get_json()
         if not data or 'title' not in data:
             return jsonify({'error': 'Title is required'}), 400
         
         task = Task(
-            user_id=session['user_id'],
+            user_id=current_user.id,
             title=data['title'],
             status='pending',
             priority='medium'
@@ -211,11 +196,9 @@ def init_routes(app):
         }), 201
 
     @app.route('/api/tasks/<int:task_id>', methods=['DELETE'])
+    @login_required
     def delete_task(task_id):
-        if 'user_id' not in session:
-            return jsonify({'error': 'Not logged in'}), 401
-        
-        task = Task.query.filter_by(id=task_id, user_id=session['user_id']).first()
+        task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()
         if not task:
             return jsonify({'error': 'Task not found'}), 404
         
@@ -224,11 +207,9 @@ def init_routes(app):
         return '', 204
 
     @app.route('/api/tasks/<int:task_id>', methods=['PUT'])
+    @login_required
     def update_task(task_id):
-        if 'user_id' not in session:
-            return jsonify({'error': 'Not logged in'}), 401
-        
-        task = Task.query.filter_by(id=task_id, user_id=session['user_id']).first()
+        task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()
         if not task:
             return jsonify({'error': 'Task not found'}), 404
         

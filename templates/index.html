@@ -16,7 +16,7 @@
             <span id="typing-hero"></span>
         </h2>
         <div class="flex justify-center gap-4 mb-16">
-        {% if not session['user_id'] %}
+        {% if not current_user.is_authenticated %}
             <a href="{{ url_for('signup') }}" class="px-8 py-4 bg-[#173B64] text-white rounded-lg hover:bg-[#1a4a7d] transition-all duration-300 transform hover:scale-105 font-semibold">
                 Get Started
             </a>

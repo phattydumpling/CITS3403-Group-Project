@@ -1,5 +1,6 @@
 from datetime import datetime, UTC
 from app import db
+from flask_login import UserMixin
 
 class FriendRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -14,7 +15,7 @@ class Friendship(db.Model):
     friend_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     __table_args__ = (db.UniqueConstraint('user_id', 'friend_id', name='_user_friend_uc'),)
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
