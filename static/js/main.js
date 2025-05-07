@@ -13,52 +13,82 @@ tailwind.config = {
 };
 
 document.addEventListener('DOMContentLoaded', function () {
-    const toggle = document.getElementById('darkModeToggle');
-    const dot = document.querySelector('.dot'); // the small circle
-
-    if (toggle) {
-        toggle.addEventListener('change', function () {
-            document.body.classList.toggle('dark-mode');
-
-            // Move the dot
-            if (toggle.checked) {
-                dot.classList.add('translate-x-4');
-            } else {
-                dot.classList.remove('translate-x-4');
-            }
-        });
-    }
 
     // =====================
     // Navbar toggle for mobile
     // =====================
-    document.getElementById('nav-toggle').addEventListener('click', function () {
-        const navContent = document.getElementById('nav-content');
-        navContent.classList.toggle('hidden');
-    });
+    const burger = document.getElementById('navbar-burger');
+    const menu = document.getElementById('navbar-menu');
+    if (burger && menu) {
+        burger.addEventListener('click', function() {
+            menu.classList.add('open');
+            menu.classList.remove('opacity-0', 'pointer-events-none');
+            menu.classList.add('opacity-100', 'pointer-events-auto');
+        });
+        // Close menu when clicking the close button
+        const closeBtn = menu.querySelector('#navbar-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                menu.classList.remove('open');
+                setTimeout(() => {
+                    menu.classList.remove('opacity-100', 'pointer-events-auto');
+                    menu.classList.add('opacity-0', 'pointer-events-none');
+                }, 300);
+            });
+        }
+        // Close menu when clicking the overlay (but not the sidebar itself)
+        menu.addEventListener('click', function(e) {
+            if (e.target === menu) {
+                menu.classList.remove('open');
+                setTimeout(() => {
+                    menu.classList.remove('opacity-100', 'pointer-events-auto');
+                    menu.classList.add('opacity-0', 'pointer-events-none');
+                }, 300);
+            }
+        });
+    }
 
-    // Fade Transitions for Navigation
+    // Page Transitions
     const navLinks = document.querySelectorAll('nav a');
     const pageContent = document.querySelector('.page-content');
-
+    
+    // Handle initial page load
+    if (pageContent) {
+        // Remove fade-out class if it exists
+        pageContent.classList.remove('fade-out');
+    }
+    
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-            // Only apply transition if it's not an external link
-            if (!this.getAttribute('href').startsWith('http')) {
+            // Only handle internal links
+            if (this.href.startsWith(window.location.origin)) {
                 e.preventDefault();
-                const href = this.getAttribute('href');
+                const targetUrl = this.href;
                 
-                // Add fade-out class to current content
-                pageContent.classList.add('fade-out');
-                
-                // Wait for fade-out animation to complete
-                setTimeout(() => {
-                    window.location.href = href;
-                }, 300);
+                // Add fade-out class to trigger the transition
+                if (pageContent) {
+                    pageContent.classList.add('fade-out');
+                    
+                    // Wait for the fade-out animation to complete before navigating
+                    setTimeout(() => {
+                        window.location.href = targetUrl;
+                    }, 100); // Match this with the CSS transition duration
+                } else {
+                    // If page content not found, navigate immediately
+                    window.location.href = targetUrl;
+                }
             }
         });
     });
 
-    // Remove fade-out class when page loads
-    pageContent.classList.remove('fade-out');
+    // Close mobile menu on resize to desktop (now 1024px)
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 1024 && menu) {
+            menu.classList.remove('open');
+            setTimeout(() => {
+                menu.classList.remove('opacity-100', 'pointer-events-auto');
+                menu.classList.add('opacity-0', 'pointer-events-none');
+            }, 300);
+        }
+    });
 });

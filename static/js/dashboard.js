@@ -5,7 +5,11 @@ document.addEventListener("DOMContentLoaded", function () {
         flatpickr(calendarDiv, {
             inline: true,
             defaultDate: new Date(),
-            clickOpens: false
+            clickOpens: false,
+            static: true,
+            className: "w-full",
+            monthSelectorType: "static",
+            disableMobile: true
         });
     }
     
@@ -297,4 +301,55 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Call updateWeeklyMood when the page loads
     updateWeeklyMood();
+
+    // Time Remaining Tracker
+    function updateTimeRemaining() {
+        const now = new Date();
+        
+        // Calculate week remaining
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+        
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 7);
+        endOfWeek.setHours(23, 59, 59, 999);
+        
+        const weekTotal = endOfWeek - startOfWeek;
+        const weekRemaining = endOfWeek - now;
+        const weekProgress = ((weekTotal - weekRemaining) / weekTotal) * 100;
+        
+        const weekDays = Math.floor(weekRemaining / (1000 * 60 * 60 * 24));
+        const weekHours = Math.floor((weekRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        document.getElementById('weekRemaining').textContent = `${weekDays}d ${weekHours}h`;
+        document.getElementById('weekProgress').style.width = `${weekProgress}%`;
+        
+        // Calculate month remaining
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+        
+        const monthTotal = endOfMonth - startOfMonth;
+        const monthRemaining = endOfMonth - now;
+        const monthProgress = ((monthTotal - monthRemaining) / monthTotal) * 100;
+        
+        const monthDays = Math.floor(monthRemaining / (1000 * 60 * 60 * 24));
+        document.getElementById('monthRemaining').textContent = `${monthDays} days`;
+        document.getElementById('monthProgress').style.width = `${monthProgress}%`;
+        
+        // Calculate year remaining
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        const endOfYear = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+        
+        const yearTotal = endOfYear - startOfYear;
+        const yearRemaining = endOfYear - now;
+        const yearProgress = ((yearTotal - yearRemaining) / yearTotal) * 100;
+        
+        const yearDays = Math.floor(yearRemaining / (1000 * 60 * 60 * 24));
+        document.getElementById('yearRemaining').textContent = `${yearDays} days`;
+        document.getElementById('yearProgress').style.width = `${yearProgress}%`;
+    }
+
+    // Update time remaining every minute
+    updateTimeRemaining();
+    setInterval(updateTimeRemaining, 60000);
 });

@@ -1,1 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Welcome to Smart Study Scheduler{% endblock %}
 
+{% block content %}
+<!-- Unified Hero + Features Section -->
+<section class="min-h-[calc(100vh-72px)] w-full flex flex-col items-center justify-center relative bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-[#FFDE70] rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-[#A3C4EB] rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+    </div>
+    <div class="relative z-10 text-center max-w-2xl mx-auto px-6 pt-20 pb-12">
+        <h1 class="text-7xl font-extrabold text-gray-900 dark:text-white mb-2 leading-tight min-h-[3.5rem]">
+            StudyTracker
+        </h1>
+        <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4 min-h-[2.5rem] mt-8">
+            <span id="typing-hero"></span>
+        </h2>
+        <div class="flex justify-center gap-4 mb-16">
+        {% if not session['user_id'] %}
+            <a href="{{ url_for('signup') }}" class="px-8 py-4 bg-[#173B64] text-white rounded-lg hover:bg-[#1a4a7d] transition-all duration-300 transform hover:scale-105 font-semibold">
+                Get Started
+            </a>
+            <a href="{{ url_for('login') }}" class="px-8 py-4 bg-white text-[#173B64] rounded-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 font-semibold border border-[#173B64]">
+                Sign In
+            </a>
+        {% endif %}
+        </div>
+    </div>
+    <div class="relative z-10 w-full">
+        <div class="text-center mb-2">
+        </div>
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Smart Study Planning</h3>
+                    <p class="text-gray-600 dark:text-gray-300">Easily create and manage personalized study schedules tailored to your unique learning style, course load, and academic goals. Our intelligent planner helps you organize your time efficiently, prioritize tasks, and stay on track throughout the semester.</p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Goal Tracking</h3>
+                    <p class="text-gray-600 dark:text-gray-300">Set clear academic goals, break them down into actionable steps, and monitor your progress with visual trackers. Receive timely reminders and motivational insights to help you stay focused and celebrate your achievements along the way.</p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Wellness Insights</h3>
+                    <p class="text-gray-600 dark:text-gray-300">Gain valuable insights into your study habits and well-being. Track your mood, sleep, and productivity to maintain a healthy balance between work and rest, and receive personalized tips to support your academic and personal growth.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const text = "Your Personal Study Success Platform";
+const el = document.getElementById('typing-hero');
+let idx = 0;
+let typing = true;
+
+function type() {
+    if (typing) {
+        if (idx < text.length) {
+            el.textContent += text.charAt(idx);
+            idx++;
+            setTimeout(type, 60);
+        } else {
+            typing = false;
+            setTimeout(type, 1200); // Pause before deleting
+        }
+    } else {
+        if (idx > 0) {
+            el.textContent = text.substring(0, idx - 1);
+            idx--;
+            setTimeout(type, 30);
+        } else {
+            typing = true;
+            setTimeout(type, 600); // Pause before typing again
+        }
+    }
+}
+type();
+</script>
+{% endblock %}

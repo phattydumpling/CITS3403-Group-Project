@@ -1,12 +1,29 @@
 // Global variables
 let moodChart = null;
+let pendingDeleteId = null;
+
+function showConfirmationModal(entryId) {
+    const modal = document.getElementById('confirmationModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    pendingDeleteId = entryId;
+}
+
+function hideConfirmationModal() {
+    const modal = document.getElementById('confirmationModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    pendingDeleteId = null;
+}
 
 function deleteEntry(entryId) {
-    if (!confirm('Are you sure you want to delete this entry?')) {
-        return;
-    }
+    showConfirmationModal(entryId);
+}
 
-    fetch(`/api/mood_entries/${entryId}`, {
+function confirmDelete() {
+    if (!pendingDeleteId) return;
+
+    fetch(`/api/mood_entries/${pendingDeleteId}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json'
@@ -17,7 +34,7 @@ function deleteEntry(entryId) {
             throw new Error('Failed to delete entry');
         }
         // Remove the entry from the DOM
-        const entryElement = document.getElementById(`entry-${entryId}`);
+        const entryElement = document.getElementById(`entry-${pendingDeleteId}`);
         if (entryElement) {
             entryElement.remove();
         }
@@ -46,6 +63,9 @@ function deleteEntry(entryId) {
     .catch(error => {
         console.error('Error:', error);
         alert('Failed to delete entry. Please try again.');
+    })
+    .finally(() => {
+        hideConfirmationModal();
     });
 }
 
@@ -199,4 +219,15 @@ document.addEventListener('DOMContentLoaded', function() {
             moodChart.update();
         })
         .catch(error => console.error('Error loading mood entries:', error));
+
+    // Add event listeners for modal buttons
+    document.getElementById('modalCancel').addEventListener('click', hideConfirmationModal);
+    document.getElementById('modalConfirm').addEventListener('click', confirmDelete);
+
+    // Close modal when clicking outside
+    document.getElementById('confirmationModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideConfirmationModal();
+        }
+    });
 }); 

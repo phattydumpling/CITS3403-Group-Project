@@ -8,10 +8,8 @@ from datetime import datetime, timedelta
 def init_routes(app):
     # Authentication Routes
     @app.route('/')
-    def home():
-        if 'username' not in session:
-            return redirect(url_for('login'))
-        return render_template('home.html')
+    def index():
+        return render_template('index.html')
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():
@@ -51,7 +49,7 @@ def init_routes(app):
         session.pop('username', None)
         session.pop('user_id', None)
         session.pop('_flashes', None)
-        return redirect(url_for('home'))
+        return redirect(url_for('index'))
 
     # Main Dashboard
     @app.route('/dashboard')
@@ -256,13 +254,13 @@ def init_routes(app):
         if 'username' not in session:
             return redirect(url_for('login'))
         
-        user = User.query.get(session['user_id'])
-        if not user:
+        current_user = User.query.get(session['user_id'])
+        if not current_user:
             flash('User not found', 'error')
             return redirect(url_for('dashboard'))
         
         # Show pending friend requests
-        pending_requests = FriendRequest.query.filter_by(to_user_id=user.id, status='pending').all()
+        pending_requests = FriendRequest.query.filter_by(to_user_id=current_user.id, status='pending').all()
         
         if request.method == 'POST':
             # Handle profile updates
@@ -271,18 +269,18 @@ def init_routes(app):
             new_password = request.form.get('new_password')
             
             # Update email if provided
-            if email and email != user.email:
+            if email and email != current_user.email:
                 # Check if email is already taken
                 existing_user = User.query.filter_by(email=email).first()
-                if existing_user and existing_user.id != user.id:
+                if existing_user and existing_user.id != current_user.id:
                     flash('Email already in use', 'error')
                 else:
-                    user.email = email
+                    current_user.email = email
                     flash('Email updated successfully', 'success')
             
             # Update password if provided
             if current_password and new_password:
-                if check_password_hash(user.password, current_password):
+                if check_password_hash(current_user.password, current_password):
                     # Validate new password requirements
                     if len(new_password) < 8:
                         flash('Password must be at least 8 characters long', 'error')
@@ -295,7 +293,7 @@ def init_routes(app):
                     elif not any(c in '!@#$%^&*(),.?":{}|<>' for c in new_password):
                         flash('Password must contain at least one special character', 'error')
                     else:
-                        user.password = generate_password_hash(new_password)
+                        current_user.password = generate_password_hash(new_password)
                         flash('Password updated successfully', 'success')
                 else:
                     flash('Current password is incorrect', 'error')
@@ -303,7 +301,7 @@ def init_routes(app):
             db.session.commit()
             return redirect(url_for('profile'))
         
-        return render_template('profile.html', user=user, pending_requests=pending_requests)
+        return render_template('profile.html', current_user=current_user, pending_requests=pending_requests)
 
     @app.route('/api/mood_entries', methods=['POST'])
     def create_mood_entry():
@@ -376,6 +374,7 @@ def init_routes(app):
 
         user = User.query.filter_by(username=session['username']).first()
         friends = user.friends
+        pending_requests = FriendRequest.query.filter_by(to_user_id=user.id, status='pending').all()
 
         if request.method == 'POST':
             friend_username = request.form.get('friend_username')
@@ -395,7 +394,7 @@ def init_routes(app):
                 flash(f'Friend request sent to {friend.username}!', 'success')
             return redirect(url_for('friends'))
 
-        return render_template('friends.html', friends=friends)
+        return render_template('friends.html', friends=friends, pending_requests=pending_requests)
 
     @app.route('/remove_friend/<int:friend_id>', methods=['POST'])
     def remove_friend(friend_id):
@@ -403,9 +402,17 @@ def init_routes(app):
             return redirect(url_for('login'))
 
         user = User.query.filter_by(username=session['username']).first()
-        friendship = Friendship.query.filter_by(user_id=user.id, friend_id=friend_id).first()
-        if friendship:
-            db.session.delete(friendship)
+        
+        # Remove both friendship records
+        friendship1 = Friendship.query.filter_by(user_id=user.id, friend_id=friend_id).first()
+        friendship2 = Friendship.query.filter_by(user_id=friend_id, friend_id=user.id).first()
+        
+        if friendship1:
+            db.session.delete(friendship1)
+        if friendship2:
+            db.session.delete(friendship2)
+            
+        if friendship1 or friendship2:
             db.session.commit()
             flash('Friend removed.', 'success')
         else:
@@ -420,12 +427,18 @@ def init_routes(app):
         if friend_request and friend_request.to_user.username == session['username'] and friend_request.status == 'pending':
             # Accept the request
             friend_request.status = 'accepted'
-            db.session.add(Friendship(user_id=friend_request.to_user_id, friend_id=friend_request.from_user_id))
+            
+            # Create friendship records for both users
+            friendship1 = Friendship(user_id=friend_request.to_user_id, friend_id=friend_request.from_user_id)
+            friendship2 = Friendship(user_id=friend_request.from_user_id, friend_id=friend_request.to_user_id)
+            
+            db.session.add(friendship1)
+            db.session.add(friendship2)
             db.session.commit()
             flash(f'You are now friends with {friend_request.from_user.username}!', 'success')
         else:
             flash('Invalid friend request.', 'error')
-        return redirect(url_for('profile'))
+        return redirect(url_for('friends'))
 
     @app.route('/reject_friend/<int:request_id>', methods=['POST'])
     def reject_friend(request_id):
@@ -438,7 +451,7 @@ def init_routes(app):
             flash('Friend request rejected.', 'info')
         else:
             flash('Invalid friend request.', 'error')
-        return redirect(url_for('profile'))
+        return redirect(url_for('friends'))
 
     @app.route('/notifications')
     def notifications():
