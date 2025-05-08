@@ -78,7 +78,9 @@ def init_routes(app):
     def logout():
         logout_user()
         session.clear()  # Clear all session data including flash messages
-        return redirect(url_for('index'))
+        response = redirect(url_for('index'))
+        response.delete_cookie('remember_token')  # Clear the remember me cookie
+        return response
 
     # Main Dashboard
     @app.route('/dashboard')
