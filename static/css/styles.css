@@ -360,3 +360,26 @@ input:focus, select:focus, textarea:focus {
 #navbar-menu.open .sidebar-panel {
     transform: translateX(0);
 }
+
+/* Password Requirements Styles */
+.password-requirement {
+    color: #6B7280;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.password-requirement.valid {
+    color: #059669;
+}
+
+.password-requirement.invalid {
+    color: #DC2626;
+}
+
+.requirement-icon {
+    width: 1rem;
+    text-align: center;
+}

@@ -5,6 +5,7 @@
     <title>Register - Smart Study Scheduler</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-pattern min-h-screen relative overflow-hidden">
     <!-- Animated background elements -->
@@ -59,7 +60,29 @@
 
                 <div>
                     {{ form.password.label(class="form-label") }}
-                    {{ form.password(class="form-input", placeholder="Create a password") }}
+                    {{ form.password(class="form-input", placeholder="Create a password", id="password") }}
+                    <div id="password-requirements" class="mt-2 space-y-1">
+                        <p class="password-requirement" id="length">
+                            <span class="requirement-icon"><i class="fas fa-times"></i></span>
+                            At least 8 characters long
+                        </p>
+                        <p class="password-requirement" id="uppercase">
+                            <span class="requirement-icon"><i class="fas fa-times"></i></span>
+                            Contains uppercase letter
+                        </p>
+                        <p class="password-requirement" id="lowercase">
+                            <span class="requirement-icon"><i class="fas fa-times"></i></span>
+                            Contains lowercase letter
+                        </p>
+                        <p class="password-requirement" id="number">
+                            <span class="requirement-icon"><i class="fas fa-times"></i></span>
+                            Contains number
+                        </p>
+                        <p class="password-requirement" id="special">
+                            <span class="requirement-icon"><i class="fas fa-times"></i></span>
+                            Contains special character
+                        </p>
+                    </div>
                     {% if form.password.errors %}
                         {% for error in form.password.errors %}
                             <p class="text-red-500 text-sm mt-1">{{ error }}</p>
@@ -86,5 +109,7 @@
             </p>
         </div>
     </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

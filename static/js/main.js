@@ -91,4 +91,51 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 300);
         }
     });
+
+    // Password validation functionality
+    const password = document.getElementById('password');
+    if (!password) return; // Exit if password field doesn't exist
+
+    const requirements = {
+        length: document.getElementById('length'),
+        uppercase: document.getElementById('uppercase'),
+        lowercase: document.getElementById('lowercase'),
+        number: document.getElementById('number'),
+        special: document.getElementById('special')
+    };
+
+    function updateRequirement(requirement, isValid) {
+        if (!requirement) return; // Exit if requirement element doesn't exist
+        const icon = requirement.querySelector('.requirement-icon i');
+        if (!icon) return; // Exit if icon doesn't exist
+
+        if (isValid) {
+            requirement.classList.add('valid');
+            requirement.classList.remove('invalid');
+            icon.className = 'fas fa-check';
+        } else {
+            requirement.classList.add('invalid');
+            requirement.classList.remove('valid');
+            icon.className = 'fas fa-times';
+        }
+    }
+
+    password.addEventListener('input', function() {
+        const value = this.value;
+        
+        // Check length
+        updateRequirement(requirements.length, value.length >= 8);
+
+        // Check uppercase
+        updateRequirement(requirements.uppercase, /[A-Z]/.test(value));
+
+        // Check lowercase
+        updateRequirement(requirements.lowercase, /[a-z]/.test(value));
+
+        // Check number
+        updateRequirement(requirements.number, /\d/.test(value));
+
+        // Check special character
+        updateRequirement(requirements.special, /[!@#$%^&*(),.?":{}|<>]/.test(value));
+    });
 });
