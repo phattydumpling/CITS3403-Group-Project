@@ -57,6 +57,11 @@
                     {% endif %}
                 </div>
 
+                <div class="flex items-center">
+                    {{ form.remember_me(class="h-4 w-4 text-[#173B64] focus:ring-[#173B64] border-gray-300 rounded") }}
+                    {{ form.remember_me.label(class="ml-2 block text-sm text-gray-700") }}
+                </div>
+
                 {{ form.submit(class="btn-primary") }}
             </form>
 

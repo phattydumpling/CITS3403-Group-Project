@@ -15,6 +15,8 @@ def init_routes(app):
     # Authentication Routes
     @app.route('/')
     def index():
+        if current_user.is_authenticated:
+            return redirect(url_for('dashboard'))
         return render_template('index.html')
 
     @app.route('/login', methods=['GET', 'POST'])
@@ -27,7 +29,7 @@ def init_routes(app):
             ).first()
             
             if user and check_password_hash(user.password, form.password.data):
-                login_user(user)
+                login_user(user, remember=form.remember_me.data)
                 flash('Login successful!', 'success')
                 return redirect(url_for('dashboard'))
             flash('Invalid username/email or password', 'error')
@@ -53,6 +55,7 @@ def init_routes(app):
     @login_required
     def logout():
         logout_user()
+        session.clear()  # Clear all session data including flash messages
         return redirect(url_for('index'))
 
     # Main Dashboard
