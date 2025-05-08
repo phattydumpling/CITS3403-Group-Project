@@ -310,6 +310,7 @@ input:focus, select:focus, textarea:focus {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* Blob Animation */
 @keyframes blob {
     0% { transform: translate(0px, 0px) scale(1); }
     33% { transform: translate(30px, -50px) scale(1.1); }
