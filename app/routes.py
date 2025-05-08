@@ -231,15 +231,8 @@ def init_routes(app):
         })
 
     @app.route('/profile', methods=['GET', 'POST'])
+    @login_required
     def profile():
-        if 'username' not in session:
-            return redirect(url_for('login'))
-        
-        current_user = User.query.get(session['user_id'])
-        if not current_user:
-            flash('User not found', 'error')
-            return redirect(url_for('dashboard'))
-        
         # Show pending friend requests
         pending_requests = FriendRequest.query.filter_by(to_user_id=current_user.id, status='pending').all()
         
@@ -285,16 +278,14 @@ def init_routes(app):
         return render_template('profile.html', current_user=current_user, pending_requests=pending_requests)
 
     @app.route('/api/mood_entries', methods=['POST'])
+    @login_required
     def create_mood_entry():
-        if 'user_id' not in session:
-            return jsonify({'error': 'Not logged in'}), 401
-        
         data = request.get_json()
         if not data or 'mood_score' not in data or 'sleep_quality' not in data:
             return jsonify({'error': 'Missing required fields'}), 400
         
         entry = MoodEntry(
-            user_id=session['user_id'],
+            user_id=current_user.id,
             mood_score=int(data['mood_score']),
             sleep_quality=int(data['sleep_quality']),
             reflection=data.get('reflection', '')
@@ -312,13 +303,11 @@ def init_routes(app):
         }), 201
 
     @app.route('/api/mood_entries', methods=['GET'])
+    @login_required
     def get_mood_entries():
-        if 'user_id' not in session:
-            return jsonify({'error': 'Not logged in'}), 401
-        
         week_ago = datetime.utcnow() - timedelta(days=7)
         entries = MoodEntry.query.filter(
-            MoodEntry.user_id == session['user_id'],
+            MoodEntry.user_id == current_user.id,
             MoodEntry.created_at >= week_ago
         ).order_by(MoodEntry.created_at.desc()).all()
         
@@ -331,12 +320,10 @@ def init_routes(app):
         } for entry in entries])
 
     @app.route('/api/mood_entries/<int:entry_id>', methods=['DELETE'])
+    @login_required
     def delete_mood_entry(entry_id):
-        if 'user_id' not in session:
-            return jsonify({'error': 'Not logged in'}), 401
-        
         try:
-            entry = MoodEntry.query.filter_by(id=entry_id, user_id=session['user_id']).first()
+            entry = MoodEntry.query.filter_by(id=entry_id, user_id=current_user.id).first()
             if not entry:
                 return jsonify({'error': 'Entry not found'}), 404
             
@@ -349,27 +336,24 @@ def init_routes(app):
             return jsonify({'error': str(e)}), 500
 
     @app.route('/friends', methods=['GET', 'POST'])
+    @login_required
     def friends():
-        if 'username' not in session:
-            return redirect(url_for('login'))
-
-        user = User.query.filter_by(username=session['username']).first()
-        friends = user.friends
-        pending_requests = FriendRequest.query.filter_by(to_user_id=user.id, status='pending').all()
+        friends = current_user.friends
+        pending_requests = FriendRequest.query.filter_by(to_user_id=current_user.id, status='pending').all()
 
         if request.method == 'POST':
             friend_username = request.form.get('friend_username')
             friend = User.query.filter_by(username=friend_username).first()
             if not friend:
                 flash('User not found.', 'error')
-            elif friend == user:
+            elif friend == current_user:
                 flash('You cannot add yourself as a friend.', 'error')
             elif friend in friends:
                 flash('Already friends.', 'info')
-            elif FriendRequest.query.filter_by(from_user_id=user.id, to_user_id=friend.id, status='pending').first():
+            elif FriendRequest.query.filter_by(from_user_id=current_user.id, to_user_id=friend.id, status='pending').first():
                 flash('Friend request already sent.', 'info')
             else:
-                new_request = FriendRequest(from_user_id=user.id, to_user_id=friend.id)
+                new_request = FriendRequest(from_user_id=current_user.id, to_user_id=friend.id)
                 db.session.add(new_request)
                 db.session.commit()
                 flash(f'Friend request sent to {friend.username}!', 'success')
@@ -378,15 +362,11 @@ def init_routes(app):
         return render_template('friends.html', friends=friends, pending_requests=pending_requests)
 
     @app.route('/remove_friend/<int:friend_id>', methods=['POST'])
+    @login_required
     def remove_friend(friend_id):
-        if 'username' not in session:
-            return redirect(url_for('login'))
-
-        user = User.query.filter_by(username=session['username']).first()
-        
         # Remove both friendship records
-        friendship1 = Friendship.query.filter_by(user_id=user.id, friend_id=friend_id).first()
-        friendship2 = Friendship.query.filter_by(user_id=friend_id, friend_id=user.id).first()
+        friendship1 = Friendship.query.filter_by(user_id=current_user.id, friend_id=friend_id).first()
+        friendship2 = Friendship.query.filter_by(user_id=friend_id, friend_id=current_user.id).first()
         
         if friendship1:
             db.session.delete(friendship1)
@@ -401,11 +381,10 @@ def init_routes(app):
         return redirect(url_for('friends'))
 
     @app.route('/accept_friend/<int:request_id>', methods=['POST'])
+    @login_required
     def accept_friend(request_id):
-        if 'username' not in session:
-            return redirect(url_for('login'))
         friend_request = FriendRequest.query.get(request_id)
-        if friend_request and friend_request.to_user.username == session['username'] and friend_request.status == 'pending':
+        if friend_request and friend_request.to_user_id == current_user.id and friend_request.status == 'pending':
             # Accept the request
             friend_request.status = 'accepted'
             
@@ -422,11 +401,10 @@ def init_routes(app):
         return redirect(url_for('friends'))
 
     @app.route('/reject_friend/<int:request_id>', methods=['POST'])
+    @login_required
     def reject_friend(request_id):
-        if 'username' not in session:
-            return redirect(url_for('login'))
         friend_request = FriendRequest.query.get(request_id)
-        if friend_request and friend_request.to_user.username == session['username'] and friend_request.status == 'pending':
+        if friend_request and friend_request.to_user_id == current_user.id and friend_request.status == 'pending':
             friend_request.status = 'rejected'
             db.session.commit()
             flash('Friend request rejected.', 'info')
@@ -435,18 +413,14 @@ def init_routes(app):
         return redirect(url_for('friends'))
 
     @app.route('/notifications')
+    @login_required
     def notifications():
-        if 'username' not in session:
-            return redirect(url_for('login'))
-        user = User.query.get(session['user_id'])
-        pending_requests = FriendRequest.query.filter_by(to_user_id=user.id, status='pending').all()
+        pending_requests = FriendRequest.query.filter_by(to_user_id=current_user.id, status='pending').all()
         return render_template('notifications.html', pending_requests=pending_requests)
 
     @app.context_processor
     def inject_pending_requests():
-        if 'user_id' in session:
-            user = User.query.get(session['user_id'])
-            if user:  # Only proceed if user exists
-                pending_count = FriendRequest.query.filter_by(to_user_id=user.id, status='pending').count()
-                return dict(pending_requests_count=pending_count)
+        if current_user.is_authenticated:
+            pending_count = FriendRequest.query.filter_by(to_user_id=current_user.id, status='pending').count()
+            return dict(pending_requests_count=pending_count)
         return dict(pending_requests_count=0) 
