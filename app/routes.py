@@ -83,7 +83,57 @@ def init_routes(app):
             db.session.commit()
             flash('Study session recorded successfully!', 'success')
             return redirect(url_for('dashboard'))
+        
         return render_template('study_session.html', form=form)
+
+    @app.route('/api/study_sessions/search', methods=['GET'])
+    def search_study_sessions():
+        query = request.args.get('q', '').lower()
+        unit_code = request.args.get('unit_code', '').lower()
+
+        with sqlite3.connect(DB_FILE) as conn:
+            c = conn.cursor()
+            sql = f"SELECT * FROM study_sessions WHERE 1=1"
+            params = []
+
+            if unit_code:
+                sql += " AND LOWER(subject) LIKE ?"
+                params.append(f'%{unit_code}%')
+
+            if query:
+                sql += " AND (LOWER(subject) LIKE ? OR LOWER(notes) LIKE ?)"
+                params.extend([f'%{query}%'] * 2)
+
+            c.execute(sql, params)
+            rows = c.fetchall()
+
+        return jsonify(rows)
+
+    @app.route('/api/study_sessions/add', methods=['POST'])
+    def add_study_session():
+        data = request.get_json()
+        with sqlite3.connect(DB_FILE) as conn:
+            c = conn.cursor()
+            c.execute('INSERT INTO study_sessions (user_id, subject, start_time, end_time, notes, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+                    (data['user_id'], data['subject'], data['start_time'], data['end_time'], data['notes'], data['created_at']))
+            conn.commit()
+        return jsonify({'status': 'success'})
+
+    @app.route('/api/study_sessions/delete', methods=['POST'])
+    def delete_study_sessions():
+        ids = request.get_json().get('ids', [])
+        if not ids:
+            return jsonify({'status': 'error', 'message': 'No IDs to delete'})
+
+        with sqlite3.connect(DB_FILE) as conn:
+            c = conn.cursor()
+            placeholders = ','.join('?' for _ in ids)
+            sql = f"DELETE FROM study_sessions WHERE id IN ({placeholders})"
+            c.execute(sql, ids)
+            conn.commit()
+
+        return jsonify({'status': 'success'})
+
 
     @app.route('/task_overview', methods=['GET', 'POST'])
     def task_overview():

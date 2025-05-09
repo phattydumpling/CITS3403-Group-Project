@@ -3,6 +3,152 @@
 {% block title %}Study Session{% endblock %}
 
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Study Session</h1>
-<p class="text-gray-500">Track your study sessions here.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyTracker Logs</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .bg-blue-500:hover { background-color: #2563eb; cursor: pointer; }
+  </style>
+</head>
+<body class="bg-blue-50 text-blue-900">
+
+  <div class="px-12 py-8">
+    <h1 class="text-3xl font-bold mb-4">Logs</h1>
+
+    <div class="flex flex-wrap gap-4 mb-4 items-center">
+      <input id="searchInput" type="text" placeholder="Search" class="border rounded px-3 py-1" />
+      <button onclick="searchTable()" class="bg-blue-500 text-white px-4 py-1 rounded">Search</button>
+      <button onclick="addRow()" class="bg-blue-500 text-white px-4 py-1 rounded">Add</button>
+      <button onclick="deleteSelectedRows()" class="bg-blue-500 text-white px-4 py-1 rounded">Delete</button>
+    </div>
+
+    <div class="border-b border-blue-200 mb-2">
+      <nav class="flex gap-6 text-blue-700">
+        <button id="tab-sessions" class="pb-2 border-b-2 border-blue-600 font-medium" onclick="showTab('sessions')">Study sessions</button>
+        <button id="tab-assessments" class="pb-2 border-b-2 font-medium" onclick="showTab('assessments')">Assessments</button>
+      </nav>
+    </div>
+
+    <div id="sessions" class="tab-content active">
+      <table id="sessionsTable" class="w-full text-left bg-white shadow rounded overflow-hidden">
+        <thead class="bg-blue-100">
+          <tr>
+            <th class="p-2 border"></th>
+            <th class="p-2 border">Subject</th>
+            <th class="p-2 border">Start Time</th>
+            <th class="p-2 border">End Time</th>
+            <th class="p-2 border">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for session in study_sessions %}
+            <tr>
+              <td class="p-2 border"><input type="checkbox" /></td>
+              <td class="p-2 border">{{ session.subject }}</td>
+              <td class="p-2 border">{{ session.start_time }}</td>
+              <td class="p-2 border">{{ session.end_time }}</td>
+              <td class="p-2 border">{{ session.notes }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Assessments Table -->
+  <div id="assessments" class="tab-content">
+    <table id="assessmentsTable" class="w-full text-left bg-white shadow rounded overflow-hidden">
+      <thead class="bg-blue-100">
+        <tr>
+          <th class="p-2 border"></th>
+          <th class="p-2 border">Unit Code</th>
+          <th class="p-2 border">My Score</th>
+          <th class="p-2 border">Total Score</th>
+          <th class="p-2 border">Created At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for assessment in assessments %}
+          <tr>
+            <td class="p-2 border"><input type="checkbox" /></td>
+            <td class="p-2 border">{{ assessment.unit_code }}</td>
+            <td class="p-2 border">{{ assessment.my_score }}</td>
+            <td class="p-2 border">{{ assessment.total_score }}</td>
+            <td class="p-2 border">{{ assessment.created_at }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  </div>
+
+  <script>
+    let activeTab = 'sessions';
+
+    function showTab(tab) {
+      document.getElementById('sessions').classList.remove('active');
+      document.getElementById('assessments').classList.remove('active');
+      document.getElementById(`tab-sessions`).classList.remove('border-blue-600', 'font-medium');
+      document.getElementById(`tab-assessments`).classList.remove('border-blue-600', 'font-medium');
+
+      document.getElementById(tab).classList.add('active');
+      document.getElementById(`tab-${tab}`).classList.add('border-blue-600', 'font-medium');
+      activeTab = tab;
+    }
+
+    function addRow() {
+      const tableId = activeTab === 'sessions' ? 'sessionsTable' : 'assessmentsTable';
+      const tbody = document.getElementById(tableId).querySelector('tbody');
+      const row = document.createElement('tr');
+      const cells = activeTab === 'sessions' ? ['Subject', 'Start Time', 'End Time', 'Notes'] : ['Details', 'Unit Code', 'My Score', 'Total Score'];
+      row.innerHTML = `<td class="p-2 border"><input type="checkbox" /></td>` +
+        cells.map(() => `<td contenteditable="true" class="p-2 border"></td>`).join('');
+      tbody.appendChild(row);
+    }
+
+    function addDefaultRowsToBothTables() {
+        const tableId1 = 'sessionsTable';
+        const tableId2 = 'assessmentsTable';
+        const tbody1 = document.getElementById(tableId1).querySelector('tbody');
+        const tbody2 = document.getElementById(tableId2).querySelector('tbody');
+
+        const cells1 = ['Subject', 'Start Time', 'End Time', 'Notes'];
+        const cells2 = ['Details', 'Unit Code', 'My Score', 'Total Score'];
+
+        const row1 = document.createElement('tr');
+        row1.innerHTML = `<td class="p-2 border"><input type="checkbox" /></td>` +
+            cells1.map(() => `<td contenteditable="true" class="p-2 border"></td>`).join('');
+        tbody1.appendChild(row1);
+
+        const row2 = document.createElement('tr');
+        row2.innerHTML = `<td class="p-2 border"><input type="checkbox" /></td>` +
+            cells2.map(() => `<td contenteditable="true" class="p-2 border"></td>`).join('');
+        tbody2.appendChild(row2);
+    }
+
+    function deleteSelectedRows() {
+      const tableId = activeTab === 'sessions' ? 'sessionsTable' : 'assessmentsTable';
+      const checkboxes = document.querySelectorAll(`#${tableId} tbody input[type='checkbox']:checked`);
+      checkboxes.forEach(cb => cb.closest('tr').remove());
+    }
+
+    function searchTable() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const tableId = activeTab === 'sessions' ? 'sessionsTable' : 'assessmentsTable';
+      const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    }
+
+    window.onload = addDefaultRowsToBothTables;
+  </script>
+</body>
+</html>
 {% endblock %}
