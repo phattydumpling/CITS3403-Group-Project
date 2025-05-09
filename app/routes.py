@@ -72,68 +72,33 @@ def init_routes(app):
         
         form = StudySessionForm()
         if form.validate_on_submit():
+            # Combine date and time into full datetime objects
+            session_date = form.date.data
+            start_dt = datetime.combine(session_date, form.start_time.data)
+            end_dt = datetime.combine(session_date, form.end_time.data) if form.end_time.data else None
+
             study_session = StudySession(
                 user_id=session['user_id'],
                 subject=form.subject.data,
-                start_time=form.start_time.data,
-                end_time=form.end_time.data,
+                start_time=start_dt,
+                end_time=end_dt,
                 notes=form.notes.data
             )
             db.session.add(study_session)
             db.session.commit()
             flash('Study session recorded successfully!', 'success')
             return redirect(url_for('dashboard'))
-        
         return render_template('study_session.html', form=form)
 
-    @app.route('/api/study_sessions/search', methods=['GET'])
-    def search_study_sessions():
-        query = request.args.get('q', '').lower()
-        unit_code = request.args.get('unit_code', '').lower()
-
-        with sqlite3.connect(DB_FILE) as conn:
-            c = conn.cursor()
-            sql = f"SELECT * FROM study_sessions WHERE 1=1"
-            params = []
-
-            if unit_code:
-                sql += " AND LOWER(subject) LIKE ?"
-                params.append(f'%{unit_code}%')
-
-            if query:
-                sql += " AND (LOWER(subject) LIKE ? OR LOWER(notes) LIKE ?)"
-                params.extend([f'%{query}%'] * 2)
-
-            c.execute(sql, params)
-            rows = c.fetchall()
-
-        return jsonify(rows)
-
-    @app.route('/api/study_sessions/add', methods=['POST'])
-    def add_study_session():
-        data = request.get_json()
-        with sqlite3.connect(DB_FILE) as conn:
-            c = conn.cursor()
-            c.execute('INSERT INTO study_sessions (user_id, subject, start_time, end_time, notes, created_at) VALUES (?, ?, ?, ?, ?, ?)',
-                    (data['user_id'], data['subject'], data['start_time'], data['end_time'], data['notes'], data['created_at']))
-            conn.commit()
-        return jsonify({'status': 'success'})
-
-    @app.route('/api/study_sessions/delete', methods=['POST'])
-    def delete_study_sessions():
-        ids = request.get_json().get('ids', [])
-        if not ids:
-            return jsonify({'status': 'error', 'message': 'No IDs to delete'})
-
-        with sqlite3.connect(DB_FILE) as conn:
-            c = conn.cursor()
-            placeholders = ','.join('?' for _ in ids)
-            sql = f"DELETE FROM study_sessions WHERE id IN ({placeholders})"
-            c.execute(sql, ids)
-            conn.commit()
-
-        return jsonify({'status': 'success'})
-
+    @app.route('/study_history')
+    def study_history():
+        if 'username' not in session:
+            return redirect(url_for('login'))
+        
+        user_id = session['user_id']
+        sessions = StudySession.query.filter_by(user_id=user_id).order_by(StudySession.start_time.desc()).all()
+        return render_template('study_history.html', sessions=sessions)
+>>>>>>> Stashed changes
 
     @app.route('/task_overview', methods=['GET', 'POST'])
     def task_overview():

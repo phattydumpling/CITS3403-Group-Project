@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, DateTimeField, SelectField
+from wtforms import StringField, DateField, TimeField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
 from app.models import User
 
@@ -49,10 +50,12 @@ class StudySessionForm(FlaskForm):
         DataRequired(),
         Length(max=100)
     ])
-    start_time = DateTimeField('Start Time', validators=[DataRequired()], format='%Y-%m-%d %H:%M')
-    end_time = DateTimeField('End Time', format='%Y-%m-%d %H:%M')
+    date = DateField('Date', validators=[DataRequired()], format='%Y-%m-%d')
+    start_time = TimeField('Start Time', validators=[DataRequired()], format='%H:%M')
+    end_time = TimeField('End Time', format='%H:%M')
     notes = TextAreaField('Notes')
     submit = SubmitField('Save Session')
+
 
 class TaskForm(FlaskForm):
     title = StringField('Title', validators=[
