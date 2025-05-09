@@ -5,6 +5,7 @@ from app.models import User, StudySession, Task, WellnessCheck, MoodEntry, Frien
 from app.forms import LoginForm, RegistrationForm, StudySessionForm, TaskForm, WellnessCheckForm
 from datetime import datetime, timedelta
 
+
 def init_routes(app):
     # Authentication Routes
     @app.route('/')
@@ -63,7 +64,24 @@ def init_routes(app):
     def study_area():
         if 'username' not in session:
             return redirect(url_for('login'))
-        return render_template('study_area.html')
+
+        # Get the current date (only date part, no time)
+        today = datetime.today().date()
+        
+        # Fetch the user's study sessions for today
+        user_id = session['user_id']
+        
+        # Query the database for today's study sessions
+        sessions_today = StudySession.query.filter_by(user_id=user_id).filter(StudySession.start_time >= today).all()
+        
+        # Calculate total study time for today's sessions
+        total_time_seconds = sum(
+            (session.end_time - session.start_time).total_seconds() for session in sessions_today if session.end_time
+        )
+        total_time_formatted = str(timedelta(seconds=total_time_seconds))
+        completed_sessions = len(sessions_today)
+        
+        return render_template('study_area.html', total_time=total_time_formatted, completed_sessions=completed_sessions)
 
     @app.route('/study_session', methods=['GET', 'POST'])
     def study_session():
@@ -98,7 +116,7 @@ def init_routes(app):
         user_id = session['user_id']
         sessions = StudySession.query.filter_by(user_id=user_id).order_by(StudySession.start_time.desc()).all()
         return render_template('study_history.html', sessions=sessions)
->>>>>>> Stashed changes
+
 
     @app.route('/task_overview', methods=['GET', 'POST'])
     def task_overview():

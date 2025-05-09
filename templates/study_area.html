@@ -15,12 +15,18 @@
                 <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6">
                     <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Study Timer</h2>
                     <div class="text-center">
-                        <div class="text-4xl font-bold mb-4 text-primary">25:00</div>
+                        <!-- Editable Timer Display (User can directly edit the time here) -->
+                        <div class="mb-4">
+                            <label for="timer-display" class="text-gray-600 dark:text-gray-300 text-lg">Set Timer (mm:ss):</label>
+                            <div id="timer-display" contenteditable="true" class="text-4xl font-bold mb-4 text-primary" 
+                                role="textbox" aria-placeholder="00:00">25:00</div>
+                        </div>
+                        <!--<div id="timer-display" class="text-4xl font-bold mb-4 text-primary">25:00</div> -->
                         <div class="flex justify-center space-x-4">
-                            <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
+                            <button id="start-button" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
                                 Start
                             </button>
-                            <button class="px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors duration-300">
+                            <button id="reset-button" class="px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors duration-300">
                                 Reset
                             </button>
                         </div>
@@ -33,11 +39,11 @@
                     <div class="space-y-4">
                         <div>
                             <p class="text-gray-600 dark:text-gray-300">Total Study Time</p>
-                            <p class="text-2xl font-bold text-primary">2h 30m</p>
+                            <p class="text-2xl font-bold text-primary">{{ total_time }}</p>
                         </div>
                         <div>
                             <p class="text-gray-600 dark:text-gray-300">Sessions Completed</p>
-                            <p class="text-2xl font-bold text-primary">5</p>
+                            <p class="text-2xl font-bold text-primary">{{ completed_sessions }}</p>
                         </div>
                     </div>
                 </div>
@@ -63,4 +69,85 @@
         </div>
     </div>
 </div>
+<script>
+    let timerDisplay = document.getElementById('timer-display');
+    let startButton = document.getElementById('start-button');
+    let resetButton = document.getElementById('reset-button');
+
+    let totalTime = 25 * 60; // Default to 25 minutes in seconds
+    let timeLeft = totalTime;
+    let timerInterval = null;
+
+    // Function to format time as mm:ss
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    // Update the timer display
+    function updateDisplay() {
+        timerDisplay.textContent = formatTime(timeLeft);
+    }
+
+    // Validate and parse the inputted time from the display
+    function parseTimerInput() {
+        let inputTime = timerDisplay.textContent.trim();
+        let timeParts = inputTime.split(':');
+        
+        if (timeParts.length === 2) {
+            let minutes = parseInt(timeParts[0], 10);
+            let seconds = parseInt(timeParts[1], 10);
+            
+            // Ensure valid minute and second values
+            if (!isNaN(minutes) && !isNaN(seconds) && minutes >= 0 && seconds >= 0 && seconds < 60) {
+                totalTime = minutes * 60 + seconds;
+                timeLeft = totalTime;
+                updateDisplay();
+                return true;
+            }
+        }
+        return false; // Invalid input
+    }
+
+    // Start the timer
+    function startTimer() {
+        // Validate and parse the user input before starting
+        if (!parseTimerInput()) {
+            alert('Please enter a valid time in mm:ss format.');
+            return;
+        }
+
+        // If already running, do nothing
+        if (timerInterval !== null) return; 
+
+        // Start the countdown
+        timerInterval = setInterval(() => {
+            if (timeLeft > 0) {
+                timeLeft--;
+                updateDisplay();
+            } else {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                alert("Time's up! Take a break.");
+            }
+        }, 1000);
+    }
+
+    // Reset the timer
+    function resetTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timeLeft = totalTime; // Reset to original set time
+        updateDisplay();
+    }
+
+    // Event listeners for start and reset buttons
+    startButton.addEventListener('click', startTimer);
+    resetButton.addEventListener('click', resetTimer);
+
+    // Initialize the display when page loads
+    updateDisplay(); 
+</script>
+
 {% endblock %}
