@@ -91,6 +91,5 @@ class TaskForm(FlaskForm):
 class WellnessCheckForm(FlaskForm):
     mood_score = SelectField('Mood Score (1-10)', choices=[(str(i), str(i)) for i in range(1, 11)], validators=[DataRequired()])
     stress_level = SelectField('Stress Level (1-10)', choices=[(str(i), str(i)) for i in range(1, 11)], validators=[DataRequired()])
-    sleep_hours = StringField('Hours of Sleep', validators=[DataRequired()])
     notes = TextAreaField('Notes')
     submit = SubmitField('Save Wellness Check') 

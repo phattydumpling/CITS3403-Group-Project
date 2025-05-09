@@ -60,7 +60,6 @@ class WellnessCheck(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     mood_score = db.Column(db.Integer)  # 1-10 scale
     stress_level = db.Column(db.Integer)  # 1-10 scale
-    sleep_hours = db.Column(db.Float)
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
@@ -68,8 +67,19 @@ class MoodEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     mood_score = db.Column(db.Integer, nullable=False)
-    sleep_quality = db.Column(db.Integer, nullable=False)
     reflection = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
-    user = db.relationship('User', backref=db.backref('mood_entries', lazy=True)) 
+    user = db.relationship('User', backref=db.backref('mood_entries', lazy=True))
+
+class SharedData(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    from_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    to_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    data_type = db.Column(db.String(50), nullable=False)  # study_progress, mood, etc.
+    data_content = db.Column(db.JSON, nullable=False)  # Store the actual shared data
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+
+    from_user = db.relationship('User', foreign_keys=[from_user_id], backref='shared_data_sent')
+    to_user = db.relationship('User', foreign_keys=[to_user_id], backref='shared_data_received') 

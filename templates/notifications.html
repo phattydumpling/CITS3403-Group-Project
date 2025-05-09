@@ -52,26 +52,71 @@
                 {% endif %}
             </div>
 
-            <!-- Recent Notifications Section -->
+            <!-- Shared Data Section -->
             <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6">
-                <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Recent Notifications</h2>
-                {% if notifications %}
+                <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Shared Data</h2>
+                {% if shared_data %}
                     <div class="space-y-4">
-                        {% for notification in notifications %}
-                            <div class="bg-gray-50 dark:bg-gray-600 rounded-lg p-4 flex items-center justify-between">
-                                <div class="flex items-center space-x-4">
-                                    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-lg font-bold text-white">
-                                        {{ notification.icon }}
+                        {% for data in shared_data %}
+                            <div class="bg-gray-50 dark:bg-gray-600 rounded-lg p-4">
+                                <div class="flex items-center space-x-4 mb-4">
+                                    <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-xl font-bold text-white">
+                                        {{ data.from_user.username[0]|upper }}
                                     </div>
                                     <div>
-                                        <p class="text-gray-900 dark:text-white">{{ notification.message }}</p>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ notification.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                                        <h3 class="font-medium text-gray-900 dark:text-white">{{ data.from_user.username }}</h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Shared {{ data.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
                                     </div>
                                 </div>
-                                {% if notification.link %}
-                                    <a href="{{ notification.link }}" class="text-primary hover:text-secondary transition-colors duration-300">
-                                        View
-                                    </a>
+                                
+                                {% if data.data_content.get('study_progress') %}
+                                <div class="mb-4">
+                                    <h4 class="font-medium text-gray-900 dark:text-white mb-2">Study Progress</h4>
+                                    <div class="space-y-2">
+                                        {% for session in data.data_content.study_progress %}
+                                        <div class="bg-white dark:bg-gray-700 rounded p-2">
+                                            <p class="text-sm"><strong>Subject:</strong> {{ session.subject }}</p>
+                                            <p class="text-sm"><strong>Duration:</strong> {{ session.start_time }} - {{ session.end_time or 'Ongoing' }}</p>
+                                            {% if session.notes %}
+                                            <p class="text-sm"><strong>Notes:</strong> {{ session.notes }}</p>
+                                            {% endif %}
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if data.data_content.get('mood') %}
+                                <div class="mb-4">
+                                    <h4 class="font-medium text-gray-900 dark:text-white mb-2">Mood Tracking</h4>
+                                    <div class="space-y-2">
+                                        {% for entry in data.data_content.mood %}
+                                        <div class="bg-white dark:bg-gray-700 rounded p-2">
+                                            <p class="text-sm"><strong>Mood Score:</strong> {{ entry.mood_score }}/10</p>
+                                            {% if entry.reflection %}
+                                            <p class="text-sm"><strong>Reflection:</strong> {{ entry.reflection }}</p>
+                                            {% endif %}
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if data.data_content.get('tasks') %}
+                                <div class="mb-4">
+                                    <h4 class="font-medium text-gray-900 dark:text-white mb-2">Completed Tasks</h4>
+                                    <div class="space-y-2">
+                                        {% for task in data.data_content.tasks %}
+                                        <div class="bg-white dark:bg-gray-700 rounded p-2">
+                                            <p class="text-sm"><strong>Task:</strong> {{ task.title }}</p>
+                                            {% if task.description %}
+                                            <p class="text-sm"><strong>Description:</strong> {{ task.description }}</p>
+                                            {% endif %}
+                                            <p class="text-sm"><strong>Completed:</strong> {{ task.completed_at }}</p>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
                                 {% endif %}
                             </div>
                         {% endfor %}
@@ -83,8 +128,8 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                             </svg>
                         </div>
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Recent Notifications</h3>
-                        <p class="text-gray-500 dark:text-gray-400">You don't have any recent notifications.</p>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Shared Data</h3>
+                        <p class="text-gray-500 dark:text-gray-400">You don't have any shared data at the moment.</p>
                     </div>
                 {% endif %}
             </div>

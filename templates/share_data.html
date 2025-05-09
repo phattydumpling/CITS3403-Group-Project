@@ -3,73 +3,303 @@
 {% block title %}Share Data{% endblock %}
 
 {% block content %}
+<!-- Custom Modal -->
+<div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md w-full mx-4 transform transition-all scale-95 opacity-0" id="modalContent">
+        <div class="text-center">
+            <div class="w-16 h-16 mx-auto mb-4 text-indigo-600 dark:text-indigo-400">
+                <i class="fas fa-exclamation-circle text-5xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2" id="modalTitle">Alert</h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-6" id="modalMessage"></p>
+            <button onclick="closeModal()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-300">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
 <div class="h-full w-full bg-gray-50 dark:bg-gray-800">
     <div class="h-full w-full p-8">
         <div class="max-w-7xl mx-auto">
-            <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Share Data</h1>
-            <p class="text-gray-600 dark:text-gray-300 mb-8">Share your study progress securely.</p>
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">Share Your Progress</h1>
+                <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Share your study progress, mood tracking, and completed tasks with your friends to stay motivated together.</p>
+            </div>
 
             <!-- Main Content Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
                 <!-- Share Settings -->
-                <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6">
-                    <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Share Settings</h2>
-                    <div class="space-y-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">Study Progress</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Share your study time and goals</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" class="sr-only peer">
-                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                            </label>
+                <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
+                            <i class="fas fa-share-nodes text-2xl text-indigo-600 dark:text-indigo-300"></i>
                         </div>
-                        <div class="flex items-center justify-between">
+                        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">What to Share</h2>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-600 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors duration-200">
+                            <input type="checkbox" id="shareStudyProgress" class="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
                             <div>
-                                <h3 class="font-medium text-gray-900 dark:text-white">Mood Tracking</h3>
+                                <label for="shareStudyProgress" class="font-medium text-gray-900 dark:text-white text-lg">Study Progress</label>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Share your study time and subjects</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-600 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors duration-200">
+                            <input type="checkbox" id="shareMood" class="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
+                            <div>
+                                <label for="shareMood" class="font-medium text-gray-900 dark:text-white text-lg">Mood Tracking</label>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Share your mood and wellness data</p>
                             </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" class="sr-only peer">
-                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                            </label>
+                        </div>
+                        <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-600 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors duration-200">
+                            <input type="checkbox" id="shareTasks" class="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
+                            <div>
+                                <label for="shareTasks" class="font-medium text-gray-900 dark:text-white text-lg">Task Progress</label>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Share your completed tasks and goals</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Share with Friends -->
-                <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6">
-                    <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Share with Friends</h2>
-                    <div class="space-y-4">
-                        <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-600 rounded-lg">
-                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
-                                J
-                            </div>
-                            <div class="flex-1">
-                                <h3 class="font-medium text-gray-900 dark:text-white">John Doe</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Last shared: 2 hours ago</p>
-                            </div>
-                            <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
-                                Share Now
-                            </button>
+                <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
+                            <i class="fas fa-user-group text-2xl text-indigo-600 dark:text-indigo-300"></i>
                         </div>
-                        <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-600 rounded-lg">
-                            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
-                                S
+                        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Share with Friends</h2>
+                    </div>
+                    <div class="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+                        {% set unique_friends = {} %}
+                        {% for friend in friends %}
+                            {% if friend.id not in unique_friends %}
+                                {% set _ = unique_friends.update({friend.id: friend}) %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% for friend in unique_friends.values() %}
+                            <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-600 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors duration-200">
+                                <input type="checkbox" id="friend_{{ friend.id }}" class="friend-checkbox w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
+                                <div class="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-lg">
+                                    {{ friend.username[0]|upper }}
+                                </div>
+                                <div class="flex-1">
+                                    <label for="friend_{{ friend.id }}" class="font-medium text-gray-900 dark:text-white text-lg">{{ friend.username }}</label>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Last shared: {{ friend.last_shared|default('Never', true) }}</p>
+                                </div>
                             </div>
-                            <div class="flex-1">
-                                <h3 class="font-medium text-gray-900 dark:text-white">Sarah Smith</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Last shared: 1 day ago</p>
-                            </div>
-                            <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
-                                Share Now
-                            </button>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
+            </div>
+
+            <!-- Share Button -->
+            <div class="flex justify-center mb-12">
+                <button onclick="shareData()" 
+                        class="px-12 py-4 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300 text-lg font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    Share Selected Data
+                </button>
+            </div>
+
+            <!-- Shared Data History -->
+            <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
+                        <i class="fas fa-history text-2xl text-indigo-600 dark:text-indigo-300"></i>
+                    </div>
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Shared Data History</h2>
+                </div>
+                {% if shared_data %}
+                    <div class="space-y-6">
+                        {% for data in shared_data %}
+                            <div class="bg-gray-50 dark:bg-gray-600 rounded-xl p-6 hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors duration-200">
+                                <div class="flex items-center space-x-4 mb-6">
+                                    <div class="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-xl font-bold text-white">
+                                        {{ data.from_user.username[0]|upper }}
+                                    </div>
+                                    <div>
+                                        <h3 class="font-medium text-gray-900 dark:text-white text-lg">{{ data.from_user.username }}</h3>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Shared {{ data.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                                    </div>
+                                </div>
+                                
+                                {% if data.data_content.get('study_progress') %}
+                                <div class="mb-6">
+                                    <h4 class="font-medium text-gray-900 dark:text-white mb-3 flex items-center">
+                                        <i class="fas fa-book-open mr-2 text-indigo-600"></i>
+                                        Study Progress
+                                    </h4>
+                                    <div class="space-y-3">
+                                        {% for session in data.data_content.study_progress %}
+                                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+                                            <p class="text-sm"><strong>Subject:</strong> {{ session.subject }}</p>
+                                            <p class="text-sm"><strong>Duration:</strong> {{ session.start_time }} - {{ session.end_time or 'Ongoing' }}</p>
+                                            {% if session.notes %}
+                                            <p class="text-sm"><strong>Notes:</strong> {{ session.notes }}</p>
+                                            {% endif %}
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if data.data_content.get('mood') %}
+                                <div class="mb-6">
+                                    <h4 class="font-medium text-gray-900 dark:text-white mb-3 flex items-center">
+                                        <i class="fas fa-face-smile mr-2 text-indigo-600"></i>
+                                        Mood Tracking
+                                    </h4>
+                                    <div class="space-y-3">
+                                        {% for entry in data.data_content.mood %}
+                                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+                                            <p class="text-sm"><strong>Mood Score:</strong> {{ entry.mood_score }}/10</p>
+                                            {% if entry.reflection %}
+                                            <p class="text-sm"><strong>Reflection:</strong> {{ entry.reflection }}</p>
+                                            {% endif %}
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if data.data_content.get('tasks') %}
+                                <div class="mb-6">
+                                    <h4 class="font-medium text-gray-900 dark:text-white mb-3 flex items-center">
+                                        <i class="fas fa-tasks mr-2 text-indigo-600"></i>
+                                        Completed Tasks
+                                    </h4>
+                                    <div class="space-y-3">
+                                        {% for task in data.data_content.tasks %}
+                                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+                                            <p class="text-sm"><strong>Task:</strong> {{ task.title }}</p>
+                                            {% if task.description %}
+                                            <p class="text-sm"><strong>Description:</strong> {{ task.description }}</p>
+                                            {% endif %}
+                                            <p class="text-sm"><strong>Completed:</strong> {{ task.completed_at }}</p>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-12">
+                        <div class="w-20 h-20 mx-auto mb-6 text-gray-400">
+                            <i class="fas fa-inbox text-6xl"></i>
+                        </div>
+                        <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3">No Shared Data</h3>
+                        <p class="text-gray-500 dark:text-gray-400">You don't have any shared data at the moment.</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function showModal(title, message) {
+    const modal = document.getElementById('customModal');
+    const modalContent = document.getElementById('modalContent');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+    
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    
+    // Trigger animation
+    setTimeout(() => {
+        modalContent.classList.remove('scale-95', 'opacity-0');
+        modalContent.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+function closeModal() {
+    const modal = document.getElementById('customModal');
+    const modalContent = document.getElementById('modalContent');
+    
+    modalContent.classList.remove('scale-100', 'opacity-100');
+    modalContent.classList.add('scale-95', 'opacity-0');
+    
+    setTimeout(() => {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+    }, 200);
+}
+
+function shareData() {
+    const dataToShare = {
+        study_progress: document.getElementById('shareStudyProgress').checked,
+        mood: document.getElementById('shareMood').checked,
+        tasks: document.getElementById('shareTasks').checked
+    };
+
+    // Get selected friends
+    const selectedFriends = Array.from(document.querySelectorAll('.friend-checkbox:checked')).map(checkbox => checkbox.id.replace('friend_', ''));
+
+    // Check if any data is selected
+    if (!dataToShare.study_progress && !dataToShare.mood && !dataToShare.tasks) {
+        showModal('No Data Selected', 'Please select at least one type of data to share.');
+        return;
+    }
+
+    // Check if any friends are selected
+    if (selectedFriends.length === 0) {
+        showModal('No Friends Selected', 'Please select at least one friend to share with.');
+        return;
+    }
+
+    // Share with each selected friend
+    const sharePromises = selectedFriends.map(friendId => 
+        fetch('/api/share_data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                friend_id: friendId,
+                data: dataToShare
+            })
+        }).then(response => response.json())
+    );
+
+    Promise.all(sharePromises)
+        .then(results => {
+            const allSuccessful = results.every(result => result.success);
+            if (allSuccessful) {
+                showModal('Success', 'Data shared successfully with all selected friends!');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showModal('Error', 'Error sharing data with some friends. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showModal('Error', 'Error sharing data. Please try again.');
+        });
+}
+
+// Close modal when clicking outside
+document.getElementById('customModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeModal();
+    }
+});
+</script>
 {% endblock %}
+

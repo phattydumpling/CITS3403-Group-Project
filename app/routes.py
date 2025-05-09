@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from app.models import User, StudySession, Task, WellnessCheck, MoodEntry, Friendship, FriendRequest
+from app.models import User, StudySession, Task, WellnessCheck, MoodEntry, Friendship, FriendRequest, SharedData
 from app.forms import LoginForm, RegistrationForm, StudySessionForm, TaskForm, WellnessCheckForm
 from datetime import datetime, timedelta
 from flask_login import login_user, logout_user, login_required, current_user
@@ -170,7 +170,6 @@ def init_routes(app):
                 user_id=current_user.id,
                 mood_score=int(form.mood_score.data),
                 stress_level=int(form.stress_level.data),
-                sleep_hours=float(form.sleep_hours.data),
                 notes=form.notes.data
             )
             db.session.add(check)
@@ -183,7 +182,117 @@ def init_routes(app):
     @app.route('/share_data')
     @login_required
     def share_data():
-        return render_template('share_data.html')
+        # Get friends list with user objects
+        friendships = Friendship.query.filter(
+            (Friendship.user_id == current_user.id) | (Friendship.friend_id == current_user.id)
+        ).all()
+        
+        # Get the actual friend user objects
+        friends = []
+        for friendship in friendships:
+            if friendship.user_id == current_user.id:
+                friend = User.query.get(friendship.friend_id)
+            else:
+                friend = User.query.get(friendship.user_id)
+            if friend:
+                friends.append(friend)
+        
+        # Get shared data history
+        shared_data = SharedData.query.filter_by(to_user_id=current_user.id).order_by(SharedData.created_at.desc()).all()
+        
+        return render_template('share_data.html', friends=friends, shared_data=shared_data)
+
+    @app.route('/api/share_data', methods=['POST'])
+    @login_required
+    def share_data_api():
+        data = request.get_json()
+        if not data or 'friend_id' not in data or 'data' not in data:
+            return jsonify({'success': False, 'error': 'Missing required fields'}), 400
+
+        friend = User.query.get(data['friend_id'])
+        if not friend or friend not in current_user.friends:
+            return jsonify({'success': False, 'error': 'Invalid friend'}), 400
+
+        # Prepare data to share based on selected options
+        shared_data = {}
+        if data['data'].get('study_progress'):
+            # Get study sessions from the last 7 days
+            week_ago = datetime.utcnow() - timedelta(days=7)
+            study_sessions = StudySession.query.filter(
+                StudySession.user_id == current_user.id,
+                StudySession.created_at >= week_ago
+            ).all()
+            shared_data['study_progress'] = [{
+                'subject': session.subject,
+                'start_time': session.start_time.isoformat(),
+                'end_time': session.end_time.isoformat() if session.end_time else None,
+                'notes': session.notes
+            } for session in study_sessions]
+
+        if data['data'].get('mood'):
+            # Get mood entries from the last 7 days
+            week_ago = datetime.utcnow() - timedelta(days=7)
+            mood_entries = MoodEntry.query.filter(
+                MoodEntry.user_id == current_user.id,
+                MoodEntry.created_at >= week_ago
+            ).all()
+            shared_data['mood'] = [{
+                'mood_score': entry.mood_score,
+                'reflection': entry.reflection,
+                'created_at': entry.created_at.isoformat()
+            } for entry in mood_entries]
+
+        if data['data'].get('tasks'):
+            # Get completed tasks from the last 7 days
+            week_ago = datetime.utcnow() - timedelta(days=7)
+            tasks = Task.query.filter(
+                Task.user_id == current_user.id,
+                Task.status == 'completed',
+                Task.created_at >= week_ago
+            ).all()
+            shared_data['tasks'] = [{
+                'title': task.title,
+                'description': task.description,
+                'completed_at': task.created_at.isoformat()
+            } for task in tasks]
+
+        # Create shared data entry
+        shared_data_entry = SharedData(
+            from_user_id=current_user.id,
+            to_user_id=friend.id,
+            data_type='combined',
+            data_content=shared_data
+        )
+        db.session.add(shared_data_entry)
+        db.session.commit()
+
+        return jsonify({'success': True})
+
+    @app.route('/notifications')
+    @login_required
+    def notifications():
+        pending_requests = FriendRequest.query.filter_by(to_user_id=current_user.id, status='pending').all()
+        shared_data = SharedData.query.filter_by(to_user_id=current_user.id, is_read=False).all()
+        
+        # Mark shared data as read
+        for data in shared_data:
+            data.is_read = True
+        db.session.commit()
+        
+        return render_template('notifications.html', 
+                             pending_requests=pending_requests,
+                             shared_data=shared_data)
+
+    @app.context_processor
+    def inject_notifications():
+        if current_user.is_authenticated:
+            pending_count = FriendRequest.query.filter_by(to_user_id=current_user.id, status='pending').count()
+            unread_shared_data = SharedData.query.filter_by(to_user_id=current_user.id, is_read=False).count()
+            return dict(
+                pending_requests_count=pending_count,
+                unread_shared_data_count=unread_shared_data
+            )
+        return dict(pending_requests_count=0, unread_shared_data_count=0)
 
     # API Routes for Tasks
     @app.route('/api/tasks', methods=['GET'])
@@ -317,23 +426,18 @@ def init_routes(app):
     @login_required
     def create_mood_entry():
         data = request.get_json()
-        if not data or 'mood_score' not in data or 'sleep_quality' not in data:
+        if not data or 'mood_score' not in data:
             return jsonify({'error': 'Missing required fields'}), 400
-        
         entry = MoodEntry(
             user_id=current_user.id,
             mood_score=int(data['mood_score']),
-            sleep_quality=int(data['sleep_quality']),
             reflection=data.get('reflection', '')
         )
-        
         db.session.add(entry)
         db.session.commit()
-        
         return jsonify({
             'id': entry.id,
             'mood_score': entry.mood_score,
-            'sleep_quality': entry.sleep_quality,
             'reflection': entry.reflection,
             'created_at': entry.created_at.isoformat()
         }), 201
@@ -346,11 +450,9 @@ def init_routes(app):
             MoodEntry.user_id == current_user.id,
             MoodEntry.created_at >= week_ago
         ).order_by(MoodEntry.created_at.desc()).all()
-        
         return jsonify([{
             'id': entry.id,
             'mood_score': entry.mood_score,
-            'sleep_quality': entry.sleep_quality,
             'reflection': entry.reflection,
             'created_at': entry.created_at.isoformat()
         } for entry in entries])
@@ -446,17 +548,4 @@ def init_routes(app):
             flash('Friend request rejected.', 'info')
         else:
             flash('Invalid friend request.', 'error')
-        return redirect(url_for('friends'))
-
-    @app.route('/notifications')
-    @login_required
-    def notifications():
-        pending_requests = FriendRequest.query.filter_by(to_user_id=current_user.id, status='pending').all()
-        return render_template('notifications.html', pending_requests=pending_requests)
-
-    @app.context_processor
-    def inject_pending_requests():
-        if current_user.is_authenticated:
-            pending_count = FriendRequest.query.filter_by(to_user_id=current_user.id, status='pending').count()
-            return dict(pending_requests_count=pending_count)
-        return dict(pending_requests_count=0) 
+        return redirect(url_for('friends')) 
