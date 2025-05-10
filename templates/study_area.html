@@ -115,19 +115,30 @@
 
     // Function to update progress bar
     function updateProgress() {
-        // Get user goals
         let goalHours = parseInt(goalHoursInput.value) || 0;
+        let goalSessions = parseInt(goalSessionsInput.value) || 0;
 
-        // Convert hours to minutes
         let timeGoalInMinutes = goalHours * 60;
+        let timeProgress = timeGoalInMinutes > 0 ? (totalStudyTime / timeGoalInMinutes) * 100 : 0;
 
-        // Calculate progress based on total study time
-        let timeProgress = timeGoalInMinutes > 0 ? Math.min(100, (totalStudyTime / timeGoalInMinutes) * 100) : 0;
+        let sessionProgress = goalSessions > 0 ? (completedSessions / goalSessions) * 100 : 0;
 
-        // Update UI
-        progressBar.style.width = timeProgress + '%';
-        progressText.textContent = `${Math.round(timeProgress)}% Complete`;
+        // Use average only if both goals are set, otherwise fall back to whichever is valid
+        let finalProgress = 0;
+        if (goalHours > 0 && goalSessions > 0) {
+            finalProgress = (timeProgress + sessionProgress) / 2;
+        } else if (goalHours > 0) {
+            finalProgress = timeProgress;
+        } else if (goalSessions > 0) {
+            finalProgress = sessionProgress;
+        }
+
+        finalProgress = Math.min(100, finalProgress); // Cap at 100%
+
+        progressBar.style.width = finalProgress + '%';
+        progressText.textContent = `${Math.round(finalProgress)}% Complete`;
     }
+
 
     // Event listener for the Set Goal button
     setGoalButton.addEventListener('click', function() {
