@@ -26,9 +26,13 @@
                             <button id="start-button" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
                                 Start
                             </button>
+                            <button id="pause-button" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors duration-300">
+                            Pause
+                            </button>
                             <button id="reset-button" class="px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors duration-300">
                                 Reset
                             </button>
+                            
                         </div>
                     </div>
                 </div>
@@ -133,6 +137,14 @@
             }
         }, 1000);
     }
+    // Pause the timer
+    function pauseTimer() {
+        if (timerInterval !== null) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    }
+
 
     // Reset the timer
     function resetTimer() {
