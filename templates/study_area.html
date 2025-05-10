@@ -62,15 +62,11 @@
                             <label for="goal-hours" class="text-gray-600 dark:text-gray-300">Set Daily Study Goal (hours):</label>
                             <input type="number" id="goal-hours" min="1" class="w-full px-4 py-2 border border-primary text-primary rounded-lg" placeholder="Enter goal in hours" />
                         </div>
-                        <div class="mt-4">
-                            <label for="goal-sessions" class="text-gray-600 dark:text-gray-300">Set Daily Session Goal:</label>
-                            <input type="number" id="goal-sessions" min="1" class="w-full px-4 py-2 border border-primary text-primary rounded-lg" placeholder="Enter goal in sessions" />
-                        </div>
                         
                         <!-- Submit Button for Goal Settings -->
                         <div class="mt-4">
                             <button id="set-goal-button" class="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
-                                Set Goals
+                                Set Goal
                             </button>
                         </div>
 
@@ -110,49 +106,42 @@
 <script>
     // Variables for tracking progress and goals
     let goalHoursInput = document.getElementById('goal-hours');
-    let goalSessionsInput = document.getElementById('goal-sessions');
     let progressBar = document.getElementById('progress-bar');
     let progressText = document.getElementById('progress-text');
     let setGoalButton = document.getElementById('set-goal-button');
 
-    // Placeholder for storing current study time and sessions completed (could be dynamic)
+    // Placeholder for storing current study time (in minutes)
     let totalStudyTime = 0;  // in minutes
-    let completedSessions = 0;
 
     // Function to update progress bar
     function updateProgress() {
         // Get user goals
         let goalHours = parseInt(goalHoursInput.value) || 0;
-        let goalSessions = parseInt(goalSessionsInput.value) || 0;
 
-        // Calculate progress for both time and session goals
+        // Convert hours to minutes
         let timeGoalInMinutes = goalHours * 60;
-        let timeProgress = Math.min(100, (totalStudyTime / timeGoalInMinutes) * 100);
 
-        let sessionProgress = Math.min(100, (completedSessions / goalSessions) * 100);
-
-        // Calculate final progress as an average of the two
-        let finalProgress = Math.max(timeProgress, sessionProgress); // prioritize time-based progress
+        // Calculate progress based on total study time
+        let timeProgress = timeGoalInMinutes > 0 ? Math.min(100, (totalStudyTime / timeGoalInMinutes) * 100) : 0;
 
         // Update UI
-        progressBar.style.width = finalProgress + '%';
-        progressText.textContent = `${Math.round(finalProgress)}% Complete`;
+        progressBar.style.width = timeProgress + '%';
+        progressText.textContent = `${Math.round(timeProgress)}% Complete`;
     }
 
-    // Event listener for the Set Goals button
+    // Event listener for the Set Goal button
     setGoalButton.addEventListener('click', function() {
-        updateProgress(); // Update progress when goals are set
+        updateProgress(); // Update progress when goal is set
     });
 
     // Example function to simulate adding study time
-    function addStudySession(timeSpent, sessionCount) {
+    function addStudySession(timeSpent) {
         totalStudyTime += timeSpent;  // time in minutes
-        completedSessions += sessionCount;
         updateProgress();
     }
 
     // You can call addStudySession whenever a study session is completed
-    addStudySession(45, 1);  // Example: 45 minutes and 1 session
+    addStudySession(45);  // Example: 45 minutes of study time
 </script>
 
 {% endblock %}
