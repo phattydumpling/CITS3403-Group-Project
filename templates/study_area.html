@@ -15,7 +15,7 @@
                 <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6">
                     <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Study Timer</h2>
                     <div class="text-center">
-                        <!-- Editable Timer Display (User can directly edit the time here) -->
+                        <!-- Editable Timer Display -->
                         <div class="mb-4">
                             <label for="timer-display" class="text-gray-600 dark:text-gray-300 text-lg">Set Timer (mm:ss):</label>
                             <div id="timer-display" contenteditable="true" class="text-4xl font-bold mb-4 text-primary" 
@@ -26,23 +26,9 @@
                             <label class="inline-flex items-center space-x-2 mb-4 group relative cursor-pointer">
                             <input type="checkbox" id="pomodoro-toggle" class="form-checkbox h-5 w-5 text-primary">
                             <span class="text-gray-800 dark:text-gray-200">Enable Pomodoro Mode</span>
-
-                            <!-- Info Icon with Tooltip -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <title>How Pomodoro Mode Works</title>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
-                            </svg>
-
-                            <!-- Tooltip -->
-                            <div class="absolute bottom-full mb-2 hidden group-hover:block w-64 p-2 text-sm bg-gray-800 text-white rounded shadow-lg z-10">
-                                Follows Pomodoro technique: 25 min work / 5 min break cycles. After 4 work sessions, you get a 15 min long break. Automatically transitions.
-                            </div>
-                        </label>
-
+                            </label>
                             <p id="session-label" class="mt-2 text-sm text-primary font-semibold hidden">Current Session: Work</p>
                         </div>
-                        <!--<div id="timer-display" class="text-4xl font-bold mb-4 text-primary">25:00</div> -->
                         <div class="flex justify-center space-x-4">
                             <button id="start-button" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
                                 Start
@@ -53,15 +39,15 @@
                             <button id="reset-button" class="px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors duration-300">
                                 Reset
                             </button>
-                            
                         </div>
                     </div>
                 </div>
 
-                <!-- Session Stats Card -->
+                <!-- Session Stats and Goal Setting -->
                 <div class="bg-white dark:bg-gray-700 rounded-xl shadow-lg p-6">
-                    <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Today's Progress</h2>
+                    <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Today's Progress & Goal</h2>
                     <div class="space-y-4">
+                        <!-- Today's Progress -->
                         <div>
                             <p class="text-gray-600 dark:text-gray-300">Total Study Time</p>
                             <p class="text-2xl font-bold text-primary">{{ total_time }}</p>
@@ -69,6 +55,25 @@
                         <div>
                             <p class="text-gray-600 dark:text-gray-300">Sessions Completed</p>
                             <p class="text-2xl font-bold text-primary">{{ completed_sessions }}</p>
+                        </div>
+                        
+                        <!-- Goal Setting -->
+                        <div class="mt-4">
+                            <label for="goal-hours" class="text-gray-600 dark:text-gray-300">Set Daily Study Goal (hours):</label>
+                            <input type="number" id="goal-hours" min="1" class="w-full px-4 py-2 border border-primary text-primary rounded-lg" placeholder="Enter goal in hours" />
+                        </div>
+                        <div class="mt-4">
+                            <label for="goal-sessions" class="text-gray-600 dark:text-gray-300">Set Daily Session Goal:</label>
+                            <input type="number" id="goal-sessions" min="1" class="w-full px-4 py-2 border border-primary text-primary rounded-lg" placeholder="Enter goal in sessions" />
+                        </div>
+                        
+                        <!-- Progress Tracker -->
+                        <div class="mt-4">
+                            <p class="text-gray-600 dark:text-gray-300">Progress</p>
+                            <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
+                                <div id="progress-bar" class="h-4 bg-primary rounded-full" style="width: 0%"></div>
+                            </div>
+                            <p class="text-lg font-semibold text-primary" id="progress-text">0% Complete</p>
                         </div>
                     </div>
                 </div>
@@ -94,131 +99,46 @@
         </div>
     </div>
 </div>
+
 <script>
-    let timerDisplay = document.getElementById('timer-display');
-    let startButton = document.getElementById('start-button');
-    let pauseButton = document.getElementById('pause-button');
-    let resetButton = document.getElementById('reset-button');
-    let pomodoroToggle = document.getElementById('pomodoro-toggle');
-    let sessionLabel = document.getElementById('session-label');
+    // Variables for tracking progress and goals
+    let goalHoursInput = document.getElementById('goal-hours');
+    let goalSessionsInput = document.getElementById('goal-sessions');
+    let progressBar = document.getElementById('progress-bar');
+    let progressText = document.getElementById('progress-text');
 
-    let defaultWork = 25 * 60;
-    let shortBreak = 5 * 60;
-    let longBreak = 15 * 60;
+    // Placeholder for storing current study time and sessions completed (could be dynamic)
+    let totalStudyTime = 0;  // in minutes
+    let completedSessions = 0;
 
-    let totalTime = defaultWork;
-    let timeLeft = totalTime;
-    let timerInterval = null;
+    function updateProgress() {
+        // Get user goals
+        let goalHours = parseInt(goalHoursInput.value) || 0;
+        let goalSessions = parseInt(goalSessionsInput.value) || 0;
 
-    let isPomodoro = false;
-    let isWorkSession = true;
-    let pomodoroCount = 0;
+        // Calculate progress for both time and session goals
+        let timeGoalInMinutes = goalHours * 60;
+        let timeProgress = Math.min(100, (totalStudyTime / timeGoalInMinutes) * 100);
 
-    function formatTime(seconds) {
-        const minutes = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        let sessionProgress = Math.min(100, (completedSessions / goalSessions) * 100);
+
+        // Calculate final progress as an average of the two
+        let finalProgress = Math.max(timeProgress, sessionProgress); // prioritize time-based progress
+
+        // Update UI
+        progressBar.style.width = finalProgress + '%';
+        progressText.textContent = `${Math.round(finalProgress)}% Complete`;
     }
 
-    function updateDisplay() {
-        timerDisplay.textContent = formatTime(timeLeft);
+    // Example function to simulate adding study time
+    function addStudySession(timeSpent, sessionCount) {
+        totalStudyTime += timeSpent;  // time in minutes
+        completedSessions += sessionCount;
+        updateProgress();
     }
 
-    function parseTimerInput() {
-        if (isPomodoro) return true;
-
-        let inputTime = timerDisplay.textContent.trim();
-        let timeParts = inputTime.split(':');
-        if (timeParts.length === 2) {
-            let minutes = parseInt(timeParts[0], 10);
-            let seconds = parseInt(timeParts[1], 10);
-            if (!isNaN(minutes) && !isNaN(seconds) && minutes >= 0 && seconds >= 0 && seconds < 60) {
-                totalTime = minutes * 60 + seconds;
-                timeLeft = totalTime;
-                updateDisplay();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    function setPomodoroSession() {
-        isWorkSession = !isWorkSession;
-        if (isWorkSession) {
-            timeLeft = defaultWork;
-            sessionLabel.textContent = 'Current Session: Work';
-        } else {
-            pomodoroCount++;
-            if (pomodoroCount % 4 === 0) {
-                timeLeft = longBreak;
-                sessionLabel.textContent = 'Current Session: Long Break';
-            } else {
-                timeLeft = shortBreak;
-                sessionLabel.textContent = 'Current Session: Break';
-            }
-        }
-        updateDisplay();
-    }
-
-    function startTimer() {
-        if (!parseTimerInput()) {
-            alert('Please enter a valid time in mm:ss format.');
-            return;
-        }
-
-        if (timerInterval !== null) return;
-
-        timerInterval = setInterval(() => {
-            if (timeLeft > 0) {
-                timeLeft--;
-                updateDisplay();
-            } else {
-                clearInterval(timerInterval);
-                timerInterval = null;
-
-                if (isPomodoro) {
-                    setPomodoroSession();
-                    startTimer();
-                } else {
-                    alert("Time's up! Take a break.");
-                }
-            }
-        }, 1000);
-    }
-
-    function pauseTimer() {
-        if (timerInterval !== null) {
-            clearInterval(timerInterval);
-            timerInterval = null;
-        }
-    }
-
-    function resetTimer() {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        if (isPomodoro) {
-            isWorkSession = true;
-            pomodoroCount = 0;
-            timeLeft = defaultWork;
-            sessionLabel.textContent = 'Current Session: Work';
-        } else {
-            timeLeft = totalTime;
-        }
-        updateDisplay();
-    }
-
-    startButton.addEventListener('click', startTimer);
-    pauseButton.addEventListener('click', pauseTimer);
-    resetButton.addEventListener('click', resetTimer);
-
-    pomodoroToggle.addEventListener('change', function () {
-        isPomodoro = pomodoroToggle.checked;
-        sessionLabel.classList.toggle('hidden', !isPomodoro);
-        resetTimer(); // reset everything on toggle
-    });
-
-    updateDisplay();
+    // You can call addStudySession whenever a study session is completed
+    addStudySession(45, 1);  // Example: 45 minutes and 1 session
 </script>
-
 
 {% endblock %}
