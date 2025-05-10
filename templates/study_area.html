@@ -154,9 +154,11 @@
         updateDisplay();
     }
 
-    // Event listeners for start and reset buttons
+    // Event listeners for start, pause and reset buttons
     startButton.addEventListener('click', startTimer);
     resetButton.addEventListener('click', resetTimer);
+    let pauseButton = document.getElementById('pause-button');
+    pauseButton.addEventListener('click', pauseTimer);
 
     // Initialize the display when page loads
     updateDisplay(); 
