@@ -39,7 +39,6 @@
                                 Follows Pomodoro technique: 25 min work / 5 min break cycles. After 4 work sessions, you get a 15 min long break. Automatically transitions.
                             </div>
                         </label>
-                            <p id="session-label" class="mt-2 text-sm text-primary font-semibold hidden">Current Session: Work</p>
 
                             <p id="session-label" class="mt-2 text-sm text-primary font-semibold hidden">Current Session: Work</p>
                         </div>
@@ -149,10 +148,17 @@
     let startButton = document.getElementById('start-button');
     let pauseButton = document.getElementById('pause-button');
     let resetButton = document.getElementById('reset-button');
+    let pomodoroToggle = document.getElementById('pomodoro-toggle');
+    let sessionLabel = document.getElementById('session-label');
 
     let timerInterval;
     let remainingSeconds = 0;
     let isPaused = false;
+
+    // Pomodoro states
+    let pomodoroEnabled = false;
+    let sessionCount = 0;
+    let isWorkSession = true;
 
     function parseTime(displayText) {
         const [minutes, seconds] = displayText.split(':').map(Number);
@@ -169,10 +175,52 @@
         timerDisplay.textContent = formatTime(remainingSeconds);
     }
 
+    function setSessionLabel() {
+        if (!pomodoroEnabled) {
+            sessionLabel.classList.add('hidden');
+            return;
+        }
+
+        sessionLabel.classList.remove('hidden');
+        if (isWorkSession) {
+            sessionLabel.textContent = `Current Session: Work (${sessionCount % 4 + 1}/4)`;
+        } else if (sessionCount % 4 === 0) {
+            sessionLabel.textContent = "Current Session: Long Break";
+        } else {
+            sessionLabel.textContent = "Current Session: Short Break";
+        }
+    }
+
+    function startNextPomodoroSession() {
+        isWorkSession = !isWorkSession;
+        if (isWorkSession) {
+            sessionCount++;
+        }
+
+        if (isWorkSession) {
+            remainingSeconds = 25 * 60;
+        } else if (sessionCount % 4 === 0) {
+            remainingSeconds = 15 * 60;
+        } else {
+            remainingSeconds = 5 * 60;
+        }
+
+        updateDisplay();
+        setSessionLabel();
+    }
+
     startButton.addEventListener('click', () => {
+        pomodoroEnabled = pomodoroToggle.checked;
+
         if (!timerInterval) {
             if (!isPaused) {
-                remainingSeconds = parseTime(timerDisplay.textContent);
+                if (pomodoroEnabled) {
+                    if (remainingSeconds <= 0) {
+                        startNextPomodoroSession();
+                    }
+                } else {
+                    remainingSeconds = parseTime(timerDisplay.textContent);
+                }
             }
             isPaused = false;
             timerInterval = setInterval(() => {
@@ -182,7 +230,12 @@
                 } else {
                     clearInterval(timerInterval);
                     timerInterval = null;
-                    alert('Time is up!');
+                    if (pomodoroEnabled) {
+                        startNextPomodoroSession();
+                        startButton.click(); // auto-start next session
+                    } else {
+                        alert('Time is up!');
+                    }
                 }
             }, 1000);
         }
@@ -200,9 +253,20 @@
         clearInterval(timerInterval);
         timerInterval = null;
         isPaused = false;
-        timerDisplay.textContent = "25:00"; // or reset to last set time if you store it
+
+        pomodoroEnabled = pomodoroToggle.checked;
+        sessionCount = 0;
+        isWorkSession = true;
+        remainingSeconds = 25 * 60;
+        updateDisplay();
+        setSessionLabel();
     });
+
+    // On load
+    remainingSeconds = 25 * 60;
+    updateDisplay();
 </script>
+
 
 
 
