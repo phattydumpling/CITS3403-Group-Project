@@ -44,99 +44,66 @@
             <div class="lg:col-span-3 space-y-4 md:space-y-6">
                 <!-- Overview Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div
-                        class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-4 md:p-6 border border-gray-100 dark:border-gray-600 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-                        <div class="flex items-center">
-                            <div
-                                class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-3 md:mr-4">
-                                <i class="fas fa-clock text-xl md:text-2xl text-indigo-600 dark:text-indigo-300"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Hours Studied</p>
-                                <p class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">128</p>
-                            </div>
+                    <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-4 md:p-6 border border-gray-100 dark:border-gray-600 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex items-center">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-6">
+                            <i class="fas fa-clock text-2xl text-indigo-600 dark:text-indigo-300"></i>
+                        </div>
+                        <div class="flex flex-col items-start justify-center">
+                            <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Hours Studied</span>
+                            <span class="text-3xl font-extrabold text-gray-900 dark:text-white leading-tight">128</span>
                         </div>
                     </div>
-                    <div
-                        class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-4 md:p-6 border border-gray-100 dark:border-gray-600 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-                        <div class="flex items-center">
-                            <div
-                                class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-3 md:mr-4">
-                                <i
-                                    class="fas fa-check-circle text-xl md:text-2xl text-indigo-600 dark:text-indigo-300"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Tasks Completed</p>
-                                <p class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">42</p>
-                            </div>
+                    <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-4 md:p-6 border border-gray-100 dark:border-gray-600 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex items-center">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-6">
+                            <i class="fas fa-check-circle text-2xl text-indigo-600 dark:text-indigo-300"></i>
+                        </div>
+                        <div class="flex flex-col items-start justify-center">
+                            <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Tasks Completed</span>
+                            <span class="text-3xl font-extrabold text-gray-900 dark:text-white leading-tight">42</span>
                         </div>
                     </div>
-                    <div
-                        class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-4 md:p-6 border border-gray-100 dark:border-gray-600 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-                        <div class="flex items-center">
-                            <div
-                                class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-3 md:mr-4">
-                                <i
-                                    class="fas fa-hourglass-half text-xl md:text-2xl text-indigo-600 dark:text-indigo-300"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Time Remaining</p>
-                                <div class="space-y-1.5">
-                                    <div>
-                                        <div class="flex justify-between items-center mb-1">
-                                            <span class="text-xs text-gray-500 dark:text-gray-400">Week:</span>
-                                            <span id="weekRemaining"
-                                                class="text-sm font-semibold text-gray-900 dark:text-white">Loading...</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-600">
-                                            <div id="weekProgress" class="bg-indigo-600 h-1.5 rounded-full"
-                                                style="width: 0%"></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between items-center mb-1">
-                                            <span class="text-xs text-gray-500 dark:text-gray-400">Month:</span>
-                                            <span id="monthRemaining"
-                                                class="text-sm font-semibold text-gray-900 dark:text-white">Loading...</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-600">
-                                            <div id="monthProgress" class="bg-indigo-600 h-1.5 rounded-full"
-                                                style="width: 0%"></div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="flex justify-between items-center mb-1">
-                                            <span class="text-xs text-gray-500 dark:text-gray-400">Year:</span>
-                                            <span id="yearRemaining"
-                                                class="text-sm font-semibold text-gray-900 dark:text-white">Loading...</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-600">
-                                            <div id="yearProgress" class="bg-indigo-600 h-1.5 rounded-full"
-                                                style="width: 0%"></div>
-                                        </div>
-                                    </div>
+                    <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-4 md:p-6 border border-gray-100 dark:border-gray-600 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex items-center">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-6">
+                            <i class="fas fa-hourglass-half text-2xl text-indigo-600 dark:text-indigo-300"></i>
+                        </div>
+                        <div class="flex flex-col items-start justify-center w-full">
+                            <span class="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1">Time Remaining</span>
+                            <div class="space-y-1 w-full">
+                                <div class="flex justify-between w-full text-xs text-gray-500 dark:text-gray-400">
+                                    <span>Week:</span>
+                                    <span id="weekRemaining" class="font-semibold text-gray-900 dark:text-white">Loading...</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-600 mb-1">
+                                    <div id="weekProgress" class="bg-indigo-600 h-1.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <div class="flex justify-between w-full text-xs text-gray-500 dark:text-gray-400">
+                                    <span>Month:</span>
+                                    <span id="monthRemaining" class="font-semibold text-gray-900 dark:text-white">Loading...</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-600 mb-1">
+                                    <div id="monthProgress" class="bg-indigo-600 h-1.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <div class="flex justify-between w-full text-xs text-gray-500 dark:text-gray-400">
+                                    <span>Year:</span>
+                                    <span id="yearRemaining" class="font-semibold text-gray-900 dark:text-white">Loading...</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-600">
+                                    <div id="yearProgress" class="bg-indigo-600 h-1.5 rounded-full" style="width: 0%"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div
-                        class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-4 md:p-6 border border-gray-100 dark:border-gray-600 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer">
-                        <div class="flex items-center">
-                            <div
-                                class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-3 md:mr-4">
-                                <i
-                                    class="fas fa-face-smile text-xl md:text-2xl text-indigo-600 dark:text-indigo-300"></i>
+                    <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-4 md:p-6 border border-gray-100 dark:border-gray-600 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex items-center">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-6">
+                            <i class="fas fa-face-smile text-2xl text-indigo-600 dark:text-indigo-300"></i>
+                        </div>
+                        <div class="flex flex-col items-start justify-center">
+                            <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Weekly Mood</span>
+                            <div class="flex items-center space-x-2 mt-1">
+                                <span id="moodEmoji" class="text-2xl">😊</span>
+                                <span id="moodScore" class="text-2xl font-extrabold text-gray-900 dark:text-white">0</span>
                             </div>
-                            <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Weekly Mood</p>
-                                <div class="flex items-center space-x-2">
-                                    <span id="moodEmoji" class="text-2xl">😊</span>
-                                    <span id="moodScore"
-                                        class="text-lg font-bold text-gray-900 dark:text-white">0</span>
-                                </div>
-                                <p id="moodDateRange" class="text-xs text-gray-500 dark:text-gray-400 mt-1">Loading...
-                                </p>
-                            </div>
+                            <span id="moodDateRange" class="text-xs text-gray-500 dark:text-gray-400 mt-1">Loading...</span>
                         </div>
                     </div>
                 </div>
@@ -200,9 +167,14 @@
                         <img src="/static/images/duck_placeholder.png" alt="User"
                             class="w-10 h-10 md:w-12 md:h-12 rounded-xl">
                         <div>
-                            <p class="text-base md:text-lg font-semibold text-gray-900 dark:text-white">{{
-                                current_user.username }}</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Student</p>
+                            <p class="text-base md:text-lg font-semibold text-gray-900 dark:text-white">{{ current_user.username }}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                {% if current_user.university %}
+                                    Student at {{ current_user.university }}
+                                {% else %}
+                                    Student
+                                {% endif %}
+                            </p>
                         </div>
                     </div>
                 </div>

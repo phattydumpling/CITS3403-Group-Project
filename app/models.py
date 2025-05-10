@@ -27,6 +27,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    university = db.Column(db.String(120))
     
     # Relationships
     study_sessions = db.relationship('StudySession', backref='user', lazy=True)

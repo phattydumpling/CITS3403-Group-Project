@@ -16,6 +16,11 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Tom Select CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <!-- Tom Select JS -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 </head>
 
 <body class="bg-background text-primary h-full flex flex-col">
@@ -124,10 +129,10 @@
                 <!-- Profile/User Dropdown (hide on mobile) -->
                 <div class="relative group inline-block hidden md:inline-block">
                     <a href="{{ url_for('profile') }}"
-                       class="inline-flex items-center text-primary hover:text-secondary transition-colors duration-300 font-medium">
-                        <i class="fa-solid fa-user-circle mr-2"></i>
+                       class="inline-flex items-center px-4 py-2 rounded-xl font-semibold text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-700 hover:bg-indigo-50 dark:hover:bg-gray-600 hover:text-indigo-700 transition-all duration-200">
+                        <i class="fa-solid fa-user-circle mr-2 text-xl"></i>
                         {{ current_user.username }}
-                        <svg class="ml-1 w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <svg class="ml-2 w-4 h-4 fill-current text-gray-400 group-hover:text-indigo-600 transition-colors duration-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                             <path d="M5.516 7.548L10 12l4.484-4.452z" />
                         </svg>
                     </a>

@@ -411,6 +411,7 @@ def init_routes(app):
                 email = request.form.get('email')
                 current_password = request.form.get('current_password')
                 new_password = request.form.get('new_password')
+                university = request.form.get('university')
                 
                 # Update email if provided
                 if email and email != current_user.email:
@@ -421,6 +422,11 @@ def init_routes(app):
                     else:
                         current_user.email = email
                         flash('Email updated successfully', 'success')
+                
+                # Update university if provided
+                if university is not None and university != current_user.university:
+                    current_user.university = university
+                    flash('University updated successfully', 'success')
                 
                 # Update password if provided
                 if current_password and new_password:
