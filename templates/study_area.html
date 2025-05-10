@@ -23,10 +23,23 @@
                         </div>
                         <!-- Pomodoro Controls -->
                         <div class="mt-4">
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" id="pomodoro-toggle" class="form-checkbox text-primary h-5 w-5">
-                                <span class="ml-2 text-gray-600 dark:text-gray-300">Enable Pomodoro Mode</span>
-                            </label>
+                            <label class="inline-flex items-center space-x-2 mb-4 group relative cursor-pointer">
+                            <input type="checkbox" id="pomodoro-toggle" class="form-checkbox h-5 w-5 text-primary">
+                            <span class="text-gray-800 dark:text-gray-200">Enable Pomodoro Mode</span>
+
+                            <!-- Info Icon with Tooltip -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <title>How Pomodoro Mode Works</title>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+                            </svg>
+
+                            <!-- Tooltip -->
+                            <div class="absolute bottom-full mb-2 hidden group-hover:block w-64 p-2 text-sm bg-gray-800 text-white rounded shadow-lg z-10">
+                                Follows Pomodoro technique: 25 min work / 5 min break cycles. After 4 work sessions, you get a 15 min long break. Automatically transitions.
+                            </div>
+                        </label>
+
                             <p id="session-label" class="mt-2 text-sm text-primary font-semibold hidden">Current Session: Work</p>
                         </div>
                         <!--<div id="timer-display" class="text-4xl font-bold mb-4 text-primary">25:00</div> -->
