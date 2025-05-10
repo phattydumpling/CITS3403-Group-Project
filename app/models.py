@@ -7,7 +7,13 @@ class FriendRequest(db.Model):
     from_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     to_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     status = db.Column(db.String(20), default='pending')  # pending, accepted, rejected
+    is_read = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+
+    # Define relationships without backrefs
+    from_user = db.relationship('User', foreign_keys=[from_user_id])
+    to_user = db.relationship('User', foreign_keys=[to_user_id])
 
 class Friendship(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -33,8 +39,15 @@ class User(UserMixin, db.Model):
         secondaryjoin=(Friendship.friend_id == id),
         backref='friend_of'
     )
-    sent_friend_requests = db.relationship('FriendRequest', foreign_keys='FriendRequest.from_user_id', backref='from_user', lazy=True)
-    received_friend_requests = db.relationship('FriendRequest', foreign_keys='FriendRequest.to_user_id', backref='to_user', lazy=True)
+    # Update relationship names to avoid conflicts
+    sent_friend_requests = db.relationship('FriendRequest', 
+                                         foreign_keys='FriendRequest.from_user_id',
+                                         backref='sender',
+                                         lazy=True)
+    received_friend_requests = db.relationship('FriendRequest',
+                                            foreign_keys='FriendRequest.to_user_id',
+                                            backref='receiver',
+                                            lazy=True)
 
 class StudySession(db.Model):
     id = db.Column(db.Integer, primary_key=True)

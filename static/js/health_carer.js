@@ -23,7 +23,7 @@ function hideConfirmationModal() {
     modalContent.classList.add('scale-95', 'opacity-0');
     setTimeout(() => {
         modal.classList.remove('flex');
-        modal.classList.add('hidden');
+    modal.classList.add('hidden');
     }, 200);
     pendingDeleteId = null;
 }
@@ -88,7 +88,7 @@ function addEntryToList(entry) {
                 <div class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
                     <i class="fas fa-user text-xl text-indigo-600 dark:text-indigo-300"></i>
                 </div>
-                <div>
+            <div>
                     <p class="text-sm text-gray-500 dark:text-gray-400">${new Date(entry.created_at).toLocaleString()}</p>
                     <div class="flex items-center space-x-4 mt-1">
                         <div class="flex items-center">
@@ -101,8 +101,8 @@ function addEntryToList(entry) {
             <button onclick="deleteEntry('${entry.id}')"
                 class="text-red-600 hover:text-red-800 transition-colors duration-200">
                 <i class="fas fa-trash-alt text-lg"></i>
-            </button>
-        </div>
+                </button>
+            </div>
         ${entry.reflection ? `
         <div class="mt-4 p-4 bg-white dark:bg-gray-700 rounded-xl overflow-x-auto break-words" style="overflow-wrap: break-word; word-break: break-word;">
             <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed break-words" style="overflow-wrap: break-word; word-break: break-word;">${entry.reflection}</p>

@@ -197,10 +197,16 @@ def init_routes(app):
             if friend:
                 friends.append(friend)
         
-        # Get shared data history
-        shared_data = SharedData.query.filter_by(to_user_id=current_user.id).order_by(SharedData.created_at.desc()).all()
+        # Get shared data history (data you've shared)
+        shared_data = SharedData.query.filter_by(from_user_id=current_user.id).order_by(SharedData.created_at.desc()).all()
         
-        return render_template('share_data.html', friends=friends, shared_data=shared_data)
+        # Get data shared with you
+        data_shared_with_you = SharedData.query.filter_by(to_user_id=current_user.id).order_by(SharedData.created_at.desc()).all()
+        
+        return render_template('share_data.html', 
+                             friends=friends, 
+                             shared_data=shared_data,
+                             data_shared_with_you=data_shared_with_you)
 
     @app.route('/api/share_data', methods=['POST'])
     @login_required
@@ -272,27 +278,49 @@ def init_routes(app):
     @login_required
     def notifications():
         pending_requests = FriendRequest.query.filter_by(to_user_id=current_user.id, status='pending').all()
+        accepted_requests = FriendRequest.query.filter_by(from_user_id=current_user.id, status='accepted', is_read=False).all()
         shared_data = SharedData.query.filter_by(to_user_id=current_user.id, is_read=False).all()
-        
-        # Mark shared data as read
+
+        # Mark shared data and accepted requests as read
         for data in shared_data:
             data.is_read = True
+        for request in accepted_requests:
+            request.is_read = True
         db.session.commit()
-        
+
+        # Combine friend requests and accepted requests into one list
+        friend_notifications = []
+        for req in pending_requests:
+            friend_notifications.append({
+                'type': 'pending',
+                'request': req,
+                'timestamp': req.created_at
+            })
+        for req in accepted_requests:
+            friend_notifications.append({
+                'type': 'accepted',
+                'request': req,
+                'timestamp': req.updated_at or req.created_at
+            })
+        # Sort by timestamp, newest first
+        friend_notifications.sort(key=lambda x: x['timestamp'], reverse=True)
+
         return render_template('notifications.html', 
-                             pending_requests=pending_requests,
+                             friend_notifications=friend_notifications,
                              shared_data=shared_data)
 
     @app.context_processor
     def inject_notifications():
         if current_user.is_authenticated:
             pending_count = FriendRequest.query.filter_by(to_user_id=current_user.id, status='pending').count()
+            accepted_count = FriendRequest.query.filter_by(from_user_id=current_user.id, status='accepted', is_read=False).count()
             unread_shared_data = SharedData.query.filter_by(to_user_id=current_user.id, is_read=False).count()
             return dict(
                 pending_requests_count=pending_count,
+                accepted_requests_count=accepted_count,
                 unread_shared_data_count=unread_shared_data
             )
-        return dict(pending_requests_count=0, unread_shared_data_count=0)
+        return dict(pending_requests_count=0, accepted_requests_count=0, unread_shared_data_count=0)
 
     # API Routes for Tasks
     @app.route('/api/tasks', methods=['GET'])
