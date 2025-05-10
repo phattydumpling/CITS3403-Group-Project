@@ -113,230 +113,35 @@
                 </button>
             </div>
 
-            <!-- Data Shared With You -->
-            <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600 mb-8">
-                <div class="flex items-center mb-6">
-                    <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
-                        <i class="fas fa-share-from-square text-2xl text-indigo-600 dark:text-indigo-300"></i>
-                    </div>
-                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Data Shared With You</h2>
-                </div>
-                {% if data_shared_with_you %}
-                    <div class="space-y-6">
-                        {% for data in data_shared_with_you %}
-                            <div class="bg-gray-50 dark:bg-gray-600 rounded-xl p-6 hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors duration-200">
-                                <div class="flex items-center space-x-4 mb-6">
-                                    <div class="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-xl font-bold text-white">
-                                        {{ data.from_user.username[0]|upper }}
-                                    </div>
-                                    <div>
-                                        <h3 class="font-medium text-gray-900 dark:text-white text-lg">{{ data.from_user.username }}</h3>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">Shared {{ data.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
-                                    </div>
-                                </div>
-                                
-                                {% if data.data_content.get('study_progress') %}
-                                <div class="mb-6">
-                                    <h4 class="font-medium text-gray-900 dark:text-white mb-3 flex items-center">
-                                        <i class="fas fa-book-open mr-2 text-indigo-600"></i>
-                                        Study Progress
-                                    </h4>
-                                    <div class="space-y-3">
-                                        {% for session in data.data_content.study_progress %}
-                                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
-                                            <p class="text-sm"><strong>Subject:</strong> {{ session.subject }}</p>
-                                            <p class="text-sm"><strong>Duration:</strong> {{ session.start_time }} - {{ session.end_time or 'Ongoing' }}</p>
-                                            {% if session.notes %}
-                                            <p class="text-sm"><strong>Notes:</strong> {{ session.notes }}</p>
-                                            {% endif %}
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                {% endif %}
-
-                                {% if data.data_content.get('mood') %}
-                                <div class="mb-6">
-                                    <h4 class="font-medium text-gray-900 dark:text-white mb-3 flex items-center">
-                                        <i class="fas fa-face-smile mr-2 text-indigo-600"></i>
-                                        Mood Tracking
-                                    </h4>
-                                    <div class="space-y-3">
-                                        {% for entry in data.data_content.mood %}
-                                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
-                                            <p class="text-sm"><strong>Mood Score:</strong> {{ entry.mood_score }}/10</p>
-                                            {% if entry.reflection %}
-                                            <p class="text-sm"><strong>Reflection:</strong> {{ entry.reflection }}</p>
-                                            {% endif %}
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                {% endif %}
-
-                                {% if data.data_content.get('tasks') %}
-                                <div class="mb-6">
-                                    <h4 class="font-medium text-gray-900 dark:text-white mb-3 flex items-center">
-                                        <i class="fas fa-tasks mr-2 text-indigo-600"></i>
-                                        Completed Tasks
-                                    </h4>
-                                    <div class="space-y-3">
-                                        {% for task in data.data_content.tasks %}
-                                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
-                                            <p class="text-sm"><strong>Task:</strong> {{ task.title }}</p>
-                                            {% if task.description %}
-                                            <p class="text-sm"><strong>Description:</strong> {{ task.description }}</p>
-                                            {% endif %}
-                                            <p class="text-sm"><strong>Completed:</strong> {{ task.completed_at }}</p>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="text-center py-12">
-                        <div class="w-20 h-20 mx-auto mb-6 text-gray-400">
-                            <i class="fas fa-inbox text-6xl"></i>
+            <!-- Data Navigation Buttons -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Data Shared With You Button -->
+                <a href="{{ url_for('data_shared_with_you') }}" class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
+                            <i class="fas fa-inbox text-2xl text-indigo-600 dark:text-indigo-300"></i>
                         </div>
-                        <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3">No Data Shared With You</h3>
-                        <p class="text-gray-500 dark:text-gray-400">Your friends haven't shared any data with you yet.</p>
+                        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Data Shared With You</h2>
                     </div>
-                {% endif %}
-            </div>
+                    <p class="text-gray-600 dark:text-gray-400">View data that your friends have shared with you.</p>
+                </a>
 
-            <!-- Shared Data History -->
-            <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600">
-                <div class="flex items-center mb-6">
-                    <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
-                        <i class="fas fa-history text-2xl text-indigo-600 dark:text-indigo-300"></i>
-                    </div>
-                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Shared Data History</h2>
-                </div>
-                {% if shared_data %}
-                    <div class="space-y-6">
-                        {% for data in shared_data %}
-                            <div class="bg-gray-50 dark:bg-gray-600 rounded-xl p-6 hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors duration-200">
-                                <div class="flex items-center space-x-4 mb-6">
-                                    <div class="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-xl font-bold text-white">
-                                        {{ data.from_user.username[0]|upper }}
-                                    </div>
-                                    <div>
-                                        <h3 class="font-medium text-gray-900 dark:text-white text-lg">{{ data.from_user.username }}</h3>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">Shared {{ data.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
-                                    </div>
-                                </div>
-                                
-                                {% if data.data_content.get('study_progress') %}
-                                <div class="mb-6">
-                                    <h4 class="font-medium text-gray-900 dark:text-white mb-3 flex items-center">
-                                        <i class="fas fa-book-open mr-2 text-indigo-600"></i>
-                                        Study Progress
-                                    </h4>
-                                    <div class="space-y-3">
-                                        {% for session in data.data_content.study_progress %}
-                                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
-                                            <p class="text-sm"><strong>Subject:</strong> {{ session.subject }}</p>
-                                            <p class="text-sm"><strong>Duration:</strong> {{ session.start_time }} - {{ session.end_time or 'Ongoing' }}</p>
-                                            {% if session.notes %}
-                                            <p class="text-sm"><strong>Notes:</strong> {{ session.notes }}</p>
-                                            {% endif %}
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                {% endif %}
-
-                                {% if data.data_content.get('mood') %}
-                                <div class="mb-6">
-                                    <h4 class="font-medium text-gray-900 dark:text-white mb-3 flex items-center">
-                                        <i class="fas fa-face-smile mr-2 text-indigo-600"></i>
-                                        Mood Tracking
-                                    </h4>
-                                    <div class="space-y-3">
-                                        {% for entry in data.data_content.mood %}
-                                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
-                                            <p class="text-sm"><strong>Mood Score:</strong> {{ entry.mood_score }}/10</p>
-                                            {% if entry.reflection %}
-                                            <p class="text-sm"><strong>Reflection:</strong> {{ entry.reflection }}</p>
-                                            {% endif %}
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                {% endif %}
-
-                                {% if data.data_content.get('tasks') %}
-                                <div class="mb-6">
-                                    <h4 class="font-medium text-gray-900 dark:text-white mb-3 flex items-center">
-                                        <i class="fas fa-tasks mr-2 text-indigo-600"></i>
-                                        Completed Tasks
-                                    </h4>
-                                    <div class="space-y-3">
-                                        {% for task in data.data_content.tasks %}
-                                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
-                                            <p class="text-sm"><strong>Task:</strong> {{ task.title }}</p>
-                                            {% if task.description %}
-                                            <p class="text-sm"><strong>Description:</strong> {{ task.description }}</p>
-                                            {% endif %}
-                                            <p class="text-sm"><strong>Completed:</strong> {{ task.completed_at }}</p>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="text-center py-12">
-                        <div class="w-20 h-20 mx-auto mb-6 text-gray-400">
-                            <i class="fas fa-inbox text-6xl"></i>
+                <!-- Shared Data History Button -->
+                <a href="{{ url_for('shared_data_history') }}" class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
+                            <i class="fas fa-history text-2xl text-indigo-600 dark:text-indigo-300"></i>
                         </div>
-                        <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3">No Shared Data</h3>
-                        <p class="text-gray-500 dark:text-gray-400">You don't have any shared data at the moment.</p>
+                        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Shared Data History</h2>
                     </div>
-                {% endif %}
+                    <p class="text-gray-600 dark:text-gray-400">View your history of shared data with friends.</p>
+                </a>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-function showModal(title, message) {
-    const modal = document.getElementById('customModal');
-    const modalContent = document.getElementById('modalContent');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalMessage = document.getElementById('modalMessage');
-
-    modalTitle.textContent = title;
-    modalMessage.textContent = message;
-    
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    
-    // Trigger animation
-    setTimeout(() => {
-        modalContent.classList.remove('scale-95', 'opacity-0');
-        modalContent.classList.add('scale-100', 'opacity-100');
-    }, 10);
-}
-
-function closeModal() {
-    const modal = document.getElementById('customModal');
-    const modalContent = document.getElementById('modalContent');
-    
-    modalContent.classList.remove('scale-100', 'opacity-100');
-    modalContent.classList.add('scale-95', 'opacity-0');
-    
-    setTimeout(() => {
-        modal.classList.remove('flex');
-        modal.classList.add('hidden');
-    }, 200);
-}
-
 function shareData() {
     const dataToShare = {
         study_progress: document.getElementById('shareStudyProgress').checked,
@@ -389,6 +194,38 @@ function shareData() {
             console.error('Error:', error);
             showModal('Error', 'Error sharing data. Please try again.');
         });
+}
+
+function showModal(title, message) {
+    const modal = document.getElementById('customModal');
+    const modalContent = document.getElementById('modalContent');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+    
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    
+    // Trigger animation
+    setTimeout(() => {
+        modalContent.classList.remove('scale-95', 'opacity-0');
+        modalContent.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+function closeModal() {
+    const modal = document.getElementById('customModal');
+    const modalContent = document.getElementById('modalContent');
+    
+    modalContent.classList.remove('scale-100', 'opacity-100');
+    modalContent.classList.add('scale-95', 'opacity-0');
+    
+    setTimeout(() => {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+    }, 200);
 }
 
 // Close modal when clicking outside

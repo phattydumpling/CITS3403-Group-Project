@@ -197,16 +197,21 @@ def init_routes(app):
             if friend:
                 friends.append(friend)
         
+        return render_template('share_data.html', friends=friends)
+
+    @app.route('/shared_data_history')
+    @login_required
+    def shared_data_history():
         # Get shared data history (data you've shared)
         shared_data = SharedData.query.filter_by(from_user_id=current_user.id).order_by(SharedData.created_at.desc()).all()
-        
+        return render_template('shared_data_history.html', shared_data=shared_data)
+
+    @app.route('/data_shared_with_you')
+    @login_required
+    def data_shared_with_you():
         # Get data shared with you
         data_shared_with_you = SharedData.query.filter_by(to_user_id=current_user.id).order_by(SharedData.created_at.desc()).all()
-        
-        return render_template('share_data.html', 
-                             friends=friends, 
-                             shared_data=shared_data,
-                             data_shared_with_you=data_shared_with_you)
+        return render_template('data_shared_with_you.html', data_shared_with_you=data_shared_with_you)
 
     @app.route('/api/share_data', methods=['POST'])
     @login_required
