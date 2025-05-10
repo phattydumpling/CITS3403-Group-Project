@@ -104,55 +104,32 @@
 </div>
 
 <script>
-    // Variables for tracking progress and goals
+    // Elements
     let goalHoursInput = document.getElementById('goal-hours');
     let progressBar = document.getElementById('progress-bar');
     let progressText = document.getElementById('progress-text');
     let setGoalButton = document.getElementById('set-goal-button');
 
-    // Placeholder for storing current study time (in minutes)
-    let totalStudyTime = 0;  // in minutes
+    // Get total study time in minutes from Flask
+    let totalStudyTime = {{ total_time_minutes|default(0) }};
 
-    // Function to update progress bar
+
     function updateProgress() {
-        let goalHours = parseInt(goalHoursInput.value) || 0;
-        let goalSessions = parseInt(goalSessionsInput.value) || 0;
-
+        let goalHours = parseFloat(goalHoursInput.value) || 0;
         let timeGoalInMinutes = goalHours * 60;
-        let timeProgress = timeGoalInMinutes > 0 ? (totalStudyTime / timeGoalInMinutes) * 100 : 0;
 
-        let sessionProgress = goalSessions > 0 ? (completedSessions / goalSessions) * 100 : 0;
+        let progress = timeGoalInMinutes > 0 ? (totalStudyTime / timeGoalInMinutes) * 100 : 0;
+        progress = Math.min(100, progress);  // Cap at 100%
 
-        // Use average only if both goals are set, otherwise fall back to whichever is valid
-        let finalProgress = 0;
-        if (goalHours > 0 && goalSessions > 0) {
-            finalProgress = (timeProgress + sessionProgress) / 2;
-        } else if (goalHours > 0) {
-            finalProgress = timeProgress;
-        } else if (goalSessions > 0) {
-            finalProgress = sessionProgress;
-        }
-
-        finalProgress = Math.min(100, finalProgress); // Cap at 100%
-
-        progressBar.style.width = finalProgress + '%';
-        progressText.textContent = `${Math.round(finalProgress)}% Complete`;
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `${Math.round(progress)}% Complete`;
     }
 
+    setGoalButton.addEventListener('click', updateProgress);
 
-    // Event listener for the Set Goal button
-    setGoalButton.addEventListener('click', function() {
-        updateProgress(); // Update progress when goal is set
-    });
-
-    // Example function to simulate adding study time
-    function addStudySession(timeSpent) {
-        totalStudyTime += timeSpent;  // time in minutes
-        updateProgress();
-    }
-
-    // You can call addStudySession whenever a study session is completed
-    addStudySession(45);  // Example: 45 minutes of study time
+    // Initial update on page load (if goal is already filled in)
+    window.addEventListener('DOMContentLoaded', updateProgress);
 </script>
+
 
 {% endblock %}
