@@ -21,6 +21,14 @@
                             <div id="timer-display" contenteditable="true" class="text-4xl font-bold mb-4 text-primary" 
                                 role="textbox" aria-placeholder="00:00">25:00</div>
                         </div>
+                        <!-- Pomodoro Controls -->
+                        <div class="mt-4">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" id="pomodoro-toggle" class="form-checkbox text-primary h-5 w-5">
+                                <span class="ml-2 text-gray-600 dark:text-gray-300">Enable Pomodoro Mode</span>
+                            </label>
+                            <p id="session-label" class="mt-2 text-sm text-primary font-semibold hidden">Current Session: Work</p>
+                        </div>
                         <!--<div id="timer-display" class="text-4xl font-bold mb-4 text-primary">25:00</div> -->
                         <div class="flex justify-center space-x-4">
                             <button id="start-button" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
@@ -76,34 +84,41 @@
 <script>
     let timerDisplay = document.getElementById('timer-display');
     let startButton = document.getElementById('start-button');
+    let pauseButton = document.getElementById('pause-button');
     let resetButton = document.getElementById('reset-button');
+    let pomodoroToggle = document.getElementById('pomodoro-toggle');
+    let sessionLabel = document.getElementById('session-label');
 
-    let totalTime = 25 * 60; // Default to 25 minutes in seconds
+    let defaultWork = 25 * 60;
+    let shortBreak = 5 * 60;
+    let longBreak = 15 * 60;
+
+    let totalTime = defaultWork;
     let timeLeft = totalTime;
     let timerInterval = null;
 
-    // Function to format time as mm:ss
+    let isPomodoro = false;
+    let isWorkSession = true;
+    let pomodoroCount = 0;
+
     function formatTime(seconds) {
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     }
 
-    // Update the timer display
     function updateDisplay() {
         timerDisplay.textContent = formatTime(timeLeft);
     }
 
-    // Validate and parse the inputted time from the display
     function parseTimerInput() {
+        if (isPomodoro) return true;
+
         let inputTime = timerDisplay.textContent.trim();
         let timeParts = inputTime.split(':');
-        
         if (timeParts.length === 2) {
             let minutes = parseInt(timeParts[0], 10);
             let seconds = parseInt(timeParts[1], 10);
-            
-            // Ensure valid minute and second values
             if (!isNaN(minutes) && !isNaN(seconds) && minutes >= 0 && seconds >= 0 && seconds < 60) {
                 totalTime = minutes * 60 + seconds;
                 timeLeft = totalTime;
@@ -111,21 +126,35 @@
                 return true;
             }
         }
-        return false; // Invalid input
+        return false;
     }
 
-    // Start the timer
+    function setPomodoroSession() {
+        isWorkSession = !isWorkSession;
+        if (isWorkSession) {
+            timeLeft = defaultWork;
+            sessionLabel.textContent = 'Current Session: Work';
+        } else {
+            pomodoroCount++;
+            if (pomodoroCount % 4 === 0) {
+                timeLeft = longBreak;
+                sessionLabel.textContent = 'Current Session: Long Break';
+            } else {
+                timeLeft = shortBreak;
+                sessionLabel.textContent = 'Current Session: Break';
+            }
+        }
+        updateDisplay();
+    }
+
     function startTimer() {
-        // Validate and parse the user input before starting
         if (!parseTimerInput()) {
             alert('Please enter a valid time in mm:ss format.');
             return;
         }
 
-        // If already running, do nothing
-        if (timerInterval !== null) return; 
+        if (timerInterval !== null) return;
 
-        // Start the countdown
         timerInterval = setInterval(() => {
             if (timeLeft > 0) {
                 timeLeft--;
@@ -133,11 +162,17 @@
             } else {
                 clearInterval(timerInterval);
                 timerInterval = null;
-                alert("Time's up! Take a break.");
+
+                if (isPomodoro) {
+                    setPomodoroSession();
+                    startTimer();
+                } else {
+                    alert("Time's up! Take a break.");
+                }
             }
         }, 1000);
     }
-    // Pause the timer
+
     function pauseTimer() {
         if (timerInterval !== null) {
             clearInterval(timerInterval);
@@ -145,23 +180,32 @@
         }
     }
 
-
-    // Reset the timer
     function resetTimer() {
         clearInterval(timerInterval);
         timerInterval = null;
-        timeLeft = totalTime; // Reset to original set time
+        if (isPomodoro) {
+            isWorkSession = true;
+            pomodoroCount = 0;
+            timeLeft = defaultWork;
+            sessionLabel.textContent = 'Current Session: Work';
+        } else {
+            timeLeft = totalTime;
+        }
         updateDisplay();
     }
 
-    // Event listeners for start, pause and reset buttons
     startButton.addEventListener('click', startTimer);
-    resetButton.addEventListener('click', resetTimer);
-    let pauseButton = document.getElementById('pause-button');
     pauseButton.addEventListener('click', pauseTimer);
+    resetButton.addEventListener('click', resetTimer);
 
-    // Initialize the display when page loads
-    updateDisplay(); 
+    pomodoroToggle.addEventListener('change', function () {
+        isPomodoro = pomodoroToggle.checked;
+        sessionLabel.classList.toggle('hidden', !isPomodoro);
+        resetTimer(); // reset everything on toggle
+    });
+
+    updateDisplay();
 </script>
+
 
 {% endblock %}
