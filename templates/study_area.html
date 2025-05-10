@@ -130,6 +130,66 @@
     // Initial update on page load (if goal is already filled in)
     window.addEventListener('DOMContentLoaded', updateProgress);
 </script>
+<script>
+    let timerDisplay = document.getElementById('timer-display');
+    let startButton = document.getElementById('start-button');
+    let pauseButton = document.getElementById('pause-button');
+    let resetButton = document.getElementById('reset-button');
+
+    let timerInterval;
+    let remainingSeconds = 0;
+    let isPaused = false;
+
+    function parseTime(displayText) {
+        const [minutes, seconds] = displayText.split(':').map(Number);
+        return (minutes * 60) + (seconds || 0);
+    }
+
+    function formatTime(seconds) {
+        const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+        const s = String(seconds % 60).padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    function updateDisplay() {
+        timerDisplay.textContent = formatTime(remainingSeconds);
+    }
+
+    startButton.addEventListener('click', () => {
+        if (!timerInterval) {
+            if (!isPaused) {
+                remainingSeconds = parseTime(timerDisplay.textContent);
+            }
+            isPaused = false;
+            timerInterval = setInterval(() => {
+                if (remainingSeconds > 0) {
+                    remainingSeconds--;
+                    updateDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    alert('Time is up!');
+                }
+            }, 1000);
+        }
+    });
+
+    pauseButton.addEventListener('click', () => {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            isPaused = true;
+        }
+    });
+
+    resetButton.addEventListener('click', () => {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        isPaused = false;
+        timerDisplay.textContent = "25:00"; // or reset to last set time if you store it
+    });
+</script>
+
 
 
 {% endblock %}
