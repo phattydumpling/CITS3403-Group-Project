@@ -28,6 +28,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     university = db.Column(db.String(120))
+    profile_picture = db.Column(db.String(120), default=None)  # Store the filename of the profile picture
     
     # Relationships
     study_sessions = db.relationship('StudySession', backref='user', lazy=True)

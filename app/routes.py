@@ -412,6 +412,12 @@ def init_routes(app):
                 current_password = request.form.get('current_password')
                 new_password = request.form.get('new_password')
                 university = request.form.get('university')
+                profile_picture = request.form.get('profile_picture')
+                
+                # Update profile picture if provided
+                if profile_picture is not None:
+                    current_user.profile_picture = profile_picture if profile_picture else None
+                    flash('Profile picture updated successfully', 'success')
                 
                 # Update email if provided
                 if email and email != current_user.email:
