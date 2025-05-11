@@ -153,6 +153,8 @@
 
     let timerInterval;
     let remainingSeconds = 0;
+    let startTimestamp = null;
+    let totalDuration = null;
     let isPaused = false;
 
     // Pomodoro states
@@ -221,15 +223,22 @@
                 } else {
                     remainingSeconds = parseTime(timerDisplay.textContent);
                 }
+                totalDuration = remainingSeconds;
+                startTimestamp = Date.now();
+                localStorage.setItem('timer_start', startTimestamp);
+                localStorage.setItem('timer_duration', totalDuration);
+                localStorage.setItem('timer_running', 'true');
             }
+
             isPaused = false;
             timerInterval = setInterval(() => {
-                if (remainingSeconds > 0) {
-                    remainingSeconds--;
-                    updateDisplay();
-                } else {
+                remainingSeconds--;
+                updateDisplay();
+
+                if (remainingSeconds <= 0) {
                     clearInterval(timerInterval);
                     timerInterval = null;
+                    localStorage.removeItem('timer_running');
                     if (pomodoroEnabled) {
                         startNextPomodoroSession();
                         startButton.click(); // auto-start next session
@@ -241,18 +250,27 @@
         }
     });
 
+
     pauseButton.addEventListener('click', () => {
         if (timerInterval) {
             clearInterval(timerInterval);
             timerInterval = null;
             isPaused = true;
         }
+        localStorage.setItem('timer_running', 'paused');
+        localStorage.setItem('timer_remaining', remainingSeconds);
+
     });
 
     resetButton.addEventListener('click', () => {
         clearInterval(timerInterval);
         timerInterval = null;
         isPaused = false;
+
+        localStorage.removeItem('timer_running');
+        localStorage.removeItem('timer_start');
+        localStorage.removeItem('timer_duration');
+        localStorage.removeItem('timer_remaining');
 
         pomodoroEnabled = pomodoroToggle.checked;
         sessionCount = 0;
@@ -262,12 +280,38 @@
         setSessionLabel();
     });
 
+    window.addEventListener('DOMContentLoaded', () => {
+        const runningState = localStorage.getItem('timer_running');
+
+        if (runningState === 'true') {
+            const start = parseInt(localStorage.getItem('timer_start'), 10);
+            const duration = parseInt(localStorage.getItem('timer_duration'), 10);
+            const now = Date.now();
+            const elapsed = Math.floor((now - start) / 1000);
+            remainingSeconds = Math.max(0, duration - elapsed);
+
+            updateDisplay();
+
+            if (remainingSeconds > 0) {
+                startButton.click(); // restart interval
+            } else {
+                localStorage.removeItem('timer_running');
+                alert('Time is up!');
+            }
+
+        } else if (runningState === 'paused') {
+            remainingSeconds = parseInt(localStorage.getItem('timer_remaining'), 10) || 25 * 60;
+            updateDisplay();
+        } else {
+            remainingSeconds = 25 * 60;
+            updateDisplay();
+        }
+    });
+
+
     // On load
     remainingSeconds = 25 * 60;
     updateDisplay();
 </script>
-
-
-
 
 {% endblock %}
