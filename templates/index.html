@@ -16,7 +16,7 @@
             <span id="typing-hero"></span>
         </h2>
         <div class="flex justify-center gap-4 mb-16">
-        {% if not session['user_id'] %}
+        {% if not current_user.is_authenticated %}
             <a href="{{ url_for('signup') }}" class="px-8 py-4 bg-[#173B64] text-white rounded-lg hover:bg-[#1a4a7d] transition-all duration-300 transform hover:scale-105 font-semibold">
                 Get Started
             </a>
@@ -56,7 +56,7 @@
                         </svg>
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Wellness Insights</h3>
-                    <p class="text-gray-600 dark:text-gray-300">Gain valuable insights into your study habits and well-being. Track your mood, sleep, and productivity to maintain a healthy balance between work and rest, and receive personalized tips to support your academic and personal growth.</p>
+                    <p class="text-gray-600 dark:text-gray-300">Gain valuable insights into your study habits and well-being. Track your mood and productivity to maintain a healthy balance between work and rest, and receive personalized tips to support your academic and personal growth.</p>
                 </div>
             </div>
         </div>

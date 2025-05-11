@@ -8,20 +8,31 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
             <!-- Sidebar -->
             <div class="md:col-span-1">
-                <div class="bg-white dark:bg-gray-700 rounded-lg shadow-sm p-6">
+                <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600">
                     <div class="text-center mb-6">
-                        <div class="w-24 h-24 bg-blue-100 dark:bg-blue-900 rounded-full mx-auto mb-4 flex items-center justify-center">
-                            <span class="text-3xl text-blue-600 dark:text-blue-300">{{ current_user.username[0].upper() }}</span>
+                        <div class="w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden cursor-pointer group relative" id="profilePicTrigger">
+                            {% if current_user.profile_picture %}
+                                <img src="{{ url_for('static', filename='images/' + current_user.profile_picture) }}" 
+                                     alt="Profile Picture" 
+                                     class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="w-full h-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                                    <span class="text-3xl text-indigo-600 dark:text-indigo-300">{{ current_user.username[0].upper() }}</span>
+                                </div>
+                            {% endif %}
+                            <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full">
+                                <span class="text-white font-semibold">Change Profile Picture</span>
+                            </div>
                         </div>
-                        <h2 class="text-xl font-semibold text-gray-800 dark:text-white">{{ current_user.username }}</h2>
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">{{ current_user.username }}</h2>
                         <p class="text-gray-600 dark:text-gray-300">{{ current_user.email }}</p>
                     </div>
                     <nav class="space-y-2">
                         <a href="{{ url_for('profile') }}" class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">
-                            Account Settings
+                            <i class="fas fa-cog mr-2"></i> Account Settings
                         </a>
                         <a href="{{ url_for('notifications') }}" class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">
-                            Notifications
+                            <i class="fas fa-bell mr-2"></i> Notifications
                         </a>
                     </nav>
                 </div>
@@ -30,27 +41,66 @@
             <!-- Main Content -->
             <div class="md:col-span-3">
                 <!-- Account Settings -->
-                <div id="account" class="bg-white dark:bg-gray-700 rounded-lg shadow-sm p-6 mb-8">
-                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-6">Account Settings</h3>
+                <div id="account" class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600 mb-12">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
+                            <i class="fas fa-user-cog text-2xl text-indigo-600 dark:text-indigo-300"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-gray-900 dark:text-white">Account Settings</h3>
+                    </div>
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="mb-6">
+                        {% for category, message in messages %}
+                            <div class="rounded-xl px-4 py-3 mb-2 text-sm font-medium shadow transition-all duration-300
+                                {% if category == 'success' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                                {% elif category == 'error' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                                {% else %}bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% endwith %}
                     <form method="POST" action="{{ url_for('profile') }}" class="space-y-6">
+                        <div>
+                            <label for="university" class="block text-sm font-medium text-gray-700 dark:text-gray-300">University</label>
+                            <select id="university" name="university" placeholder="Select or type your university" autocomplete="off" class="mt-1 block w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-600 text-gray-900 dark:text-white px-4 py-3 text-base shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition-all duration-200">
+                                <option value="" {% if not current_user.university %}selected{% endif %} disabled>Select or type your university</option>
+                                <option value="University of Western Australia" {% if current_user.university == 'University of Western Australia' %}selected{% endif %}>University of Western Australia</option>
+                                <option value="Curtin University" {% if current_user.university == 'Curtin University' %}selected{% endif %}>Curtin University</option>
+                                <option value="Murdoch University" {% if current_user.university == 'Murdoch University' %}selected{% endif %}>Murdoch University</option>
+                                <option value="Edith Cowan University" {% if current_user.university == 'Edith Cowan University' %}selected{% endif %}>Edith Cowan University</option>
+                                <option value="University of Melbourne" {% if current_user.university == 'University of Melbourne' %}selected{% endif %}>University of Melbourne</option>
+                                <option value="Monash University" {% if current_user.university == 'Monash University' %}selected{% endif %}>Monash University</option>
+                                <option value="University of Sydney" {% if current_user.university == 'University of Sydney' %}selected{% endif %}>University of Sydney</option>
+                                <option value="University of New South Wales" {% if current_user.university == 'University of New South Wales' %}selected{% endif %}>University of New South Wales</option>
+                                <option value="University of Queensland" {% if current_user.university == 'University of Queensland' %}selected{% endif %}>University of Queensland</option>
+                                <option value="Australian National University" {% if current_user.university == 'Australian National University' %}selected{% endif %}>Australian National University</option>
+                                <option value="University of Adelaide" {% if current_user.university == 'University of Adelaide' %}selected{% endif %}>University of Adelaide</option>
+                                <option value="University of Technology Sydney" {% if current_user.university == 'University of Technology Sydney' %}selected{% endif %}>University of Technology Sydney</option>
+                                <option value="RMIT University" {% if current_user.university == 'RMIT University' %}selected{% endif %}>RMIT University</option>
+                                <option value="Other" {% if current_user.university == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                             <input type="email" id="email" name="email" value="{{ current_user.email }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                                class="mt-1 block w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-600 text-gray-900 dark:text-white px-4 py-3 text-base shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition-all duration-200">
                         </div>
                         <div>
                             <label for="current_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Current Password</label>
                             <input type="password" id="current_password" name="current_password"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                                class="mt-1 block w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-600 text-gray-900 dark:text-white px-4 py-3 text-base shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition-all duration-200">
                         </div>
                         <div>
                             <label for="new_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Password</label>
                             <input type="password" id="new_password" name="new_password"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                                class="mt-1 block w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-600 text-gray-900 dark:text-white px-4 py-3 text-base shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition-all duration-200">
                         </div>
                         <div class="flex justify-end">
                             <button type="submit"
-                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                                class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                                 Save Changes
                             </button>
                         </div>
@@ -59,24 +109,34 @@
 
                 <!-- Pending Friend Requests -->
                 {% if pending_requests %}
-                <div id="notifications" class="bg-white dark:bg-gray-700 rounded-lg shadow-sm p-6">
-                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-6">Pending Friend Requests</h3>
-                    <div class="space-y-4">
+                <div id="notifications" class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
+                            <i class="fas fa-user-clock text-2xl text-indigo-600 dark:text-indigo-300"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold text-gray-900 dark:text-white">Pending Friend Requests</h3>
+                    </div>
+                    <div class="space-y-6">
                         {% for request in pending_requests %}
-                        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-600 rounded-lg">
+                        <div class="flex items-center justify-between p-6 bg-gray-50 dark:bg-gray-600 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors duration-200">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center text-xl font-bold text-white">
+                                    {{ request.from_user.username[0]|upper }}
+                                </div>
                             <div>
-                                <p class="font-medium text-gray-800 dark:text-white">{{ request.from_user.username }}</p>
+                                    <p class="font-medium text-gray-900 dark:text-white text-lg">{{ request.from_user.username }}</p>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">Sent {{ request.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                                </div>
                             </div>
                             <div class="flex space-x-2">
                                 <form method="POST" action="{{ url_for('accept_friend', request_id=request.id) }}" class="inline">
-                                    <button type="submit" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
-                                        Accept
+                                    <button type="submit" class="text-green-500 hover:text-white hover:bg-green-500 rounded-full p-2 transition-colors duration-300" title="Accept Request">
+                                        <i class="fas fa-check text-lg"></i>
                                     </button>
                                 </form>
                                 <form method="POST" action="{{ url_for('reject_friend', request_id=request.id) }}" class="inline">
-                                    <button type="submit" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
-                                        Reject
+                                    <button type="submit" class="text-red-500 hover:text-white hover:bg-red-500 rounded-full p-2 transition-colors duration-300" title="Reject Request">
+                                        <i class="fas fa-times text-lg"></i>
                                     </button>
                                 </form>
                             </div>
@@ -89,4 +149,86 @@
         </div>
     </div>
 </div>
+
+<!-- Toast Notification -->
+<div id="profilePicToast" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg text-base font-semibold opacity-0 pointer-events-none transition-opacity duration-300">
+    Profile picture updated successfully!
+</div>
+
+<!-- Profile Picture Modal -->
+<div id="profilePicModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-lg w-full relative">
+        <button id="closeProfilePicModal" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-2xl">&times;</button>
+        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white text-center">Select Profile Picture</h2>
+        <form method="POST" action="{{ url_for('profile') }}" id="profilePicForm">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6">
+                <div class="relative">
+                    <input type="radio" name="profile_picture" value="" id="modal_default_pic" class="hidden peer" {% if not current_user.profile_picture %}checked{% endif %}>
+                    <label for="modal_default_pic" class="block cursor-pointer">
+                        <div class="w-full aspect-square rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center peer-checked:ring-4 peer-checked:ring-indigo-500">
+                            <span class="text-2xl text-indigo-600 dark:text-indigo-300">{{ current_user.username[0].upper() }}</span>
+                        </div>
+                        <p class="mt-2 text-sm text-center text-gray-600 dark:text-gray-400">Default</p>
+                    </label>
+                </div>
+                {% for i in range(1, 10) %}
+                <div class="relative">
+                    <input type="radio" name="profile_picture" value="profile_pic_{{ i }}.png" id="modal_pic_{{ i }}" class="hidden peer" {% if current_user.profile_picture == 'profile_pic_' ~ i ~ '.png' %}checked{% endif %}>
+                    <label for="modal_pic_{{ i }}" class="block cursor-pointer">
+                        <div class="w-full aspect-square rounded-xl overflow-hidden peer-checked:ring-4 peer-checked:ring-indigo-500">
+                            <img src="{{ url_for('static', filename='images/profile_pic_' ~ i ~ '.png') }}" 
+                                 alt="Profile Picture {{ i }}" 
+                                 class="w-full h-full object-cover">
+                        </div>
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const profilePicTrigger = document.getElementById('profilePicTrigger');
+    const profilePicModal = document.getElementById('profilePicModal');
+    const closeProfilePicModal = document.getElementById('closeProfilePicModal');
+    const profilePicForm = document.getElementById('profilePicForm');
+    const profilePicToast = document.getElementById('profilePicToast');
+
+    profilePicTrigger.addEventListener('click', () => {
+        profilePicModal.classList.remove('hidden');
+    });
+    closeProfilePicModal.addEventListener('click', () => {
+        profilePicModal.classList.add('hidden');
+    });
+    // Optional: close modal when clicking outside
+    profilePicModal.addEventListener('click', (e) => {
+        if (e.target === profilePicModal) {
+            profilePicModal.classList.add('hidden');
+        }
+    });
+
+    // Show toast on successful profile picture update
+    profilePicForm.addEventListener('submit', function(e) {
+        // Let the form submit normally, but show the toast after redirect
+        localStorage.setItem('showProfilePicToast', '1');
+    });
+    window.addEventListener('DOMContentLoaded', function() {
+        if (localStorage.getItem('showProfilePicToast') === '1') {
+            profilePicToast.classList.remove('opacity-0', 'pointer-events-none');
+            profilePicToast.classList.add('opacity-100');
+            setTimeout(() => {
+                profilePicToast.classList.add('opacity-0');
+                profilePicToast.classList.remove('opacity-100');
+                localStorage.removeItem('showProfilePicToast');
+            }, 2000);
+        }
+    });
+</script>
 {% endblock %} 

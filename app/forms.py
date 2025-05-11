@@ -1,7 +1,21 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, TextAreaField, DateTimeField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField, DateTimeField, SelectField, BooleanField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
 from app.models import User
+import re
+
+def validate_password_strength(form, field):
+    password = field.data
+    if len(password) < 8:
+        raise ValidationError('Password must be at least 8 characters long')
+    if not re.search(r'[A-Z]', password):
+        raise ValidationError('Password must contain at least one uppercase letter')
+    if not re.search(r'[a-z]', password):
+        raise ValidationError('Password must contain at least one lowercase letter')
+    if not re.search(r'\d', password):
+        raise ValidationError('Password must contain at least one number')
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        raise ValidationError('Password must contain at least one special character')
 
 class LoginForm(FlaskForm):
     username_or_email = StringField('Username or Email', validators=[
@@ -12,6 +26,7 @@ class LoginForm(FlaskForm):
         DataRequired(),
         Length(min=6, message="Password must be at least 6 characters long")
     ])
+    remember_me = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
 class RegistrationForm(FlaskForm):
@@ -26,7 +41,7 @@ class RegistrationForm(FlaskForm):
     ])
     password = PasswordField('Password', validators=[
         DataRequired(),
-        Length(min=6, message="Password must be at least 6 characters long")
+        validate_password_strength
     ])
     confirm_password = PasswordField('Confirm Password', validators=[
         DataRequired(),
@@ -76,6 +91,5 @@ class TaskForm(FlaskForm):
 class WellnessCheckForm(FlaskForm):
     mood_score = SelectField('Mood Score (1-10)', choices=[(str(i), str(i)) for i in range(1, 11)], validators=[DataRequired()])
     stress_level = SelectField('Stress Level (1-10)', choices=[(str(i), str(i)) for i in range(1, 11)], validators=[DataRequired()])
-    sleep_hours = StringField('Hours of Sleep', validators=[DataRequired()])
     notes = TextAreaField('Notes')
     submit = SubmitField('Save Wellness Check') 

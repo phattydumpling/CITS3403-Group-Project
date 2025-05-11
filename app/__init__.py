@@ -1,10 +1,12 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_login import LoginManager
 import os
 
 db = SQLAlchemy()
 migrate = Migrate()
+login_manager = LoginManager()
 
 def create_app():
     app = Flask(__name__, 
@@ -23,6 +25,12 @@ def create_app():
     # Initialize the database
     db.init_app(app)
     migrate.init_app(app, db)
+    
+    # Initialize Flask-Login
+    login_manager.init_app(app)
+    login_manager.login_view = 'login'
+    login_manager.login_message = 'Please log in to access this page.'
+    login_manager.login_message_category = 'info'
 
     # Initialize routes
     from app.routes import init_routes
