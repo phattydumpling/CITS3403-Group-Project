@@ -93,11 +93,8 @@ def init_routes(app):
     @app.route('/study_area')
     @login_required
     def study_area():
-        if 'username' not in session:
-            return redirect(url_for('login'))
-
         today = datetime.today().date()
-        user_id = session['user_id']
+        user_id = current_user.id
 
         # Query today's sessions
         sessions_today = StudySession.query.filter_by(user_id=user_id).filter(StudySession.start_time >= today).all()
@@ -115,44 +112,99 @@ def init_routes(app):
 
         completed_sessions = len(sessions_today)
 
+        # Get recent sessions (last 5)
+        recent_sessions = StudySession.query.filter_by(user_id=user_id).order_by(StudySession.start_time.desc()).limit(5).all()
+
         return render_template(
             'study_area.html',
             total_time=total_time_formatted,
             total_time_minutes=total_time_minutes,
-            completed_sessions=completed_sessions
+            completed_sessions=completed_sessions,
+            sessions=recent_sessions
         )
-
 
     @app.route('/study_session', methods=['GET', 'POST'])
     @login_required
     def study_session():
-        form = StudySessionForm()
-        if form.validate_on_submit():
-            # Combine date and time into full datetime objects
-            session_date = form.date.data
-            start_dt = datetime.combine(session_date, form.start_time.data)
-            end_dt = datetime.combine(session_date, form.end_time.data) if form.end_time.data else None
+        if request.method == 'POST':
+            if request.is_json:
+                data = request.get_json()
+                session_date = datetime.fromisoformat(data['start_time']).date()
+                start_dt = datetime.fromisoformat(data['start_time'])
+                end_dt = None  # Will be updated when session ends
 
-            study_session = StudySession(
-                user_id=current_user.id,
-                subject=form.subject.data,
-                start_time=start_dt,
-                end_time=end_dt,
-                notes=form.notes.data
-            )
-            db.session.add(study_session)
-            db.session.commit()
-            flash('Study session recorded successfully!', 'success')
-            return redirect(url_for('dashboard'))
+                study_session = StudySession(
+                    user_id=current_user.id,
+                    subject=data['subject'],
+                    start_time=start_dt,
+                    end_time=end_dt,
+                    notes=data.get('notes')
+                )
+                db.session.add(study_session)
+                db.session.commit()
+                return jsonify({'success': True, 'session_id': study_session.id})
+            else:
+                form = StudySessionForm()
+                if form.validate_on_submit():
+                    session_date = form.date.data
+                    start_dt = datetime.combine(session_date, form.start_time.data)
+                    end_dt = datetime.combine(session_date, form.end_time.data) if form.end_time.data else None
+
+                    study_session = StudySession(
+                        user_id=current_user.id,
+                        subject=form.subject.data,
+                        start_time=start_dt,
+                        end_time=end_dt,
+                        notes=form.notes.data
+                    )
+                    db.session.add(study_session)
+                    db.session.commit()
+                    flash('Study session recorded successfully!', 'success')
+                    return redirect(url_for('dashboard'))
         return render_template('study_session.html', form=form)
 
-    @app.route('/study_history')
-    def study_history():
-        if 'username' not in session:
-            return redirect(url_for('login'))
+    @app.route('/study_session/<int:session_id>', methods=['DELETE'])
+    @login_required
+    def delete_study_session(session_id):
+        session = StudySession.query.get_or_404(session_id)
+        if session.user_id != current_user.id:
+            return jsonify({'error': 'Unauthorized'}), 403
+        db.session.delete(session)
+        db.session.commit()
+        return '', 204
+
+    @app.route('/study_session/<int:session_id>', methods=['PUT'])
+    @login_required
+    def update_study_session(session_id):
+        session = StudySession.query.get_or_404(session_id)
+        if session.user_id != current_user.id:
+            return jsonify({'error': 'Unauthorized'}), 403
         
-        user_id = session['user_id']
-        sessions = StudySession.query.filter_by(user_id=user_id).order_by(StudySession.start_time.desc()).all()
+        data = request.get_json()
+        if 'end_time' in data:
+            session.end_time = datetime.fromisoformat(data['end_time'])
+        
+        db.session.commit()
+        return jsonify({'success': True})
+
+    @app.route('/active_session')
+    @login_required
+    def get_active_session():
+        # Find the most recent session without an end time
+        active_session = StudySession.query.filter_by(
+            user_id=current_user.id,
+            end_time=None
+        ).order_by(StudySession.start_time.desc()).first()
+        
+        return jsonify({
+            'active_session': active_session is not None,
+            'session_id': active_session.id if active_session else None
+        })
+
+    @app.route('/study_history')
+    @login_required
+    def study_history():
+        sessions = StudySession.query.filter_by(user_id=current_user.id).order_by(StudySession.start_time.desc()).all()
         return render_template('study_history.html', sessions=sessions)
 
 
