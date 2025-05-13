@@ -312,7 +312,7 @@ document.addEventListener("DOMContentLoaded", function () {
         startOfWeek.setHours(0, 0, 0, 0);
         
         const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 7);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
         endOfWeek.setHours(23, 59, 59, 999);
         
         const weekTotal = endOfWeek - startOfWeek;

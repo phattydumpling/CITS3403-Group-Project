@@ -1,12 +1,19 @@
 from datetime import datetime, UTC
 from app import db
+from flask_login import UserMixin
 
 class FriendRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     from_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     to_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     status = db.Column(db.String(20), default='pending')  # pending, accepted, rejected
+    is_read = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+
+    # Define relationships without backrefs
+    from_user = db.relationship('User', foreign_keys=[from_user_id])
+    to_user = db.relationship('User', foreign_keys=[to_user_id])
 
 class Friendship(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -14,12 +21,14 @@ class Friendship(db.Model):
     friend_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     __table_args__ = (db.UniqueConstraint('user_id', 'friend_id', name='_user_friend_uc'),)
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    university = db.Column(db.String(120))
+    profile_picture = db.Column(db.String(120), default=None)  # Store the filename of the profile picture
     
     # Relationships
     study_sessions = db.relationship('StudySession', backref='user', lazy=True)
@@ -32,8 +41,15 @@ class User(db.Model):
         secondaryjoin=(Friendship.friend_id == id),
         backref='friend_of'
     )
-    sent_friend_requests = db.relationship('FriendRequest', foreign_keys='FriendRequest.from_user_id', backref='from_user', lazy=True)
-    received_friend_requests = db.relationship('FriendRequest', foreign_keys='FriendRequest.to_user_id', backref='to_user', lazy=True)
+    # Update relationship names to avoid conflicts
+    sent_friend_requests = db.relationship('FriendRequest', 
+                                         foreign_keys='FriendRequest.from_user_id',
+                                         backref='sender',
+                                         lazy=True)
+    received_friend_requests = db.relationship('FriendRequest',
+                                            foreign_keys='FriendRequest.to_user_id',
+                                            backref='receiver',
+                                            lazy=True)
 
 class StudySession(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -59,7 +75,6 @@ class WellnessCheck(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     mood_score = db.Column(db.Integer)  # 1-10 scale
     stress_level = db.Column(db.Integer)  # 1-10 scale
-    sleep_hours = db.Column(db.Float)
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
@@ -67,8 +82,19 @@ class MoodEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     mood_score = db.Column(db.Integer, nullable=False)
-    sleep_quality = db.Column(db.Integer, nullable=False)
     reflection = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
-    user = db.relationship('User', backref=db.backref('mood_entries', lazy=True)) 
+    user = db.relationship('User', backref=db.backref('mood_entries', lazy=True))
+
+class SharedData(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    from_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    to_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    data_type = db.Column(db.String(50), nullable=False)  # study_progress, mood, etc.
+    data_content = db.Column(db.JSON, nullable=False)  # Store the actual shared data
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+
+    from_user = db.relationship('User', foreign_keys=[from_user_id], backref='shared_data_sent')
+    to_user = db.relationship('User', foreign_keys=[to_user_id], backref='shared_data_received') 
