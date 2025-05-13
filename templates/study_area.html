@@ -22,29 +22,6 @@
                                 role="textbox" aria-placeholder="00:00">25:00</div>
                         </div>
 
-                        <!-- Pomodoro Controls -->
-                        <!--
-                        <div class="mt-4">
-                            <label class="inline-flex items-center space-x-2 mb-4 group relative cursor-pointer">
-                            <input type="checkbox" id="pomodoro-toggle" class="form-checkbox h-5 w-5 text-primary">
-                            <span class="text-gray-800 dark:text-gray-200">Enable Pomodoro Mode</span>
-
-                            
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <title>How Pomodoro Mode Works</title>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
-                            </svg>
-
-                          
-                            <div class="absolute bottom-full mb-2 hidden group-hover:block w-64 p-2 text-sm bg-gray-800 text-white rounded shadow-lg z-10">
-                                Follows Pomodoro technique: 25 min work / 5 min break cycles. After 4 work sessions, you get a 15 min long break. Automatically transitions.
-                            </div>
-                        </label>
-
-                            <p id="session-label" class="mt-2 text-sm text-primary font-semibold hidden">Current Session: Work</p>
-                        </div>
-                        -->
                         <div class="flex justify-center space-x-4">
                             <button id="start-button" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300">
                                 Start
@@ -146,175 +123,100 @@
     // Initial update on page load (if goal is already filled in)
     window.addEventListener('DOMContentLoaded', updateProgress);
 </script>
+
 <script>
     let timerDisplay = document.getElementById('timer-display');
     let startButton = document.getElementById('start-button');
     let pauseButton = document.getElementById('pause-button');
     let resetButton = document.getElementById('reset-button');
-    let pomodoroToggle = document.getElementById('pomodoro-toggle');
-    let sessionLabel = document.getElementById('session-label');
 
-    let timerInterval;
+    let timerInterval = null;
     let remainingSeconds = 0;
-    let startTimestamp = null;
-    let totalDuration = null;
-    let isPaused = false;
+    let initialSeconds = 0; // stores original time when Start is first pressed
 
-    // Pomodoro states
-    let pomodoroEnabled = false;
-    let sessionCount = 0;
-    let isWorkSession = true;
-
-    function parseTime(displayText) {
-        const [minutes, seconds] = displayText.split(':').map(Number);
-        return (minutes * 60) + (seconds || 0);
+    function parseTimeFromDisplay() {
+        let [minutes, seconds] = timerDisplay.textContent.trim().split(':').map(Number);
+        return (isNaN(minutes) ? 0 : minutes) * 60 + (isNaN(seconds) ? 0 : seconds);
     }
 
-    function formatTime(seconds) {
-        const m = String(Math.floor(seconds / 60)).padStart(2, '0');
-        const s = String(seconds % 60).padStart(2, '0');
-        return `${m}:${s}`;
+    function updateDisplay(seconds) {
+        let mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+        let secs = String(seconds % 60).padStart(2, '0');
+        timerDisplay.textContent = `${mins}:${secs}`;
     }
 
-    function updateDisplay() {
-        timerDisplay.textContent = formatTime(remainingSeconds);
-    }
+    function startTimer() {
+        if (timerInterval) return; // Already running
 
-    function setSessionLabel() {
-        if (!pomodoroEnabled) {
-            sessionLabel.classList.add('hidden');
-            return;
+        // If it's the first start (initialSeconds not set), capture original
+        if (initialSeconds === 0) {
+            initialSeconds = parseTimeFromDisplay();
         }
 
-        sessionLabel.classList.remove('hidden');
-        if (isWorkSession) {
-            sessionLabel.textContent = `Current Session: Work (${sessionCount % 4 + 1}/4)`;
-        } else if (sessionCount % 4 === 0) {
-            sessionLabel.textContent = "Current Session: Long Break";
-        } else {
-            sessionLabel.textContent = "Current Session: Short Break";
-        }
-    }
-
-    function startNextPomodoroSession() {
-        isWorkSession = !isWorkSession;
-        if (isWorkSession) {
-            sessionCount++;
+        if (remainingSeconds === 0) {
+            remainingSeconds = initialSeconds;
         }
 
-        if (isWorkSession) {
-            remainingSeconds = 25 * 60;
-        } else if (sessionCount % 4 === 0) {
-            remainingSeconds = 15 * 60;
-        } else {
-            remainingSeconds = 5 * 60;
-        }
-
-        updateDisplay();
-        setSessionLabel();
-    }
-
-    startButton.addEventListener('click', () => {
-        pomodoroEnabled = pomodoroToggle.checked;
-
-        if (!timerInterval) {
-            if (!isPaused) {
-                if (pomodoroEnabled) {
-                    if (remainingSeconds <= 0) {
-                        startNextPomodoroSession();
-                    }
-                } else {
-                    remainingSeconds = parseTime(timerDisplay.textContent);
-                }
-                totalDuration = remainingSeconds;
-                startTimestamp = Date.now();
-                localStorage.setItem('timer_start', startTimestamp);
-                localStorage.setItem('timer_duration', totalDuration);
-                localStorage.setItem('timer_running', 'true');
+        timerInterval = setInterval(() => {
+            if (remainingSeconds <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                return;
             }
+            remainingSeconds--;
+            updateDisplay(remainingSeconds);
+        }, 1000);
+    }
 
-            isPaused = false;
-            timerInterval = setInterval(() => {
-                remainingSeconds--;
-                updateDisplay();
-
-                if (remainingSeconds <= 0) {
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                    localStorage.removeItem('timer_running');
-                    if (pomodoroEnabled) {
-                        startNextPomodoroSession();
-                        startButton.click(); // auto-start next session
-                    } else {
-                        alert('Time is up!');
-                    }
-                }
-            }, 1000);
-        }
-    });
-
-
-    pauseButton.addEventListener('click', () => {
-        if (timerInterval) {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            isPaused = true;
-        }
-        localStorage.setItem('timer_running', 'paused');
-        localStorage.setItem('timer_remaining', remainingSeconds);
-
-    });
-
-    resetButton.addEventListener('click', () => {
+    function pauseTimer() {
         clearInterval(timerInterval);
         timerInterval = null;
-        isPaused = false;
+    }
 
-        localStorage.removeItem('timer_running');
-        localStorage.removeItem('timer_start');
-        localStorage.removeItem('timer_duration');
-        localStorage.removeItem('timer_remaining');
+    function resetTimer() {
+        pauseTimer();
+        remainingSeconds = 0;
+        updateDisplay(initialSeconds || parseTimeFromDisplay()); // revert to original
+        initialSeconds = 0; // allow fresh Start
+    }
 
-        pomodoroEnabled = pomodoroToggle.checked;
-        sessionCount = 0;
-        isWorkSession = true;
-        remainingSeconds = 25 * 60;
-        updateDisplay();
-        setSessionLabel();
+    startButton.addEventListener('click', startTimer);
+    pauseButton.addEventListener('click', pauseTimer);
+    resetButton.addEventListener('click', resetTimer);
+
+    //PERSISTENCE ACROSS RELOADS (continuous countdown) ---
+
+    // Save state when the page is unloaded
+    window.addEventListener('beforeunload', () => {
+        localStorage.setItem('studyTimer_remainingSeconds', remainingSeconds);
+        localStorage.setItem('studyTimer_initialSeconds', initialSeconds);
+        localStorage.setItem('studyTimer_startTimestamp', Date.now()); // time now in ms
+        localStorage.setItem('studyTimer_isRunning', !!timerInterval);
     });
 
+    // Restore on load
     window.addEventListener('DOMContentLoaded', () => {
-        const runningState = localStorage.getItem('timer_running');
+        const savedInitial = parseInt(localStorage.getItem('studyTimer_initialSeconds')) || 0;
+        const savedRemaining = parseInt(localStorage.getItem('studyTimer_remainingSeconds')) || 0;
+        const wasRunning = localStorage.getItem('studyTimer_isRunning') === 'true';
+        const savedTimestamp = parseInt(localStorage.getItem('studyTimer_startTimestamp'));
 
-        if (runningState === 'true') {
-            const start = parseInt(localStorage.getItem('timer_start'), 10);
-            const duration = parseInt(localStorage.getItem('timer_duration'), 10);
-            const now = Date.now();
-            const elapsed = Math.floor((now - start) / 1000);
-            remainingSeconds = Math.max(0, duration - elapsed);
+        if (savedInitial > 0) {
+            initialSeconds = savedInitial;
 
-            updateDisplay();
+            if (wasRunning && savedTimestamp) {
+                const elapsedSeconds = Math.floor((Date.now() - savedTimestamp) / 1000);
+                remainingSeconds = Math.max(0, savedRemaining - elapsedSeconds);
 
-            if (remainingSeconds > 0) {
-                startButton.click(); // restart interval
+                updateDisplay(remainingSeconds);
+                if (remainingSeconds > 0) startTimer(); // Resume countdown
             } else {
-                localStorage.removeItem('timer_running');
-                alert('Time is up!');
+                remainingSeconds = savedRemaining;
+                updateDisplay(remainingSeconds);
             }
-
-        } else if (runningState === 'paused') {
-            remainingSeconds = parseInt(localStorage.getItem('timer_remaining'), 10) || 25 * 60;
-            updateDisplay();
-        } else {
-            remainingSeconds = 25 * 60;
-            updateDisplay();
         }
     });
-
-
-    // On load
-    remainingSeconds = 25 * 60;
-    updateDisplay();
 </script>
+
 
 {% endblock %}
