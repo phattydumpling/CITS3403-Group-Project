@@ -24,6 +24,27 @@
     </div>
 </div>
 
+<!-- Water Reminder Modal -->
+<div id="waterReminderModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md w-full mx-4 transform transition-all scale-95 opacity-0" id="waterModalContent">
+        <div class="text-center">
+            <div class="w-16 h-16 mx-auto mb-4 text-blue-500">
+                <i class="fas fa-glass-water text-5xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Time to Hydrate!</h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-6">Take a moment to drink some water and stay hydrated.</p>
+            <div class="flex justify-center space-x-4">
+                <button id="waterModalSnooze" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-300">
+                    Snooze (5 min)
+                </button>
+                <button id="waterModalDismiss" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300">
+                    Dismiss
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="h-full w-full bg-gray-50 dark:bg-gray-800">
     <div class="h-full w-full p-8">
         <div class="max-w-7xl mx-auto">
@@ -72,6 +93,127 @@
                             <div class="p-4 bg-gray-50 dark:bg-gray-600 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors duration-200">
                                 <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Eye Rest</h3>
                                 <p class="text-gray-600 dark:text-gray-300">Look away from the screen every 20 minutes.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Water Tracker Section -->
+                    <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
+                                    <i class="fas fa-glass-water text-2xl text-indigo-600 dark:text-indigo-300"></i>
+                                </div>
+                                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Water Tracker</h2>
+                            </div>
+                            <button id="toggleReminderSettings" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200">
+                                <i class="fas fa-cog text-xl"></i>
+                            </button>
+                        </div>
+
+                        <!-- Water Goal Setting -->
+                        <div class="mb-8 p-4 bg-gray-50 dark:bg-gray-600 rounded-xl">
+                            <div class="flex items-center justify-between">
+                                <label for="waterGoal" class="text-sm font-medium text-gray-700 dark:text-gray-300">Daily Water Goal</label>
+                                <select id="waterGoal" class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    {% for i in range(1, 11) %}
+                                    <option value="{{ i * 0.5 }}" {% if i == 2 %}selected{% endif %}>{{ i * 0.5 }}L</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Water Cup Visualization -->
+                        <div class="relative mb-8">
+                            <div class="relative w-48 h-64 mx-auto">
+                                <!-- Glass Container -->
+                                <div class="absolute inset-0">
+                                    <!-- Glass outline -->
+                                    <div class="absolute inset-0 border-4 border-gray-300 dark:border-gray-500 rounded-b-[40px] rounded-t-[20px] overflow-hidden">
+                                        <!-- Water fill with splash effect -->
+                                        <div id="waterFill" class="absolute bottom-0 w-full bg-indigo-400 dark:bg-indigo-500 transition-all duration-500" style="height: 0%">
+                                            <div id="splashEffect" class="absolute top-0 w-full h-4 bg-indigo-400 dark:bg-indigo-500 opacity-0"></div>
+                                        </div>
+                                    </div>
+                                    <!-- Glass highlights -->
+                                    <div class="absolute inset-0 border-2 border-white/30 rounded-b-[40px] rounded-t-[20px] pointer-events-none"></div>
+                                </div>
+                                <!-- Water level text -->
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span id="waterLevel" class="text-3xl font-bold text-indigo-600 dark:text-indigo-400 drop-shadow-[0_0_2px_rgba(255,255,255,1)]">0.0L</span>
+                                </div>
+                            </div>
+
+                            <!-- Progress Message -->
+                            <div class="text-center mb-6">
+                                <p id="waterProgressMessage" class="text-gray-700 dark:text-gray-300 text-lg">
+                                    Start your hydration journey!
+                                </p>
+                            </div>
+
+                            <!-- Water Input Controls -->
+                            <div class="flex items-center justify-center space-x-4 mb-4">
+                                <select id="waterAmount" class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <option value="100">100mL</option>
+                                    <option value="150">150mL</option>
+                                    <option value="200">200mL</option>
+                                    <option value="250" selected>250mL</option>
+                                    <option value="300">300mL</option>
+                                    <option value="350">350mL</option>
+                                    <option value="400">400mL</option>
+                                    <option value="500">500mL</option>
+                                </select>
+                                <button id="addWater" class="p-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                    <i class="fas fa-plus text-xl"></i>
+                                </button>
+                                <button id="undoWater" class="p-3 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                    <i class="fas fa-undo text-xl"></i>
+                                </button>
+                                <button id="resetWater" class="p-3 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                    <i class="fas fa-redo text-xl"></i>
+                                </button>
+                            </div>
+
+                            <!-- Water Intake History (Collapsible) -->
+                            <div class="mt-8">
+                              <div id="waterHistoryHeader" class="flex items-center justify-between cursor-pointer select-none mb-2">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Drinks you had today</h3>
+                                <i id="waterHistoryChevron" class="fas fa-chevron-up text-gray-500 transition-transform duration-200"></i>
+                              </div>
+                              <div id="waterHistoryList" class="space-y-4"></div>
+                            </div>
+                        </div>
+
+                        <!-- Reminder Settings (Collapsible) -->
+                        <div id="reminderSettings" class="hidden">
+                            <div class="p-4 bg-gray-50 dark:bg-gray-600 rounded-xl">
+                                <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Reminder Settings</h3>
+                                <form id="waterReminderForm" class="space-y-4">
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="hours" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hours</label>
+                                            <select id="hours" name="hours" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                {% for hour in range(11) %}
+                                                <option value="{{ hour }}">{{ hour }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label for="minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Minutes</label>
+                                            <select id="minutes" name="minutes" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                                {% for minute in range(0, 61, 5) %}
+                                                <option value="{{ minute }}">{{ minute }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <button type="submit" id="startReminder" class="w-full px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                        Start Reminder
+                                    </button>
+                                    <button type="button" id="stopReminder" class="w-full px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hidden">
+                                        Stop Reminder
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -172,6 +314,7 @@
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="{{ url_for('static', filename='js/health_carer.js') }}"></script>
 <script>
 // Enable Enter key to confirm in the delete entry modal
