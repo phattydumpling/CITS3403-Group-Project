@@ -2,6 +2,26 @@
 let moodChart = null;
 let pendingDeleteId = null;
 
+function toAWST(dateString) {
+    const date = new Date(dateString);
+    const options = {
+        timeZone: 'Australia/Perth',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    };
+    const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(date);
+    const y = parts.find(p => p.type === 'year').value;
+    const m = parts.find(p => p.type === 'month').value;
+    const d = parts.find(p => p.type === 'day').value;
+    const h = parts.find(p => p.type === 'hour').value;
+    const min = parts.find(p => p.type === 'minute').value;
+    return `${y}-${m}-${d} ${h}:${min}`;
+}
+
 function showConfirmationModal(entryId) {
     const modal = document.getElementById('confirmationModal');
     const modalContent = document.getElementById('modalContent');
@@ -89,7 +109,7 @@ function addEntryToList(entry) {
                     <i class="fas fa-user text-xl text-indigo-600 dark:text-indigo-300"></i>
                 </div>
             <div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">${new Date(entry.created_at).toLocaleString()}</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">${toAWST(entry.created_at)}</p>
                     <div class="flex items-center space-x-4 mt-1">
                         <div class="flex items-center">
                             <i class="fas fa-face-smile text-indigo-600 dark:text-indigo-300 mr-2"></i>
@@ -167,28 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(entry => {
-            // Add to recent entries
-            addEntryToList(entry);
-            
-            // Reset form values
-            moodSlider.value = 5;
-            moodValue.textContent = '5';
-            document.getElementById('reflection').value = '';
-
-            // Refresh chart data
-            return fetch('/api/mood_entries');
-        })
-        .then(response => response.json())
-        .then(entries => {
-            // Update chart data
-            const moodData = new Array(7).fill(null);
-            entries.forEach(entry => {
-                const date = new Date(entry.created_at);
-                const dayIndex = date.getDay();
-                moodData[dayIndex] = entry.mood_score;
-            });
-            moodChart.data.datasets[0].data = moodData;
-            moodChart.update();
+            window.location.reload();
         })
         .catch(error => {
             console.error('Error:', error);

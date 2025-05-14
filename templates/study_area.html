@@ -145,8 +145,8 @@
                                             <div>
                                                 <h3 class="font-semibold text-gray-900 dark:text-white">{{ session.subject }}</h3>
                                                 <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                                                    {{ session.start_time.strftime('%Y-%m-%d %H:%M') }} — 
-                                                    {% if session.end_time %}{{ session.end_time.strftime('%H:%M') }}{% else %}Ongoing{% endif %}
+                                                    {{ session.start_time_awst.strftime('%Y-%m-%d %H:%M') }} — 
+                                                    {% if session.end_time_awst %}{{ session.end_time_awst.strftime('%H:%M') }}{% else %}Ongoing{% endif %}
                                                 </p>
                                             </div>
                                             <div class="flex items-center space-x-2">

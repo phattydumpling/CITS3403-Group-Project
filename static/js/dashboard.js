@@ -45,73 +45,78 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Hardcoded data for the line chart for time studied
+    // Line chart for time studied
     const lineChartEl = document.getElementById("lineChart");
     const viewSelect = document.getElementById("timeViewSelect");
 
     if (lineChartEl && viewSelect) {
         const ctx = lineChartEl.getContext("2d");
+        let lineChart = null;
 
-        const dailyData = {
-            labels: ["12AM", "4AM", "8AM", "12PM", "4PM", "8PM", "12AM"],
-            datasets: [{
-                label: "Hours Studied",
-                data: [0, 0.5, 1.5, 2, 1, 0, 4],
-                borderColor: "#f59e0b", // amber
-                fill: false,
-                tension: 0.4
-            }]
-        };
-
-        const weeklyData = {
-            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [{
-                label: "Hours Studied",
-                data: [2, 3, 1.5, 2.5, 3, 0, 1],
-                borderColor: "#3b82f6", // blue
-                fill: false,
-                tension: 0.4
-            }]
-        };
-
-        const monthlyData = {
-            labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
-            datasets: [{
-                label: "Hours Studied",
-                data: [8, 12, 9, 15],
-                borderColor: "#10b981", // green
-                fill: false,
-                tension: 0.4
-            }]
-        };
-
-        const chartConfig = {
-            type: "line",
-            data: weeklyData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+        async function updateChart(view) {
+            try {
+                const response = await fetch(`/api/study_sessions?view=${view}`);
+                const data = await response.json();
+                const maxValue = Math.max(...data.data);
+                let suggestedMax = 1;
+                if (maxValue > 0) {
+                    suggestedMax = Math.ceil(maxValue * 1.2 * 10) / 10; // 20% headroom
                 }
-            }
-        };
+                // Only show minutes for day/week views with small values, always show hours for month
+                const showMinutes = (view !== 'month') && (maxValue < 1);
+                
+                const label = (view === 'month') ? 'Hours Studied' : 'Minutes Studied';
+                const chartConfig = {
+                    type: "line",
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: label,
+                            data: data.data,
+                            borderColor: view === 'day' ? "#f59e0b" : view === 'week' ? "#3b82f6" : "#10b981",
+                            fill: false,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                suggestedMax: suggestedMax,
+                                ticks: {
+                                    maxTicksLimit: 5,
+                                    callback: function(value) {
+                                        if (showMinutes) {
+                                            return (value * 60).toFixed(0) + 'm';
+                                        }
+                                        return value.toFixed(1) + 'h';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
 
-        const lineChart = new Chart(ctx, chartConfig);
+                if (lineChart) {
+                    lineChart.data = chartConfig.data;
+                    lineChart.options = chartConfig.options;
+                    lineChart.update();
+                } else {
+                    lineChart = new Chart(ctx, chartConfig);
+                }
+            } catch (error) {
+                console.error('Error fetching study session data:', error);
+            }
+        }
+
+        // Initial chart load
+        updateChart(viewSelect.value);
 
         // Handle dropdown change
-        viewSelect.addEventListener("change", function () {
-            const selected = viewSelect.value;
-            if (selected === "day") {
-                lineChart.data = dailyData;
-            } else if (selected === "month") {
-                lineChart.data = monthlyData;
-            } else {
-                lineChart.data = weeklyData;
-            }
-            lineChart.update();
+        viewSelect.addEventListener("change", function() {
+            updateChart(this.value);
         });
     }
 
