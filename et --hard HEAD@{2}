@@ -1,0 +1,50 @@
+[33m23b9eca[m[33m ([m[1;36mHEAD[m[33m)[m HEAD@{0}: pull --rebase origin main (pick): Added backend and html of study_session seperately. you can check it and integrate it into app.py
+[33m0474d66[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{1}: pull --rebase origin main (start): checkout 0474d66fcde52a8117544b6636b68a2344d47503
+[33m03f17c3[m[33m ([m[1;31morigin/study-area-ilakkia[m[33m, [m[1;32mstudy-area-ilakkia[m[33m)[m HEAD@{2}: checkout: moving from main to study-area-ilakkia
+[33m0474d66[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{3}: pull --rebase origin main: Fast-forward
+[33m3a327f2[m HEAD@{4}: checkout: moving from study-area-final to main
+[33mb6b1e1b[m[33m ([m[1;31morigin/study-area-final[m[33m, [m[1;32mstudy-area-final[m[33m)[m HEAD@{5}: commit: adding a branch with final changes. still has few issues
+[33mda50123[m[33m ([m[1;31morigin/study-area-angela[m[33m, [m[1;32mstudy-area-angela[m[33m)[m HEAD@{6}: checkout: moving from study-area-angela to study-area-final
+[33mda50123[m[33m ([m[1;31morigin/study-area-angela[m[33m, [m[1;32mstudy-area-angela[m[33m)[m HEAD@{7}: checkout: moving from study-area-ilakkia to study-area-angela
+[33m03f17c3[m[33m ([m[1;31morigin/study-area-ilakkia[m[33m, [m[1;32mstudy-area-ilakkia[m[33m)[m HEAD@{8}: reset: moving to HEAD
+[33m03f17c3[m[33m ([m[1;31morigin/study-area-ilakkia[m[33m, [m[1;32mstudy-area-ilakkia[m[33m)[m HEAD@{9}: checkout: moving from study-area-angela to study-area-ilakkia
+[33mda50123[m[33m ([m[1;31morigin/study-area-angela[m[33m, [m[1;32mstudy-area-angela[m[33m)[m HEAD@{10}: reset: moving to HEAD
+[33mda50123[m[33m ([m[1;31morigin/study-area-angela[m[33m, [m[1;32mstudy-area-angela[m[33m)[m HEAD@{11}: checkout: moving from study-area-ilakkia to study-area-angela
+[33m03f17c3[m[33m ([m[1;31morigin/study-area-ilakkia[m[33m, [m[1;32mstudy-area-ilakkia[m[33m)[m HEAD@{12}: checkout: moving from study-area-angela to study-area-ilakkia
+[33mda50123[m[33m ([m[1;31morigin/study-area-angela[m[33m, [m[1;32mstudy-area-angela[m[33m)[m HEAD@{13}: reset: moving to HEAD
+[33mda50123[m[33m ([m[1;31morigin/study-area-angela[m[33m, [m[1;32mstudy-area-angela[m[33m)[m HEAD@{14}: pull: Fast-forward
+[33meee0f0d[m HEAD@{15}: checkout: moving from study-area-ilakkia to study-area-angela
+[33m03f17c3[m[33m ([m[1;31morigin/study-area-ilakkia[m[33m, [m[1;32mstudy-area-ilakkia[m[33m)[m HEAD@{16}: checkout: moving from study-area-angela to study-area-ilakkia
+[33meee0f0d[m HEAD@{17}: reset: moving to HEAD
+[33meee0f0d[m HEAD@{18}: checkout: moving from study-area-ilakkia to study-area-angela
+[33m03f17c3[m[33m ([m[1;31morigin/study-area-ilakkia[m[33m, [m[1;32mstudy-area-ilakkia[m[33m)[m HEAD@{19}: commit: added timer that continues running even when navigating through website
+[33m440471c[m HEAD@{20}: checkout: moving from study-area-angela to study-area-ilakkia
+[33meee0f0d[m HEAD@{21}: reset: moving to HEAD
+[33meee0f0d[m HEAD@{22}: pull: Fast-forward
+[33mbb04a44[m HEAD@{23}: pull: Fast-forward
+[33m39125f7[m HEAD@{24}: pull: Fast-forward
+[33m8c22730[m HEAD@{25}: checkout: moving from study-area-ilakkia to study-area-angela
+[33m440471c[m HEAD@{26}: checkout: moving from study-area-angela to study-area-ilakkia
+[33m8c22730[m HEAD@{27}: pull: Fast-forward
+[33mc6d5cee[m HEAD@{28}: checkout: moving from study-area-ilakkia to study-area-angela
+[33m440471c[m HEAD@{29}: checkout: moving from study-area-angela to study-area-ilakkia
+[33mc6d5cee[m HEAD@{30}: pull: Fast-forward
+[33m96b9576[m HEAD@{31}: pull: Fast-forward
+[33m00ac02d[m HEAD@{32}: pull: Fast-forward
+[33m3441e94[m HEAD@{33}: checkout: moving from study-area-ilakkia to study-area-angela
+[33m440471c[m HEAD@{34}: commit: stop button added
+[33m9e369c6[m HEAD@{35}: checkout: moving from study-session-ilakkia to study-area-ilakkia
+[33mb4f05c6[m[33m ([m[1;31morigin/study-session-ilakkia[m[33m, [m[1;32mstudy-session-ilakkia[m[33m)[m HEAD@{36}: checkout: moving from testing_branch to study-session-ilakkia
+[33m6e7d907[m[33m ([m[1;31morigin/testing_branch[m[33m, [m[1;32mtesting_branch[m[33m)[m HEAD@{37}: checkout: moving from study-session-ilakkia to testing_branch
+[33mb4f05c6[m[33m ([m[1;31morigin/study-session-ilakkia[m[33m, [m[1;32mstudy-session-ilakkia[m[33m)[m HEAD@{38}: commit: study_Session part- i.e working quick actions part
+[33m9e369c6[m HEAD@{39}: checkout: moving from study-area-ilakkia to study-session-ilakkia
+[33m9e369c6[m HEAD@{40}: checkout: moving from study-session-ilakkia to study-area-ilakkia
+[33m9e369c6[m HEAD@{41}: commit: completed backend for study session
+[33mb59633f[m HEAD@{42}: commit: Resolved merge conflicts and applied stash
+[33m3d91501[m HEAD@{43}: checkout: moving from main to study-session-ilakkia
+[33m3a327f2[m HEAD@{44}: reset: moving to HEAD
+[33m3a327f2[m HEAD@{45}: checkout: moving from study-session-ilakkia to main
+[33m3d91501[m HEAD@{46}: commit: added to routes.py and jinja template. removed the stand alone html file
+[33mfdc5431[m HEAD@{47}: commit: Added backend and html of study_session seperately. you can check it and integrate it into app.py
+[33m3a327f2[m HEAD@{48}: checkout: moving from main to study-session-ilakkia
+[33m3a327f2[m HEAD@{49}: clone: from https://github.com/phattydumpling/CITS3403-Group-Project.git
