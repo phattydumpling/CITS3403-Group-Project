@@ -346,19 +346,21 @@ subjectInput.addEventListener('input', updateSessionButtons);
 startSessionBtn.addEventListener('click', async function() {
     if (!subjectInput.value.trim() || sessionActive) return;
     // Start timer logic
-    if (timerInterval) return;
-    initialSeconds = parseTimeFromDisplay();
-    remainingSeconds = initialSeconds;
-    updateDisplay(remainingSeconds);
-    timerInterval = setInterval(() => {
-        if (remainingSeconds <= 0) {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            return;
-        }
-        remainingSeconds--;
+    if (typeof timerInterval !== 'undefined' && timerInterval) return;
+    if (typeof parseTimeFromDisplay === 'function') {
+        initialSeconds = parseTimeFromDisplay();
+        remainingSeconds = initialSeconds;
         updateDisplay(remainingSeconds);
-    }, 1000);
+        timerInterval = setInterval(() => {
+            if (remainingSeconds <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                return;
+            }
+            remainingSeconds--;
+            updateDisplay(remainingSeconds);
+        }, 1000);
+    }
     // Start session in backend
     const subject = subjectInput.value;
     const notes = notesInput.value;
@@ -376,6 +378,10 @@ startSessionBtn.addEventListener('click', async function() {
     activeSessionId = data.session_id;
     sessionActive = true;
     updateSessionButtons();
+    // Also enable the main End button if it exists
+    if (typeof updateEndButtonState === 'function') {
+        updateEndButtonState();
+    }
 });
 
 endSessionBtn.addEventListener('click', async function() {
