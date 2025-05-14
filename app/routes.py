@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.models import User, StudySession, Task, WellnessCheck, MoodEntry, Friendship, FriendRequest, SharedData, Assessment
 from app.forms import LoginForm, RegistrationForm, StudySessionForm, TaskForm, WellnessCheckForm
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from flask_login import login_user, logout_user, login_required, current_user
 from app import login_manager
 import logging
@@ -133,11 +133,16 @@ def init_routes(app):
             StudySession.subject != ''
         ).distinct().count()
 
+        # Get all upcoming assessments (not done)
+        upcoming_assessments = Assessment.query.filter_by(user_id=current_user.id, done=False).order_by(Assessment.due_date).all()
+
         return render_template('dashboard.html',
             total_hours=round(total_hours, 1),
             completed_tasks=completed_tasks,
             weekly_mood=round(weekly_mood, 1),
-            unique_subjects=unique_subjects
+            unique_subjects=unique_subjects,
+            upcoming_assessments=upcoming_assessments,
+            now=date.today()
         )
 
     # Study Area Route

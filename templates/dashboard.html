@@ -34,6 +34,19 @@
         align-items: center;
         width: 100%;
     }
+
+    .todo-completed {
+        text-decoration: line-through;
+        opacity: 0.5;
+    }
+    .todo-check-checked {
+        background-color: #6366f1 !important; /* indigo-500 */
+        border-color: #6366f1 !important;
+    }
+    .todo-check-checked svg {
+        opacity: 1 !important;
+        color: #fff !important;
+    }
 </style>
 
 <div class="h-full w-full bg-gray-50 dark:bg-gray-800">
@@ -170,8 +183,42 @@
                             </div>
                             <h4 class="text-lg md:text-xl font-semibold text-gray-900 dark:text-white">Assessments</h4>
                         </div>
-                        <div class="flex-1 flex flex-col justify-center items-center text-gray-500 dark:text-gray-300">
-                            <p class="text-center">You have no upcoming assessments.<br>Add assessments in the Assessments page.</p>
+                        <div class="flex-1 flex flex-col justify-center">
+                            {% if upcoming_assessments and upcoming_assessments|length > 0 %}
+                                <ul class="space-y-3">
+                                    {% for a in upcoming_assessments %}
+                                    {% set days_left = (a.due_date - now).days %}
+                                    <li class="flex items-center justify-between bg-gray-50 dark:bg-gray-800 rounded-xl px-4 py-3 border border-gray-100 dark:border-gray-600 transition-shadow duration-200 hover:shadow-md">
+                                        <div class="flex flex-col gap-1 min-w-0">
+                                            <div class="font-semibold text-gray-900 dark:text-white truncate max-w-[160px]" title="{{ a.title }}">{{ a.title }}</div>
+                                            <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 mt-1">{{ a.subject }}</span>
+                                        </div>
+                                        <div class="flex flex-col items-end gap-1">
+                                            <span class="text-xs font-semibold px-2 py-1 rounded-full
+                                                {% if days_left < 0 %}bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200
+                                                {% elif days_left <= 3 %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                                                {% else %}bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-200{% endif %}"
+                                                title="Due in {{ days_left }} day{{ 's' if days_left != 1 else '' }}">
+                                                <i class="fa-regular fa-calendar mr-1"></i> {{ a.due_date.strftime('%Y-%m-%d') }}
+                                            </span>
+                                            {% if days_left < 0 %}
+                                                <span class="text-xs text-red-500 font-medium">Overdue</span>
+                                            {% elif days_left == 0 %}
+                                                <span class="text-xs text-yellow-600 font-medium">Due today</span>
+                                            {% elif days_left == 1 %}
+                                                <span class="text-xs text-yellow-600 font-medium">Due tomorrow</span>
+                                            {% elif days_left <= 3 %}
+                                                <span class="text-xs text-yellow-600 font-medium">Due soon</span>
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <div class="flex-1 flex flex-col justify-center items-center text-gray-500 dark:text-gray-300">
+                                    <p class="text-center">You have no upcoming assessments.<br>Add assessments in the Assessments page.</p>
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="mt-4 text-center">
                             <a href="{{ url_for('assessments') }}" class="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-300">Go to Assessments</a>

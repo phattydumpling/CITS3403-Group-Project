@@ -118,6 +118,7 @@
 // Backend-integrated assessments array
 let assessments = [];
 let editingId = null;
+let deleteModalOpen = false;
 
 async function fetchAssessments() {
     const res = await fetch('/api/assessments');
@@ -243,6 +244,7 @@ function hideAssessmentModal() {
 }
 
 function showDeleteModal(id) {
+    deleteModalOpen = true;
     document.getElementById('deleteModal').classList.remove('hidden');
     document.getElementById('deleteModal').classList.add('flex');
     document.getElementById('confirmDeleteBtn').setAttribute('data-id', id);
@@ -253,6 +255,7 @@ function showDeleteModal(id) {
 }
 
 function hideDeleteModal() {
+    deleteModalOpen = false;
     const modal = document.getElementById('deleteModal');
     const content = document.getElementById('deleteModalContent');
     content.classList.remove('scale-100', 'opacity-100');
@@ -344,6 +347,18 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', async func
     await fetchAssessments();
 });
 
+document.addEventListener('keydown', function(e) {
+    if (deleteModalOpen) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('confirmDeleteBtn').click();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            hideDeleteModal();
+        }
+    }
+});
+
 function showWarningModal(message) {
     document.getElementById('warningModalMessage').textContent = message;
     const modal = document.getElementById('warningModal');
@@ -370,6 +385,12 @@ function hideWarningModal() {
 document.getElementById('closeWarningBtn').addEventListener('click', hideWarningModal);
 document.getElementById('warningModal').addEventListener('click', function(e) {
     if (e.target === this) hideWarningModal();
+});
+document.addEventListener('keydown', function(e) {
+    const modal = document.getElementById('warningModal');
+    if (!modal.classList.contains('hidden') && (e.key === 'Enter' || e.key === 'Escape')) {
+        hideWarningModal();
+    }
 });
 
 // Initial fetch
