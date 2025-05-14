@@ -4,10 +4,6 @@
 <div class="h-full w-full bg-gray-50 dark:bg-gray-800">
     <div class="h-full w-full p-8">
         <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12">
-                <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">Social</h1>
-                <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Connect with friends to share your progress and stay motivated together.</p>
-            </div>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -159,52 +155,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-function showRemoveFriendModal(username, friendId) {
-    document.getElementById('friendName').textContent = username;
-    document.getElementById('removeFriendForm').action = `/remove_friend/${friendId}`;
-    const modal = document.getElementById('removeFriendModal');
-    const modalContent = document.getElementById('modalContent');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    setTimeout(() => {
-        modalContent.classList.remove('scale-95', 'opacity-0');
-        modalContent.classList.add('scale-100', 'opacity-100');
-    }, 10);
-    // Enable Enter key for confirm
-    enterListener = enableEnterToConfirm(modal, document.querySelector('#removeFriendForm button[type="submit"]'));
-}
-
-function hideRemoveFriendModal() {
-    const modal = document.getElementById('removeFriendModal');
-    const modalContent = document.getElementById('modalContent');
-    modalContent.classList.remove('scale-100', 'opacity-100');
-    modalContent.classList.add('scale-95', 'opacity-0');
-    setTimeout(() => {
-        modal.classList.remove('flex');
-        modal.classList.add('hidden');
-    }, 200);
-    // Remove Enter key listener
-    if (enterListener) {
-        disableEnterToConfirm(enterListener);
-        enterListener = null;
-    }
-}
-
-// Reusable Enter-to-confirm logic
-let enterListener = null;
-function enableEnterToConfirm(modalElement, confirmBtn) {
-    function handler(e) {
-        if (modalElement.classList.contains('flex') && (e.key === 'Enter' || e.keyCode === 13)) {
-            e.preventDefault();
-            confirmBtn.click();
-        }
-    }
-    document.addEventListener('keydown', handler);
-    return handler;
-}
-function disableEnterToConfirm(handler) {
-    document.removeEventListener('keydown', handler);
-}
-</script>
+<script src="{{ url_for('static', filename='js/friends.js') }}"></script>
 {% endblock %} 

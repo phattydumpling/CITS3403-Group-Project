@@ -2,7 +2,26 @@
 let moodChart = null;
 let pendingDeleteId = null;
 
-<<<<<<< HEAD
+
+// Enable Enter key to confirm in the delete entry modal
+let modalConfirmBtn = document.getElementById('modalConfirm');
+let confirmationModal = document.getElementById('confirmationModal');
+let enterListener = null;
+
+function enableEnterToConfirm(modalElement, confirmBtn) {
+    function handler(e) {
+        if (modalElement.classList.contains('flex') && (e.key === 'Enter' || e.keyCode === 13)) {
+            e.preventDefault();
+            confirmBtn.click();
+        }
+    }
+    document.addEventListener('keydown', handler);
+    return handler;
+}
+function disableEnterToConfirm(handler) {
+    document.removeEventListener('keydown', handler);
+}
+
 // Water Reminder Functionality
 let waterReminderInterval = null;
 let snoozeTimeout = null;
@@ -53,7 +72,6 @@ let waterData = {
     history: [],
     lastUpdated: new Date().toISOString().split('T')[0]
 };
-=======
 function toAWST(dateString) {
     const date = new Date(dateString);
     const options = {
@@ -73,7 +91,6 @@ function toAWST(dateString) {
     const min = parts.find(p => p.type === 'minute').value;
     return `${y}-${m}-${d} ${h}:${min}`;
 }
->>>>>>> ce1efbc2c0c59ebf8757dc8f446616729fab22ce
 
 function showConfirmationModal(entryId) {
     const modal = document.getElementById('confirmationModal');
@@ -86,6 +103,7 @@ function showConfirmationModal(entryId) {
         modalContent.classList.add('scale-100', 'opacity-100');
     }, 10);
     pendingDeleteId = entryId;
+    enterListener = enableEnterToConfirm(confirmationModal, modalConfirmBtn);
 }
 
 function hideConfirmationModal() {
@@ -99,6 +117,10 @@ function hideConfirmationModal() {
     modal.classList.add('hidden');
     }, 200);
     pendingDeleteId = null;
+    if (enterListener) {
+        disableEnterToConfirm(enterListener);
+        enterListener = null;
+    }
 }
 
 function deleteEntry(entryId) {
@@ -389,8 +411,9 @@ if (document.getElementById('customModal')) {
 
 // Close modal with Escape key
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeModal();
+    const modal = document.getElementById('confirmationModal');
+    if (e.key === 'Escape' && modal.classList.contains('flex')) {
+        hideConfirmationModal();
     }
 });
 

@@ -384,3 +384,44 @@ input:focus, select:focus, textarea:focus {
     width: 1rem;
     text-align: center;
 }
+
+/* Flatpickr Calendar Styling */
+.flatpickr-calendar {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    margin: 0 auto !important;
+}
+.flatpickr-months {
+    width: 100% !important;
+}
+.flatpickr-month {
+    width: 100% !important;
+}
+.flatpickr-weekday {
+    width: 14.28% !important;
+}
+.flatpickr-day {
+    width: 14.28% !important;
+    max-width: 14.28% !important;
+}
+
+.calendar-center-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.todo-completed {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+.todo-check-checked {
+    background-color: #6366f1 !important; /* indigo-500 */
+    border-color: #6366f1 !important;
+}
+.todo-check-checked svg {
+    opacity: 1 !important;
+    color: #fff !important;
+}

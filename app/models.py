@@ -97,4 +97,14 @@ class SharedData(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
     from_user = db.relationship('User', foreign_keys=[from_user_id], backref='shared_data_sent')
-    to_user = db.relationship('User', foreign_keys=[to_user_id], backref='shared_data_received') 
+    to_user = db.relationship('User', foreign_keys=[to_user_id], backref='shared_data_received')
+
+class Assessment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    subject = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    due_date = db.Column(db.Date, nullable=False)
+    done = db.Column(db.Boolean, default=False)
+    grade = db.Column(db.Float, nullable=True)
+    weight = db.Column(db.Float, nullable=True) 

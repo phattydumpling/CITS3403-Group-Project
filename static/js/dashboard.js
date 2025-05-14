@@ -271,21 +271,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
         function createTaskItem(task) {
             const li = document.createElement("li");
-            li.className = "flex items-center justify-between p-2 border rounded dark:bg-gray-700 dark:text-white bg-gray-50 cursor-grab";
+            li.className = "flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow duration-200 group cursor-grab";
             li.draggable = true;
             li.dataset.taskId = task.id;
 
+            // Check button (not functional, just for UI)
+            const checkBtn = document.createElement("button");
+            checkBtn.className = "w-6 h-6 flex items-center justify-center rounded-full border-2 border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-700 mr-3 group-hover:border-indigo-500 transition-colors duration-200 focus:outline-none";
+            checkBtn.innerHTML = '<svg class="w-4 h-4 text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>';
+            // Completion logic
+            checkBtn.addEventListener('click', function () {
+                li.classList.toggle('todo-completed');
+                checkBtn.classList.toggle('todo-check-checked');
+            });
+
+            // Task text
             const span = document.createElement("span");
             span.textContent = task.title;
+            span.className = "flex-1 truncate text-gray-900 dark:text-white font-medium";
 
+            // Delete button
             const del = document.createElement("button");
-            del.innerHTML = "&times;";
-            del.className = "text-red-500 hover:text-red-700 text-lg font-bold ml-4 focus:outline-none";
+            del.innerHTML = '<i class="fas fa-trash"></i>';
+            del.className = "ml-3 text-red-500 hover:text-red-700 bg-red-50 dark:bg-red-900 rounded-full p-1.5 transition-colors duration-200 focus:outline-none";
+            del.title = "Delete task";
             del.onclick = async () => {
                 await deleteTask(task.id);
                 li.remove();
             };
 
+            li.appendChild(checkBtn);
             li.appendChild(span);
             li.appendChild(del);
 

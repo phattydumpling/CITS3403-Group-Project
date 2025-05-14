@@ -48,10 +48,6 @@
 <div class="h-full w-full bg-gray-50 dark:bg-gray-800">
     <div class="h-full w-full p-8">
         <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12">
-                <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">Health Carer</h1>
-                <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Take care of yourself and maintain a healthy study-life balance.</p>
-            </div>
 
             <!-- Main Content Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -316,38 +312,4 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="{{ url_for('static', filename='js/health_carer.js') }}"></script>
-<script>
-// Enable Enter key to confirm in the delete entry modal
-let modalConfirmBtn = document.getElementById('modalConfirm');
-let confirmationModal = document.getElementById('confirmationModal');
-let enterListener = null;
-
-function enableEnterToConfirm(modalElement, confirmBtn) {
-    function handler(e) {
-        if (modalElement.classList.contains('flex') && (e.key === 'Enter' || e.keyCode === 13)) {
-            e.preventDefault();
-            confirmBtn.click();
-        }
-    }
-    document.addEventListener('keydown', handler);
-    return handler;
-}
-function disableEnterToConfirm(handler) {
-    document.removeEventListener('keydown', handler);
-}
-// Patch show/hide modal to add/remove Enter listener
-const origShowConfirmationModal = window.showConfirmationModal;
-window.showConfirmationModal = function(entryId) {
-    origShowConfirmationModal(entryId);
-    enterListener = enableEnterToConfirm(confirmationModal, modalConfirmBtn);
-}
-const origHideConfirmationModal = window.hideConfirmationModal;
-window.hideConfirmationModal = function() {
-    origHideConfirmationModal();
-    if (enterListener) {
-        disableEnterToConfirm(enterListener);
-        enterListener = null;
-    }
-}
-</script>
 {% endblock %}
