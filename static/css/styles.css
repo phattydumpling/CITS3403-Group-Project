@@ -609,3 +609,25 @@ input:focus, select:focus, textarea:focus {
     font-size: 0.98rem;
   }
 }
+/* Study Break Timer Custom Styles */
+#studyBreakTimerDisplay {
+    font-size: 3rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+}
+
+#startStudyBreakReminder {
+    font-size: 1.1rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    transition: background 0.2s;
+}
+
+
+
+#studyBreakIdeas {
+    min-height: 2.5rem;
+    transition: color 0.2s;
+}

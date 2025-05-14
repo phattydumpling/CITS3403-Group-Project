@@ -458,6 +458,79 @@ function stopWaterReminder() {
 }
 
 // Event Listeners
+// --- Study Break Timer Feature ---
+
+let studyBreakInterval = null;
+let studyBreakRemaining = 0;
+const studyBreakTimerDisplay = document.getElementById('studyBreakTimerDisplay');
+const studyBreakHours = document.getElementById('studyBreakHours');
+const studyBreakMinutes = document.getElementById('studyBreakMinutes');
+const startStudyBreakReminder = document.getElementById('startStudyBreakReminder');
+const studyBreakIdeasDiv = document.getElementById('studyBreakIdeas');
+
+const studyBreakIdeas = [
+    "Take a deep breath and stretch your arms!",
+    "Do 10 jumping jacks.",
+    "Look out the window for 1 minute.",
+    "Try a quick breathing exercise.",
+    "Walk around your room.",
+    "Drink a glass of water.",
+    "Write down one thing you're grateful for.",
+    "Do a quick doodle.",
+    "Listen to your favorite song.",
+    "Close your eyes and relax your face muscles."
+];
+
+let studyBreakIdeaIndex = 0;
+let studyBreakIdeaInterval = null;
+
+function updateStudyBreakTimerDisplay() {
+    const minutes = Math.floor(studyBreakRemaining / 60);
+    const seconds = studyBreakRemaining % 60;
+    studyBreakTimerDisplay.textContent = 
+        minutes.toString().padStart(2, '0') + ':' + 
+        seconds.toString().padStart(2, '0');
+}
+
+function startStudyBreakTimer() {
+    // Get user input
+    const hours = parseInt(studyBreakHours.value, 10);
+    const minutes = parseInt(studyBreakMinutes.value, 10);
+    studyBreakRemaining = hours * 60 * 60 + minutes * 60;
+
+    if (studyBreakInterval) clearInterval(studyBreakInterval);
+
+    updateStudyBreakTimerDisplay();
+
+    studyBreakInterval = setInterval(() => {
+        if (studyBreakRemaining > 0) {
+            studyBreakRemaining--;
+            updateStudyBreakTimerDisplay();
+        } else {
+            clearInterval(studyBreakInterval);
+            studyBreakInterval = null;
+            // Notify user (simple alert, can be replaced with modal)
+            alert("Time for a study break!");
+            // Optionally, reset timer display
+            updateStudyBreakTimerDisplay();
+        }
+    }, 1000);
+}
+
+// Rotate study break ideas every 15 seconds
+function rotateStudyBreakIdeas() {
+    studyBreakIdeaIndex = (studyBreakIdeaIndex + 1) % studyBreakIdeas.length;
+    studyBreakIdeasDiv.innerHTML = "<span>" + studyBreakIdeas[studyBreakIdeaIndex] + "</span>";
+}
+
+if (startStudyBreakReminder) {
+    startStudyBreakReminder.addEventListener('click', startStudyBreakTimer);
+}
+
+// Start rotating ideas
+if (studyBreakIdeasDiv) {
+    studyBreakIdeaInterval = setInterval(rotateStudyBreakIdeas, 15000);
+}
 waterReminderForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const hours = parseInt(document.getElementById('hours').value);
