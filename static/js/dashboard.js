@@ -13,105 +13,164 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
     
-    // Hardcoded data for the pie chart for units studied
-    new Chart(document.getElementById("donutChart"), {
-        type: "doughnut",
-        data: {
-            labels: ["CITS3403", "CITS3002", "CITS2007", "CITS2401"],
-            datasets: [{
-                data: [30, 25, 20, 25],
-                backgroundColor: [
-                    "#6366f1", // indigo
-                    "#f59e0b", // amber
-                    "#10b981", // emerald
-                    "#ef4444"  // red
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: "70%",
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        color: '#6b7280', // text-gray-500
-                        padding: 10,
-                        boxWidth: 12
+    // Donut chart for unit distribution
+    async function updateDonutChart() {
+        try {
+            const response = await fetch('/api/unit_distribution');
+            const data = await response.json();
+            const donutChartEl = document.getElementById("donutChart");
+            const existingChart = Chart.getChart(donutChartEl);
+            
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "70%",
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#6b7280',
+                            padding: 10,
+                            boxWidth: 12,
+                            generateLabels: function(chart) {
+                                // Only show subject name in legend
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        return {
+                                            text: label,
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            strokeStyle: data.datasets[0].backgroundColor[i],
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                return `${label}: ${value} min`;
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Study Time per Unit (minutes)',
+                        color: '#111827',
+                        font: { size: 16, weight: 'bold' }
                     }
                 }
+            };
+            
+            if (existingChart) {
+                existingChart.data.labels = data.labels;
+                existingChart.data.datasets[0].data = data.data;
+                existingChart.options = chartOptions;
+                existingChart.update();
+            } else {
+                new Chart(donutChartEl, {
+                    type: "doughnut",
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            data: data.data,
+                            backgroundColor: [
+                                "#6366f1", // indigo
+                                "#f59e0b", // amber
+                                "#10b981", // emerald
+                                "#ef4444",  // red
+                                "#3b82f6", // blue
+                                "#a21caf", // purple
+                                "#f43f5e"  // pink
+                            ]
+                        }]
+                    },
+                    options: chartOptions
+                });
             }
+        } catch (error) {
+            console.error('Error fetching unit distribution:', error);
         }
-    });
+    }
 
-    // Hardcoded data for the line chart for time studied
+    updateDonutChart();
+
+    // Line chart for time studied
     const lineChartEl = document.getElementById("lineChart");
     const viewSelect = document.getElementById("timeViewSelect");
 
     if (lineChartEl && viewSelect) {
-        const ctx = lineChartEl.getContext("2d");
-
-        const dailyData = {
-            labels: ["12AM", "4AM", "8AM", "12PM", "4PM", "8PM", "12AM"],
-            datasets: [{
-                label: "Hours Studied",
-                data: [0, 0.5, 1.5, 2, 1, 0, 4],
-                borderColor: "#f59e0b", // amber
-                fill: false,
-                tension: 0.4
-            }]
-        };
-
-        const weeklyData = {
-            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [{
-                label: "Hours Studied",
-                data: [2, 3, 1.5, 2.5, 3, 0, 1],
-                borderColor: "#3b82f6", // blue
-                fill: false,
-                tension: 0.4
-            }]
-        };
-
-        const monthlyData = {
-            labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
-            datasets: [{
-                label: "Hours Studied",
-                data: [8, 12, 9, 15],
-                borderColor: "#10b981", // green
-                fill: false,
-                tension: 0.4
-            }]
-        };
-
-        const chartConfig = {
-            type: "line",
-            data: weeklyData,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+        let lineChart = Chart.getChart(lineChartEl);
+        
+        async function updateChart(view) {
+            try {
+                const response = await fetch(`/api/study_sessions?view=${view}`);
+                const data = await response.json();
+                const maxValue = Math.max(...data.data);
+                let suggestedMax = 1;
+                if (maxValue > 0) {
+                    suggestedMax = Math.ceil(maxValue * 1.2 * 10) / 10; // 20% headroom
                 }
-            }
-        };
+                // Only show minutes for day/week views with small values, always show hours for month
+                const showMinutes = (view !== 'month') && (maxValue < 1);
+                
+                const label = (view === 'month') ? 'Hours Studied' : 'Minutes Studied';
+                const chartConfig = {
+                    type: "line",
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: label,
+                            data: data.data,
+                            borderColor: view === 'day' ? "#f59e0b" : view === 'week' ? "#3b82f6" : "#10b981",
+                            fill: false,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                suggestedMax: suggestedMax,
+                                ticks: {
+                                    maxTicksLimit: 5,
+                                    callback: function(value) {
+                                        if (showMinutes) {
+                                            return (value * 60).toFixed(0) + 'm';
+                                        }
+                                        return value.toFixed(1) + 'h';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
 
-        const lineChart = new Chart(ctx, chartConfig);
+                if (lineChart) {
+                    lineChart.data = chartConfig.data;
+                    lineChart.options = chartConfig.options;
+                    lineChart.update();
+                } else {
+                    lineChart = new Chart(lineChartEl, chartConfig);
+                }
+            } catch (error) {
+                console.error('Error fetching study session data:', error);
+            }
+        }
+
+        // Initial chart load
+        updateChart(viewSelect.value);
 
         // Handle dropdown change
-        viewSelect.addEventListener("change", function () {
-            const selected = viewSelect.value;
-            if (selected === "day") {
-                lineChart.data = dailyData;
-            } else if (selected === "month") {
-                lineChart.data = monthlyData;
-            } else {
-                lineChart.data = weeklyData;
-            }
-            lineChart.update();
+        viewSelect.addEventListener("change", function() {
+            updateChart(this.value);
         });
     }
 

@@ -7,10 +7,14 @@ from datetime import datetime, timedelta
 from flask_login import login_user, logout_user, login_required, current_user
 from app import login_manager
 import logging
+from zoneinfo import ZoneInfo
+from sqlalchemy import and_
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+AWST = ZoneInfo("Australia/Perth")
 
 def hash_password(password):
     """Safely hash a password using pbkdf2:sha256 with a salt."""
@@ -24,7 +28,18 @@ def hash_password(password):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+def to_awst(dt):
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=ZoneInfo("UTC"))
+    return dt.astimezone(AWST)
+
 def init_routes(app):
+    @app.template_filter('awst')
+    def awst_filter(dt):
+        return to_awst(dt)
+
     # Authentication Routes
     @app.route('/')
     def index():
@@ -86,31 +101,172 @@ def init_routes(app):
     @app.route('/dashboard')
     @login_required
     def dashboard():
-        return render_template('dashboard.html')
+        # Get total study time
+        total_study_time = StudySession.query.filter_by(user_id=current_user.id).all()
+        total_hours = sum(
+            (session.end_time - session.start_time).total_seconds() / 3600 
+            for session in total_study_time 
+            if session.end_time
+        )
 
-    # Study Area Routes
+        # Get completed tasks count
+        completed_tasks = Task.query.filter_by(
+            user_id=current_user.id,
+            status='completed'
+        ).count()
+
+        # Get weekly mood average
+        week_ago = datetime.utcnow() - timedelta(days=7)
+        mood_entries = MoodEntry.query.filter(
+            MoodEntry.user_id == current_user.id,
+            MoodEntry.created_at >= week_ago
+        ).all()
+        
+        weekly_mood = 0
+        if mood_entries:
+            weekly_mood = sum(entry.mood_score for entry in mood_entries) / len(mood_entries)
+
+        # Get unique subjects studied (non-empty, non-null)
+        unique_subjects = db.session.query(StudySession.subject).filter(
+            StudySession.user_id == current_user.id,
+            StudySession.subject.isnot(None),
+            StudySession.subject != ''
+        ).distinct().count()
+
+        return render_template('dashboard.html',
+            total_hours=round(total_hours, 1),
+            completed_tasks=completed_tasks,
+            weekly_mood=round(weekly_mood, 1),
+            unique_subjects=unique_subjects
+        )
+
+    # Study Area Route
     @app.route('/study_area')
     @login_required
     def study_area():
-        return render_template('study_area.html')
+        today = datetime.today().date()
+        user_id = current_user.id
+
+        # Query today's sessions
+        sessions_today = StudySession.query.filter_by(user_id=user_id).filter(StudySession.start_time >= today).all()
+
+        # Total time in seconds
+        total_time_seconds = sum(
+            (session.end_time - session.start_time).total_seconds() for session in sessions_today if session.end_time
+        )
+        
+        # Format time as HH:MM:SS string
+        total_time_formatted = str(timedelta(seconds=total_time_seconds))
+
+        # Convert time to minutes for the frontend
+        total_time_minutes = round(total_time_seconds / 60)
+
+        completed_sessions = len(sessions_today)
+
+        # Get recent sessions (last 5)
+        recent_sessions = StudySession.query.filter_by(user_id=user_id).order_by(StudySession.start_time.desc()).limit(5).all()
+
+        # Convert times to AWST for template
+        for session in recent_sessions:
+            session.start_time_awst = to_awst(session.start_time)
+            session.end_time_awst = to_awst(session.end_time)
+
+        return render_template(
+            'study_area.html',
+            total_time=total_time_formatted,
+            total_time_minutes=total_time_minutes,
+            completed_sessions=completed_sessions,
+            sessions=recent_sessions
+        )
 
     @app.route('/study_session', methods=['GET', 'POST'])
     @login_required
     def study_session():
-        form = StudySessionForm()
-        if form.validate_on_submit():
-            study_session = StudySession(
-                user_id=current_user.id,
-                subject=form.subject.data,
-                start_time=form.start_time.data,
-                end_time=form.end_time.data,
-                notes=form.notes.data
-            )
-            db.session.add(study_session)
-            db.session.commit()
-            flash('Study session recorded successfully!', 'success')
-            return redirect(url_for('dashboard'))
+        if request.method == 'POST':
+            if request.is_json:
+                data = request.get_json()
+                session_date = datetime.fromisoformat(data['start_time']).date()
+                start_dt = datetime.fromisoformat(data['start_time'])
+                end_dt = None  # Will be updated when session ends
+
+                study_session = StudySession(
+                    user_id=current_user.id,
+                    subject=data['subject'],
+                    start_time=start_dt,
+                    end_time=end_dt,
+                    notes=data.get('notes')
+                )
+                db.session.add(study_session)
+                db.session.commit()
+                return jsonify({'success': True, 'session_id': study_session.id})
+            else:
+                form = StudySessionForm()
+                if form.validate_on_submit():
+                    session_date = form.date.data
+                    start_dt = datetime.combine(session_date, form.start_time.data)
+                    end_dt = datetime.combine(session_date, form.end_time.data) if form.end_time.data else None
+
+                    study_session = StudySession(
+                        user_id=current_user.id,
+                        subject=form.subject.data,
+                        start_time=start_dt,
+                        end_time=end_dt,
+                        notes=form.notes.data
+                    )
+                    db.session.add(study_session)
+                    db.session.commit()
+                    flash('Study session recorded successfully!', 'success')
+                    return redirect(url_for('dashboard'))
         return render_template('study_session.html', form=form)
+
+    @app.route('/study_session/<int:session_id>', methods=['DELETE'])
+    @login_required
+    def delete_study_session(session_id):
+        session = StudySession.query.get_or_404(session_id)
+        if session.user_id != current_user.id:
+            return jsonify({'error': 'Unauthorized'}), 403
+        db.session.delete(session)
+        db.session.commit()
+        return '', 204
+
+    @app.route('/study_session/<int:session_id>', methods=['PUT'])
+    @login_required
+    def update_study_session(session_id):
+        session = StudySession.query.get_or_404(session_id)
+        if session.user_id != current_user.id:
+            return jsonify({'error': 'Unauthorized'}), 403
+        
+        data = request.get_json()
+        if 'end_time' in data:
+            session.end_time = datetime.fromisoformat(data['end_time'])
+        
+        db.session.commit()
+        return jsonify({'success': True})
+
+    @app.route('/active_session')
+    @login_required
+    def get_active_session():
+        # Find the most recent session without an end time
+        active_session = StudySession.query.filter_by(
+            user_id=current_user.id,
+            end_time=None
+        ).order_by(StudySession.start_time.desc()).first()
+        
+        return jsonify({
+            'active_session': active_session is not None,
+            'session_id': active_session.id if active_session else None
+        })
+
+    @app.route('/study_history')
+    @login_required
+    def study_history():
+        sessions = StudySession.query.filter_by(user_id=current_user.id).order_by(StudySession.start_time.desc()).all()
+        # Convert times to AWST for template
+        for session in sessions:
+            session.start_time_awst = to_awst(session.start_time)
+            session.end_time_awst = to_awst(session.end_time)
+        return render_template('study_history.html', sessions=sessions)
+
 
     @app.route('/task_overview', methods=['GET', 'POST'])
     @login_required
@@ -158,7 +314,9 @@ def init_routes(app):
             MoodEntry.user_id == current_user.id,
             MoodEntry.created_at >= week_ago
         ).order_by(MoodEntry.created_at.desc()).all()
-        
+        # Convert times to AWST for template
+        for entry in mood_entries:
+            entry.created_at_awst = to_awst(entry.created_at)
         return render_template('health_carer.html', mood_entries=mood_entries)
 
     @app.route('/wellness_check', methods=['GET', 'POST'])
@@ -204,6 +362,9 @@ def init_routes(app):
     def shared_data_history():
         # Get shared data history (data you've shared)
         shared_data = SharedData.query.filter_by(from_user_id=current_user.id).order_by(SharedData.created_at.desc()).all()
+        # Convert times to AWST for template
+        for data in shared_data:
+            data.created_at_awst = to_awst(data.created_at)
         return render_template('shared_data_history.html', shared_data=shared_data)
 
     @app.route('/data_shared_with_you')
@@ -211,6 +372,9 @@ def init_routes(app):
     def data_shared_with_you():
         # Get data shared with you
         data_shared_with_you = SharedData.query.filter_by(to_user_id=current_user.id).order_by(SharedData.created_at.desc()).all()
+        # Convert times to AWST for template
+        for data in data_shared_with_you:
+            data.created_at_awst = to_awst(data.created_at)
         return render_template('data_shared_with_you.html', data_shared_with_you=data_shared_with_you)
 
     @app.route('/api/share_data', methods=['POST'])
@@ -293,19 +457,28 @@ def init_routes(app):
             request.is_read = True
         db.session.commit()
 
+        # Convert times to AWST for template
+        for req in pending_requests:
+            req.created_at_awst = to_awst(req.created_at)
+        for req in accepted_requests:
+            req.created_at_awst = to_awst(req.created_at)
+            req.updated_at_awst = to_awst(req.updated_at) if req.updated_at else None
+        for data in shared_data:
+            data.created_at_awst = to_awst(data.created_at)
+
         # Combine friend requests and accepted requests into one list
         friend_notifications = []
         for req in pending_requests:
             friend_notifications.append({
                 'type': 'pending',
                 'request': req,
-                'timestamp': req.created_at
+                'timestamp': req.created_at_awst
             })
         for req in accepted_requests:
             friend_notifications.append({
                 'type': 'accepted',
                 'request': req,
-                'timestamp': req.updated_at or req.created_at
+                'timestamp': req.updated_at_awst or req.created_at_awst
             })
         # Sort by timestamp, newest first
         friend_notifications.sort(key=lambda x: x['timestamp'], reverse=True)
@@ -593,4 +766,94 @@ def init_routes(app):
             flash('Friend request rejected.', 'info')
         else:
             flash('Invalid friend request.', 'error')
-        return redirect(url_for('friends')) 
+        return redirect(url_for('friends'))
+
+    @app.route('/api/study_sessions', methods=['GET'])
+    @login_required
+    def get_study_sessions():
+        view = request.args.get('view', 'week')  # Default to weekly view
+        now = datetime.utcnow()
+        
+        if view == 'day':
+            # Get data for the current day
+            start_time = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            sessions = StudySession.query.filter(
+                StudySession.user_id == current_user.id,
+                StudySession.start_time >= start_time
+            ).all()
+            
+            # Group by hour
+            hours = [0] * 24
+            for session in sessions:
+                if session.end_time:
+                    hour = session.start_time.hour
+                    duration = (session.end_time - session.start_time).total_seconds() / 3600
+                    hours[hour] += duration
+            
+            return jsonify({
+                'labels': [f"{i:02d}:00" for i in range(24)],
+                'data': hours
+            })
+            
+        elif view == 'week':
+            # Get data for the current week (Sunday to Saturday)
+            today = now.date()
+            # Find the most recent Sunday
+            start_of_week = today - timedelta(days=today.weekday() + 1 if today.weekday() != 6 else 0)
+            sessions = StudySession.query.filter(
+                StudySession.user_id == current_user.id,
+                StudySession.start_time >= datetime.combine(start_of_week, datetime.min.time())
+            ).all()
+
+            # Group by weekday (0=Sunday, 6=Saturday)
+            days = [0] * 7
+            for session in sessions:
+                if session.end_time:
+                    session_date = session.start_time.date()
+                    weekday = session_date.weekday()  # 0=Monday, 6=Sunday
+                    weekday = (weekday + 1) % 7      # Convert to 0=Sunday, 6=Saturday
+                    duration = (session.end_time - session.start_time).total_seconds() / 3600
+                    days[weekday] += duration
+
+            return jsonify({
+                'labels': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                'data': days
+            })
+            
+        else:  # month view
+            # Get data for the current month
+            first_day = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            sessions = StudySession.query.filter(
+                StudySession.user_id == current_user.id,
+                StudySession.start_time >= first_day
+            ).all()
+
+            # Group by week of the month (1-4)
+            weeks = [0] * 4
+            for session in sessions:
+                if session.end_time:
+                    session_date = session.start_time.date()
+                    # Calculate week index: 0 for days 1-7, 1 for 8-14, 2 for 15-21, 3 for 22-end
+                    week_index = (session_date.day - 1) // 7
+                    if 0 <= week_index < 4:
+                        duration = (session.end_time - session.start_time).total_seconds() / 3600
+                        weeks[week_index] += duration
+
+            return jsonify({
+                'labels': ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                'data': weeks
+            })
+
+    @app.route('/api/unit_distribution')
+    @login_required
+    def unit_distribution():
+        # Get all study sessions for the user with a non-empty subject
+        sessions = StudySession.query.filter_by(user_id=current_user.id).all()
+        subject_times = {}
+        for session in sessions:
+            if session.end_time and session.subject and session.subject.strip():
+                duration = (session.end_time - session.start_time).total_seconds() / 60  # minutes
+                subject_times[session.subject] = subject_times.get(session.subject, 0) + duration
+        labels = list(subject_times.keys())
+        data = [round(subject_times[subj], 2) for subj in labels]
+        return jsonify({'labels': labels, 'data': data}) 

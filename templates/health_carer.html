@@ -281,7 +281,7 @@
                                                 <i class="fas fa-user text-xl text-indigo-600 dark:text-indigo-300"></i>
                                             </div>
                                             <div>
-                                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ entry.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ entry.created_at_awst.strftime('%Y-%m-%d %H:%M') }}</p>
                                                 <div class="flex items-center space-x-4 mt-1">
                                                     <div class="flex items-center">
                                                         <i class="fas fa-face-smile text-indigo-600 dark:text-indigo-300 mr-2"></i>
@@ -316,4 +316,38 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="{{ url_for('static', filename='js/health_carer.js') }}"></script>
+<script>
+// Enable Enter key to confirm in the delete entry modal
+let modalConfirmBtn = document.getElementById('modalConfirm');
+let confirmationModal = document.getElementById('confirmationModal');
+let enterListener = null;
+
+function enableEnterToConfirm(modalElement, confirmBtn) {
+    function handler(e) {
+        if (modalElement.classList.contains('flex') && (e.key === 'Enter' || e.keyCode === 13)) {
+            e.preventDefault();
+            confirmBtn.click();
+        }
+    }
+    document.addEventListener('keydown', handler);
+    return handler;
+}
+function disableEnterToConfirm(handler) {
+    document.removeEventListener('keydown', handler);
+}
+// Patch show/hide modal to add/remove Enter listener
+const origShowConfirmationModal = window.showConfirmationModal;
+window.showConfirmationModal = function(entryId) {
+    origShowConfirmationModal(entryId);
+    enterListener = enableEnterToConfirm(confirmationModal, modalConfirmBtn);
+}
+const origHideConfirmationModal = window.hideConfirmationModal;
+window.hideConfirmationModal = function() {
+    origHideConfirmationModal();
+    if (enterListener) {
+        disableEnterToConfirm(enterListener);
+        enterListener = null;
+    }
+}
+</script>
 {% endblock %}
