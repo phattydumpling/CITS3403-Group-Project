@@ -349,7 +349,8 @@ if (document.getElementById('customModal')) {
 
 // Close modal with Escape key
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeModal();
+    const modal = document.getElementById('confirmationModal');
+    if (e.key === 'Escape' && modal.classList.contains('flex')) {
+        hideConfirmationModal();
     }
 }); 
