@@ -101,13 +101,69 @@ def init_routes(app):
     @app.route('/dashboard')
     @login_required
     def dashboard():
-        # Get total study time
-        total_study_time = StudySession.query.filter_by(user_id=current_user.id).all()
-        total_hours = sum(
+        # Get the start of the current week (Sunday)
+        today = datetime.utcnow().date()
+        start_of_week = today - timedelta(days=today.weekday() + 1 if today.weekday() != 6 else 0)
+        start_of_week = datetime.combine(start_of_week, datetime.min.time())
+
+        # Calculate study streak
+        streak = 0
+        current_date = today
+        while True:
+            # Check if there are any study sessions for the current date
+            sessions = StudySession.query.filter(
+                StudySession.user_id == current_user.id,
+                StudySession.start_time >= datetime.combine(current_date, datetime.min.time()),
+                StudySession.start_time < datetime.combine(current_date, datetime.max.time())
+            ).first()
+            
+            if sessions:
+                streak += 1
+                current_date -= timedelta(days=1)
+            else:
+                break
+
+        # Get all friends
+        friends = current_user.friends
+
+        # Calculate study hours for each friend
+        friend_study_hours = []
+        for friend in friends:
+            # Get study sessions for this week
+            sessions = StudySession.query.filter(
+                StudySession.user_id == friend.id,
+                StudySession.start_time >= start_of_week
+            ).all()
+
+            # Calculate total hours
+            total_hours = sum(
+                (session.end_time - session.start_time).total_seconds() / 3600 
+                for session in sessions 
+                if session.end_time
+            )
+
+            friend_study_hours.append({
+                'friend': friend,
+                'hours': round(total_hours, 1)
+            })
+
+        # Add current user's study hours
+        user_sessions = StudySession.query.filter(
+            StudySession.user_id == current_user.id,
+            StudySession.start_time >= start_of_week
+        ).all()
+        user_hours = sum(
             (session.end_time - session.start_time).total_seconds() / 3600 
-            for session in total_study_time 
+            for session in user_sessions 
             if session.end_time
         )
+        friend_study_hours.append({
+            'friend': current_user,
+            'hours': round(user_hours, 1)
+        })
+
+        # Sort by hours in descending order
+        friend_study_hours.sort(key=lambda x: x['hours'], reverse=True)
 
         # Get completed tasks count
         completed_tasks = Task.query.filter_by(
@@ -144,13 +200,15 @@ def init_routes(app):
             assessment_completion_rate = int(round((completed_assessments / total_assessments) * 100))
 
         return render_template('dashboard.html',
-            total_hours=round(total_hours, 1),
+            friend_study_hours=friend_study_hours[:3],  # Only pass top 3 for the podium
             completed_tasks=completed_tasks,
             weekly_mood=round(weekly_mood, 1),
             unique_subjects=unique_subjects,
             upcoming_assessments=upcoming_assessments,
             now=date.today(),
-            assessment_completion_rate=assessment_completion_rate
+            assessment_completion_rate=assessment_completion_rate,
+            study_streak=streak,
+            timedelta=timedelta  # Add timedelta to template context
         )
 
     # Study Area Route
@@ -952,4 +1010,43 @@ def init_routes(app):
             return jsonify({'error': 'Assessment not found'}), 404
         db.session.delete(assessment)
         db.session.commit()
-        return '', 204 
+        return '', 204
+
+    @app.route('/friend_leaderboard')
+    @login_required
+    def friend_leaderboard():
+        # Get the start of the current week (Sunday)
+        today = datetime.utcnow().date()
+        start_of_week = today - timedelta(days=today.weekday() + 1 if today.weekday() != 6 else 0)
+        start_of_week = datetime.combine(start_of_week, datetime.min.time())
+
+        # Get all friends
+        friends = current_user.friends
+
+        # Calculate study hours for each friend
+        friend_study_hours = []
+        for friend in friends:
+            # Get study sessions for this week
+            sessions = StudySession.query.filter(
+                StudySession.user_id == friend.id,
+                StudySession.start_time >= start_of_week
+            ).all()
+
+            # Calculate total hours
+            total_hours = sum(
+                (session.end_time - session.start_time).total_seconds() / 3600 
+                for session in sessions 
+                if session.end_time
+            )
+
+            friend_study_hours.append({
+                'friend': friend,
+                'hours': round(total_hours, 1)
+            })
+
+        # Sort by hours in descending order
+        friend_study_hours.sort(key=lambda x: x['hours'], reverse=True)
+
+        return render_template('friend_leaderboard.html', 
+                             friend_study_hours=friend_study_hours,
+                             start_of_week=start_of_week) 
