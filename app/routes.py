@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from app.models import User, StudySession, Task, WellnessCheck, MoodEntry, Friendship, FriendRequest, SharedData
+from app.models import User, StudySession, Task, WellnessCheck, MoodEntry, Friendship, FriendRequest, SharedData, Assessment
 from app.forms import LoginForm, RegistrationForm, StudySessionForm, TaskForm, WellnessCheckForm
 from datetime import datetime, timedelta
 from flask_login import login_user, logout_user, login_required, current_user
@@ -856,4 +856,72 @@ def init_routes(app):
                 subject_times[session.subject] = subject_times.get(session.subject, 0) + duration
         labels = list(subject_times.keys())
         data = [round(subject_times[subj], 2) for subj in labels]
-        return jsonify({'labels': labels, 'data': data}) 
+        return jsonify({'labels': labels, 'data': data})
+
+    # API Endpoints for Assessments
+    @app.route('/api/assessments', methods=['GET'])
+    @login_required
+    def get_assessments():
+        assessments = Assessment.query.filter_by(user_id=current_user.id).order_by(Assessment.due_date).all()
+        return jsonify([
+            {
+                'id': a.id,
+                'subject': a.subject,
+                'title': a.title,
+                'due_date': a.due_date.isoformat(),
+                'done': a.done,
+                'grade': a.grade,
+                'weight': a.weight
+            } for a in assessments
+        ])
+
+    @app.route('/api/assessments', methods=['POST'])
+    @login_required
+    def create_assessment():
+        data = request.get_json()
+        if not data or not all(k in data for k in ('subject', 'title', 'due_date')):
+            return jsonify({'error': 'Missing required fields'}), 400
+        assessment = Assessment(
+            user_id=current_user.id,
+            subject=data['subject'],
+            title=data['title'],
+            due_date=datetime.fromisoformat(data['due_date']).date(),
+            done=data.get('done', False),
+            grade=data.get('grade'),
+            weight=data.get('weight')
+        )
+        db.session.add(assessment)
+        db.session.commit()
+        return jsonify({'id': assessment.id}), 201
+
+    @app.route('/api/assessments/<int:assessment_id>', methods=['PUT'])
+    @login_required
+    def update_assessment(assessment_id):
+        assessment = Assessment.query.filter_by(id=assessment_id, user_id=current_user.id).first()
+        if not assessment:
+            return jsonify({'error': 'Assessment not found'}), 404
+        data = request.get_json()
+        if 'subject' in data:
+            assessment.subject = data['subject']
+        if 'title' in data:
+            assessment.title = data['title']
+        if 'due_date' in data:
+            assessment.due_date = datetime.fromisoformat(data['due_date']).date()
+        if 'done' in data:
+            assessment.done = data['done']
+        if 'grade' in data:
+            assessment.grade = data['grade']
+        if 'weight' in data:
+            assessment.weight = data['weight']
+        db.session.commit()
+        return jsonify({'success': True})
+
+    @app.route('/api/assessments/<int:assessment_id>', methods=['DELETE'])
+    @login_required
+    def delete_assessment(assessment_id):
+        assessment = Assessment.query.filter_by(id=assessment_id, user_id=current_user.id).first()
+        if not assessment:
+            return jsonify({'error': 'Assessment not found'}), 404
+        db.session.delete(assessment)
+        db.session.commit()
+        return '', 204 
