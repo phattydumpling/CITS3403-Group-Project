@@ -8,6 +8,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from app import login_manager
 import logging
 from zoneinfo import ZoneInfo
+from sqlalchemy import and_
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -125,9 +126,11 @@ def init_routes(app):
         if mood_entries:
             weekly_mood = sum(entry.mood_score for entry in mood_entries) / len(mood_entries)
 
-        # Get unique subjects studied
-        unique_subjects = db.session.query(StudySession.subject).filter_by(
-            user_id=current_user.id
+        # Get unique subjects studied (non-empty, non-null)
+        unique_subjects = db.session.query(StudySession.subject).filter(
+            StudySession.user_id == current_user.id,
+            StudySession.subject.isnot(None),
+            StudySession.subject != ''
         ).distinct().count()
 
         return render_template('dashboard.html',
@@ -839,4 +842,18 @@ def init_routes(app):
             return jsonify({
                 'labels': ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
                 'data': weeks
-            }) 
+            })
+
+    @app.route('/api/unit_distribution')
+    @login_required
+    def unit_distribution():
+        # Get all study sessions for the user with a non-empty subject
+        sessions = StudySession.query.filter_by(user_id=current_user.id).all()
+        subject_times = {}
+        for session in sessions:
+            if session.end_time and session.subject and session.subject.strip():
+                duration = (session.end_time - session.start_time).total_seconds() / 60  # minutes
+                subject_times[session.subject] = subject_times.get(session.subject, 0) + duration
+        labels = list(subject_times.keys())
+        data = [round(subject_times[subj], 2) for subj in labels]
+        return jsonify({'labels': labels, 'data': data}) 

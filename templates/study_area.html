@@ -43,9 +43,14 @@
                                 <button id="pause-button" class="px-6 py-3 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-500/50">
                                     <i class="fas fa-pause mr-2"></i>Pause
                                 </button>
-                                <button id="end-button" class="px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500/50 opacity-50 cursor-not-allowed" disabled>
-                                    <i class="fas fa-stop mr-2"></i>End
-                                </button>
+                                <div class="relative group">
+                                    <button id="end-button" class="px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500/50 opacity-50 cursor-not-allowed" disabled>
+                                        <i class="fas fa-stop mr-2"></i>End
+                                    </button>
+                                    <div id="timer-end-warning" class="absolute left-0 mt-2 w-48 bg-red-100 text-red-700 text-xs rounded-lg px-3 py-2 shadow-lg z-50 hidden group-hover:block">
+                                        No session is active to end.
+                                    </div>
+                                </div>
                                 <button id="reset-button" class="px-6 py-3 border-2 border-indigo-600 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
                                     <i class="fas fa-redo mr-2"></i>Reset
                                 </button>
@@ -64,25 +69,41 @@
                         <form id="active-session-form" class="space-y-6">
                             <div>
                                 <label class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2" for="subject">
-                                    Subject
+                                    Subject <span class="text-red-500">*</span>
                                 </label>
-                                <input type="text" id="subject" name="subject" 
-                                    class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-300" 
+                                <input type="text" id="subject" name="subject" required
+                                    class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-300"
                                     placeholder="What are you studying?">
                             </div>
                             <div>
                                 <label class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2" for="notes">
                                     Notes
                                 </label>
-                                <textarea id="notes" name="notes" rows="3" 
-                                    class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-300" 
+                                <textarea id="notes" name="notes" rows="3"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-300"
                                     placeholder="Add any notes about your study session..."></textarea>
                             </div>
-                            <div class="flex justify-end">
-                                <button type="submit" 
-                                    class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500/50">
-                                    <i class="fas fa-save mr-2"></i>Save Session
-                                </button>
+                            <div class="flex justify-end space-x-4">
+                                <div class="relative group">
+                                    <button type="button" id="start-session-btn"
+                                        class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                                        >
+                                        <i class="fas fa-play mr-2"></i>Start Session
+                                    </button>
+                                    <div id="start-warning" class="absolute left-0 mt-2 w-48 bg-red-100 text-red-700 text-xs rounded-lg px-3 py-2 shadow-lg z-50 hidden group-hover:block">
+                                        Please enter a subject to start a session.
+                                    </div>
+                                </div>
+                                <div class="relative group">
+                                    <button type="button" id="end-session-btn"
+                                        class="px-8 py-3 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500/50 opacity-50 cursor-not-allowed"
+                                        disabled>
+                                        <i class="fas fa-stop mr-2"></i>End Session
+                                    </button>
+                                    <div id="end-warning" class="absolute left-0 mt-2 w-48 bg-red-100 text-red-700 text-xs rounded-lg px-3 py-2 shadow-lg z-50 hidden group-hover:block">
+                                        No session is active to end.
+                                    </div>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -358,7 +379,6 @@
     window.addEventListener('DOMContentLoaded', updateProgress);
 
     // Track active session state
-    let activeSessionId = null;
 
     // Function to enable/disable end button
     function updateEndButtonState() {
@@ -535,6 +555,117 @@
                 updateDisplay(remainingSeconds);
             }
         }
+    });
+
+    let activeSessionId = null;
+    let sessionActive = false;
+
+    const startSessionBtn = document.getElementById('start-session-btn');
+    const endSessionBtn = document.getElementById('end-session-btn');
+    const subjectInput = document.getElementById('subject');
+    const notesInput = document.getElementById('notes');
+
+    function updateSessionButtons() {
+        if (sessionActive) {
+            startSessionBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            startSessionBtn.disabled = true;
+            endSessionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            endSessionBtn.disabled = false;
+        } else {
+            endSessionBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            endSessionBtn.disabled = true;
+            startSessionBtn.disabled = !subjectInput.value.trim();
+            if (startSessionBtn.disabled) {
+                startSessionBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                startSessionBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+    }
+
+    subjectInput.addEventListener('input', updateSessionButtons);
+
+    startSessionBtn.addEventListener('click', async function() {
+        if (!subjectInput.value.trim() || sessionActive) return;
+        // Start timer logic
+        if (timerInterval) return;
+        initialSeconds = parseTimeFromDisplay();
+        remainingSeconds = initialSeconds;
+        updateDisplay(remainingSeconds);
+        timerInterval = setInterval(() => {
+            if (remainingSeconds <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                return;
+            }
+            remainingSeconds--;
+            updateDisplay(remainingSeconds);
+        }, 1000);
+        // Start session in backend
+        const subject = subjectInput.value;
+        const notes = notesInput.value;
+        const response = await fetch('/study_session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                subject: subject,
+                notes: notes,
+                start_time: new Date().toISOString(),
+                end_time: null
+            })
+        });
+        const data = await response.json();
+        activeSessionId = data.session_id;
+        sessionActive = true;
+        updateSessionButtons();
+    });
+
+    endSessionBtn.addEventListener('click', async function() {
+        if (!sessionActive || !activeSessionId) return;
+        // End timer logic
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        // End session in backend
+        await fetch(`/study_session/${activeSessionId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ end_time: new Date().toISOString() })
+        });
+        activeSessionId = null;
+        sessionActive = false;
+        updateSessionButtons();
+        window.location.reload();
+    });
+
+    updateSessionButtons();
+
+    function showStartWarning(show) {
+        document.getElementById('start-warning').style.display = show ? 'block' : 'none';
+    }
+    function showEndWarning(show) {
+        document.getElementById('end-warning').style.display = show ? 'block' : 'none';
+    }
+
+    startSessionBtn.addEventListener('mouseenter', function() {
+        if (!subjectInput.value.trim() && !sessionActive) showStartWarning(true);
+    });
+    startSessionBtn.addEventListener('mouseleave', function() {
+        showStartWarning(false);
+    });
+    endSessionBtn.addEventListener('mouseenter', function() {
+        if (!sessionActive) showEndWarning(true);
+    });
+    endSessionBtn.addEventListener('mouseleave', function() {
+        showEndWarning(false);
+    });
+
+    endButton.addEventListener('mouseenter', function() {
+        if (!activeSessionId) document.getElementById('timer-end-warning').style.display = 'block';
+    });
+    endButton.addEventListener('mouseleave', function() {
+        document.getElementById('timer-end-warning').style.display = 'none';
     });
 </script>
 {% endblock %}
