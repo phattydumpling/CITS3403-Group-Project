@@ -91,6 +91,7 @@ function toAWST(dateString) {
     const min = parts.find(p => p.type === 'minute').value;
     return `${y}-${m}-${d} ${h}:${min}`;
 }
+>>>>>>> ce1efbc2c0c59ebf8757dc8f446616729fab22ce
 
 function showConfirmationModal(entryId) {
     const modal = document.getElementById('confirmationModal');
