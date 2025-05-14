@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 import os
+from flask import url_for, current_app
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -36,4 +37,17 @@ def create_app():
     from app.routes import init_routes
     init_routes(app)
 
-    return app 
+    # Cache-busting static file helper
+    def static_file(filename):
+        # Get the absolute path to the static file
+        static_folder = app.static_folder
+        file_path = os.path.join(static_folder, filename)
+        try:
+            version = int(os.path.getmtime(file_path))
+        except OSError:
+            version = 0
+        return url_for('static', filename=filename, v=version)
+
+    app.jinja_env.globals['static_file'] = static_file
+
+    return app

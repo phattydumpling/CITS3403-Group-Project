@@ -305,9 +305,26 @@ def init_routes(app):
         return render_template('resources.html')
 
     # Care Page Routes
-    @app.route('/health_carer')
+    @app.route('/health_carer', methods=['GET', 'POST'])
     @login_required
     def health_carer():
+        # Handle main goals form submission
+        if request.method == 'POST':
+            emotional_goal = request.form.get('emotional-goal')
+            physical_goal = request.form.get('physical-goal')
+            study_goal = request.form.get('study-goal')
+            emotional_custom = request.form.get('emotional-custom')
+            physical_custom = request.form.get('physical-custom')
+            study_custom = request.form.get('study-custom')
+
+            # Prefer custom input if provided, else use selected radio
+            selected_goals = {
+                'emotional': emotional_custom if emotional_custom else emotional_goal,
+                'physical': physical_custom if physical_custom else physical_goal,
+                'study': study_custom if study_custom else study_goal
+            }
+            flash(f"Goals submitted: Emotional - {selected_goals['emotional']}, Physical - {selected_goals['physical']}, Study - {selected_goals['study']}", "success")
+
         # Get user's mood entries for the past week
         week_ago = datetime.utcnow() - timedelta(days=7)
         mood_entries = MoodEntry.query.filter(

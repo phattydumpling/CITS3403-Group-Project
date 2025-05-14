@@ -52,7 +52,63 @@
                 <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">Health Carer</h1>
                 <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Take care of yourself and maintain a healthy study-life balance.</p>
             </div>
-
+<!-- 3 Main Health Goals Section (ported from React) -->
+<div id="main-health-goals" class="mb-12 bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600">
+  <header class="mb-6 text-center">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">3 Main Health Goals</h2>
+    <p class="text-gray-600 dark:text-gray-300">
+      Choose one goal from each area: <strong>Mental</strong>, <strong>Physical</strong>, <strong>Study</strong>
+    </p>
+  </header>
+  <div class="flex flex-col md:flex-row justify-center gap-8 mb-6">
+    <!-- Emotional -->
+    <div class="flex-1">
+      <h3 class="text-lg font-semibold mb-4" style="color: #A7C7E7;">Emotional</h3>
+      <div class="flex flex-col gap-3">
+        <label class="goal-card pill cursor-pointer border-2 rounded-xl px-4 py-2 flex items-center" style="border-color: #A7C7E7;">
+          <input type="form" placeholder="Meditate for 5 minutes"/>
+          <button>"Submit"</button>
+      </div>
+    </div>
+    <!-- Physical -->
+    <div class="flex-1">
+      <h3 class="text-lg font-semibold mb-4" style="color: #FFD6B0;">Physical</h3>
+      <div class="flex flex-col gap-3">
+        <label class="goal-card pill cursor-pointer border-2 rounded-xl px-4 py-2 flex items-center" style="border-color: #FFD6B0;">
+          <input type="radio" name="physical-goal" value="0" class="mr-2" />
+          <span>Go for a walk</span>
+        </label>
+        <label class="goal-card pill cursor-pointer border-2 rounded-xl px-4 py-2 flex items-center" style="border-color: #FFD6B0;">
+          <input type="radio" name="physical-goal" value="1" class="mr-2" />
+          <span>Do 10 push-ups</span>
+        </label>
+        <label class="goal-card pill cursor-pointer border-2 rounded-xl px-4 py-2 flex items-center" style="border-color: #FFD6B0;">
+          <input type="radio" name="physical-goal" value="2" class="mr-2" />
+          <span>Stretch for 5 minutes</span>
+        </label>
+      </div>
+    </div>
+    <!-- Study -->
+    <div class="flex-1">
+      <h3 class="text-lg font-semibold mb-4" style="color: #B6E2A1;">Study</h3>
+      <div class="flex flex-col gap-3">
+        <label class="goal-card pill cursor-pointer border-2 rounded-xl px-4 py-2 flex items-center" style="border-color: #B6E2A1;">
+          <input type="radio" name="study-goal" value="0" class="mr-2" />
+          <span>Review lecture notes</span>
+        </label>
+        <label class="goal-card pill cursor-pointer border-2 rounded-xl px-4 py-2 flex items-center" style="border-color: #B6E2A1;">
+          <input type="radio" name="study-goal" value="1" class="mr-2" />
+          <span>Complete 1 practice question</span>
+        </label>
+        <label class="goal-card pill cursor-pointer border-2 rounded-xl px-4 py-2 flex items-center" style="border-color: #B6E2A1;">
+          <input type="radio" name="study-goal" value="2" class="mr-2" />
+          <span>Organize study space</span>
+        </label>
+      </div>
+    </div>
+    </div>
+</div>
+</div>
             <!-- Main Content Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Left Column - Mental Health & Study Break -->
@@ -116,7 +172,7 @@
                             <div class="flex items-center justify-between">
                                 <label for="waterGoal" class="text-sm font-medium text-gray-700 dark:text-gray-300">Daily Water Goal</label>
                                 <select id="waterGoal" class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    {% for i in range(1, 11) %}
+                                    {% for i in range(1, 13) %}
                                     <option value="{{ i * 0.5 }}" {% if i == 2 %}selected{% endif %}>{{ i * 0.5 }}L</option>
                                     {% endfor %}
                                 </select>
@@ -174,16 +230,6 @@
                                 </button>
                             </div>
 
-                            <!-- Water Intake History (Collapsible) -->
-                            <div class="mt-8">
-                              <div id="waterHistoryHeader" class="flex items-center justify-between cursor-pointer select-none mb-2">
-                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Drinks you had today</h3>
-                                <i id="waterHistoryChevron" class="fas fa-chevron-up text-gray-500 transition-transform duration-200"></i>
-                              </div>
-                              <div id="waterHistoryList" class="space-y-4"></div>
-                            </div>
-                        </div>
-
                         <!-- Reminder Settings (Collapsible) -->
                         <div id="reminderSettings" class="hidden">
                             <div class="p-4 bg-gray-50 dark:bg-gray-600 rounded-xl">
@@ -218,7 +264,7 @@
                         </div>
                     </div>
                 </div>
-
+            </div>
                 <!-- Middle Column - Wellness Check -->
                 <div class="lg:col-span-2">
                     <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600">
@@ -310,6 +356,7 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block scripts %}

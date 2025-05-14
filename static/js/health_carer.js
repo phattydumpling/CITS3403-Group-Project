@@ -2,7 +2,7 @@
 let moodChart = null;
 let pendingDeleteId = null;
 
-<<<<<<< HEAD
+// <<<<<<< HEAD
 // Water Reminder Functionality
 let waterReminderInterval = null;
 let snoozeTimeout = null;
@@ -20,6 +20,9 @@ const stopReminderBtn = document.getElementById('stopReminder');
 
 // Water Tracking Functionality
 const WATER_STORAGE_KEY = 'waterTrackerData';
+// Define the cup capacity in liters and milliliters
+const CUP_CAPACITY_LITERS = 2.0;
+const CUP_CAPACITY_ML = CUP_CAPACITY_LITERS * 1000;
 const ENCOURAGING_MESSAGES = [
     "You're doing great! Keep hydrating! 💧",
     "Every sip counts towards your goal! 🌊",
@@ -53,27 +56,27 @@ let waterData = {
     history: [],
     lastUpdated: new Date().toISOString().split('T')[0]
 };
-=======
-function toAWST(dateString) {
-    const date = new Date(dateString);
-    const options = {
-        timeZone: 'Australia/Perth',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-    };
-    const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(date);
-    const y = parts.find(p => p.type === 'year').value;
-    const m = parts.find(p => p.type === 'month').value;
-    const d = parts.find(p => p.type === 'day').value;
-    const h = parts.find(p => p.type === 'hour').value;
-    const min = parts.find(p => p.type === 'minute').value;
-    return `${y}-${m}-${d} ${h}:${min}`;
-}
->>>>>>> ce1efbc2c0c59ebf8757dc8f446616729fab22ce
+// =======
+// function toAWST(dateString) {
+//     const date = new Date(dateString);
+//     const options = {
+//         timeZone: 'Australia/Perth',
+//         year: 'numeric',
+//         month: '2-digit',
+//         day: '2-digit',
+//         hour: '2-digit',
+//         minute: '2-digit',
+//         hour12: false
+//     };
+//     const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(date);
+//     const y = parts.find(p => p.type === 'year').value;
+//     const m = parts.find(p => p.type === 'month').value;
+//     const d = parts.find(p => p.type === 'day').value;
+//     const h = parts.find(p => p.type === 'hour').value;
+//     const min = parts.find(p => p.type === 'minute').value;
+//     return `${y}-${m}-${d} ${h}:${min}`;
+// }
+// >>>>>>> ce1efbc2c0c59ebf8757dc8f446616729fab22ce
 
 function showConfirmationModal(entryId) {
     const modal = document.getElementById('confirmationModal');
@@ -576,6 +579,10 @@ function addWater() {
     const amount = parseInt(waterAmount.value);
     waterData.history.push(waterData.current);
     waterData.current += amount;
+    // Ensure current water does not exceed cup capacity
+    if (waterData.current > CUP_CAPACITY_ML) {
+        waterData.current = CUP_CAPACITY_ML;
+    }
     updateWaterDisplay();
 }
 
@@ -598,7 +605,11 @@ function resetWater() {
 
 // Update goal
 function updateGoal() {
-    const goalLiters = parseFloat(waterGoal.value);
+    let goalLiters = parseFloat(waterGoal.value);
+    if (goalLiters > CUP_CAPACITY_LITERS) {
+        goalLiters = CUP_CAPACITY_LITERS;
+        waterGoal.value = CUP_CAPACITY_LITERS;
+    }
     waterData.goal = goalLiters * 1000; // Convert to milliliters
     updateWaterDisplay();
 }
@@ -640,3 +651,86 @@ function triggerConfetti() {
         }));
     }, 250);
 } 
+// --- 3 Main Health Goals Interactivity ---
+(function() {
+  // Goal radio groups
+  const emotionalRadios = document.querySelectorAll('input[name="emotional-goal"]');
+  const physicalRadios = document.querySelectorAll('input[name="physical-goal"]');
+  const studyRadios = document.querySelectorAll('input[name="study-goal"]');
+  const successMsg = document.getElementById('goals-success-message');
+  const confettiCanvas = document.getElementById('goals-confetti');
+  let confettiActive = false;
+
+  function checkAllSelected() {
+    const emotional = Array.from(emotionalRadios).some(r => r.checked);
+    const physical = Array.from(physicalRadios).some(r => r.checked);
+    const study = Array.from(studyRadios).some(r => r.checked);
+    return emotional && physical && study;
+  }
+
+  function showSuccess() {
+    if (successMsg) successMsg.classList.remove('hidden');
+    if (confettiCanvas && !confettiActive) {
+      confettiActive = true;
+      launchConfetti();
+      setTimeout(() => {
+        confettiActive = false;
+        if (confettiCanvas) confettiCanvas.classList.add('hidden');
+      }, 2000);
+    }
+  }
+
+  function hideSuccess() {
+    if (successMsg) successMsg.classList.add('hidden');
+  }
+
+  function launchConfetti() {
+    if (!confettiCanvas) return;
+    confettiCanvas.classList.remove('hidden');
+    const ctx = confettiCanvas.getContext('2d');
+    const W = confettiCanvas.width = confettiCanvas.offsetWidth;
+    const H = confettiCanvas.height = confettiCanvas.offsetHeight;
+    const colors = ['#A7C7E7', '#FFD6B0', '#B6E2A1', '#FFB3B3'];
+    const confetti = Array.from({length: 30}, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H * 0.5,
+      r: Math.random() * 6 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vy: Math.random() * 2 + 2,
+      vx: (Math.random() - 0.5) * 2
+    }));
+    let frame = 0;
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      confetti.forEach(c => {
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, c.r, 0, 2 * Math.PI);
+        ctx.fillStyle = c.color;
+        ctx.globalAlpha = 0.8;
+        ctx.fill();
+        c.y += c.vy;
+        c.x += c.vx;
+        if (c.y > H) c.y = -10;
+        if (c.x < 0) c.x = W;
+        if (c.x > W) c.x = 0;
+      });
+      ctx.globalAlpha = 1.0;
+      frame++;
+      if (frame < 60) requestAnimationFrame(draw);
+      else confettiCanvas.classList.add('hidden');
+    }
+    draw();
+  }
+
+  function updateGoals() {
+    if (checkAllSelected()) {
+      showSuccess();
+    } else {
+      hideSuccess();
+    }
+  }
+
+  emotionalRadios.forEach(r => r.addEventListener('change', updateGoals));
+  physicalRadios.forEach(r => r.addEventListener('change', updateGoals));
+  studyRadios.forEach(r => r.addEventListener('change', updateGoals));
+})();
