@@ -2,6 +2,57 @@
 let moodChart = null;
 let pendingDeleteId = null;
 
+// Water Reminder Functionality
+let waterReminderInterval = null;
+let snoozeTimeout = null;
+
+// Modal elements
+const waterReminderModal = document.getElementById('waterReminderModal');
+const waterModalContent = document.getElementById('waterModalContent');
+const waterModalSnooze = document.getElementById('waterModalSnooze');
+const waterModalDismiss = document.getElementById('waterModalDismiss');
+
+// Form elements
+const waterReminderForm = document.getElementById('waterReminderForm');
+const startReminderBtn = document.getElementById('startReminder');
+const stopReminderBtn = document.getElementById('stopReminder');
+
+// Water Tracking Functionality
+const WATER_STORAGE_KEY = 'waterTrackerData';
+const ENCOURAGING_MESSAGES = [
+    "You're doing great! Keep hydrating! 💧",
+    "Every sip counts towards your goal! 🌊",
+    "Stay hydrated, stay healthy! 💪",
+    "You're on track to reach your goal! 🎯",
+    "Keep up the good work! 🌟",
+    "Your body thanks you for staying hydrated! 💫",
+    "You're making waves with your hydration! 🌊",
+    "Almost there! Keep going! ⭐",
+    "You're crushing your water goals! 🏆",
+    "Stay refreshed, stay focused! 💫"
+];
+
+// Water tracking elements
+const waterGoal = document.getElementById('waterGoal');
+const waterLevel = document.getElementById('waterLevel');
+const waterFill = document.getElementById('waterFill');
+const splashEffect = document.getElementById('splashEffect');
+const waterProgressMessage = document.getElementById('waterProgressMessage');
+const waterAmount = document.getElementById('waterAmount');
+const addWaterBtn = document.getElementById('addWater');
+const undoWaterBtn = document.getElementById('undoWater');
+const resetWaterBtn = document.getElementById('resetWater');
+const toggleReminderSettings = document.getElementById('toggleReminderSettings');
+const reminderSettings = document.getElementById('reminderSettings');
+
+// Water tracking state
+let waterData = {
+    current: 0, // in milliliters
+    goal: 2000, // default 2L in milliliters
+    history: [],
+    lastUpdated: new Date().toISOString().split('T')[0]
+};
+
 function showConfirmationModal(entryId) {
     const modal = document.getElementById('confirmationModal');
     const modalContent = document.getElementById('modalContent');
@@ -223,6 +274,16 @@ document.addEventListener('DOMContentLoaded', function() {
             hideConfirmationModal();
         }
     });
+
+    // Water tracking event listeners
+    addWaterBtn.addEventListener('click', addWater);
+    undoWaterBtn.addEventListener('click', undoWater);
+    resetWaterBtn.addEventListener('click', resetWater);
+    waterGoal.addEventListener('change', updateGoal);
+    toggleReminderSettings.addEventListener('click', toggleSettings);
+
+    // Load initial water data
+    loadWaterData();
 });
 
 // =====================
@@ -265,14 +326,15 @@ function shareData() {
     const dataToShare = {
         study_progress: document.getElementById('shareStudyProgress').checked,
         mood: document.getElementById('shareMood').checked,
-        tasks: document.getElementById('shareTasks').checked
+        tasks: document.getElementById('shareTasks').checked,
+        water: document.getElementById('shareWater').checked
     };
 
     // Get selected friends
     const selectedFriends = Array.from(document.querySelectorAll('.friend-checkbox:checked')).map(checkbox => checkbox.id.replace('friend_', ''));
 
     // Check if any data is selected
-    if (!dataToShare.study_progress && !dataToShare.mood && !dataToShare.tasks) {
+    if (!dataToShare.study_progress && !dataToShare.mood && !dataToShare.tasks && !dataToShare.water) {
         showModal('No Data Selected', 'Please select at least one type of data to share.');
         return;
     }
@@ -329,4 +391,251 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeModal();
     }
-}); 
+});
+
+// Show modal with animation
+function showWaterReminderModal() {
+    waterReminderModal.classList.remove('hidden');
+    waterReminderModal.classList.add('flex');
+    setTimeout(() => {
+        waterModalContent.classList.remove('scale-95', 'opacity-0');
+        waterModalContent.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+// Hide modal with animation
+function hideWaterReminderModal() {
+    waterModalContent.classList.remove('scale-100', 'opacity-100');
+    waterModalContent.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => {
+        waterReminderModal.classList.remove('flex');
+        waterReminderModal.classList.add('hidden');
+    }, 300);
+}
+
+// Start the water reminder timer
+function startWaterReminder(hours, minutes) {
+    const totalMilliseconds = (hours * 60 * 60 * 1000) + (minutes * 60 * 1000);
+    
+    // Clear any existing intervals
+    if (waterReminderInterval) {
+        clearInterval(waterReminderInterval);
+    }
+    
+    // Set up the interval
+    waterReminderInterval = setInterval(() => {
+        showWaterReminderModal();
+    }, totalMilliseconds);
+    
+    // Show first reminder after the interval
+    setTimeout(() => {
+        showWaterReminderModal();
+    }, totalMilliseconds);
+    
+    // Update UI
+    startReminderBtn.classList.add('hidden');
+    stopReminderBtn.classList.remove('hidden');
+}
+
+// Stop the water reminder timer
+function stopWaterReminder() {
+    if (waterReminderInterval) {
+        clearInterval(waterReminderInterval);
+        waterReminderInterval = null;
+    }
+    if (snoozeTimeout) {
+        clearTimeout(snoozeTimeout);
+        snoozeTimeout = null;
+    }
+    
+    // Update UI
+    startReminderBtn.classList.remove('hidden');
+    stopReminderBtn.classList.add('hidden');
+}
+
+// Event Listeners
+waterReminderForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const hours = parseInt(document.getElementById('hours').value);
+    const minutes = parseInt(document.getElementById('minutes').value);
+    
+    // Validate that at least one time unit is greater than 0
+    if (hours === 0 && minutes === 0) {
+        alert('Please select a time interval greater than 0');
+        return;
+    }
+    
+    startWaterReminder(hours, minutes);
+});
+
+stopReminderBtn.addEventListener('click', () => {
+    stopWaterReminder();
+});
+
+waterModalSnooze.addEventListener('click', () => {
+    hideWaterReminderModal();
+    // Snooze for 5 minutes
+    snoozeTimeout = setTimeout(() => {
+        showWaterReminderModal();
+    }, 5 * 60 * 1000);
+});
+
+waterModalDismiss.addEventListener('click', () => {
+    hideWaterReminderModal();
+});
+
+// Clean up on page unload
+window.addEventListener('beforeunload', () => {
+    if (waterReminderInterval) {
+        clearInterval(waterReminderInterval);
+    }
+    if (snoozeTimeout) {
+        clearTimeout(snoozeTimeout);
+    }
+});
+
+// Load water data from localStorage
+function loadWaterData() {
+    const savedData = localStorage.getItem(WATER_STORAGE_KEY);
+    if (savedData) {
+        const parsed = JSON.parse(savedData);
+        // Check if the saved data is from today
+        if (parsed.lastUpdated === new Date().toISOString().split('T')[0]) {
+            waterData = parsed;
+        } else {
+            // Reset for new day
+            waterData = {
+                current: 0,
+                goal: parsed.goal,
+                history: [],
+                lastUpdated: new Date().toISOString().split('T')[0]
+            };
+        }
+    }
+    updateWaterDisplay();
+}
+
+// Save water data to localStorage
+function saveWaterData() {
+    localStorage.setItem(WATER_STORAGE_KEY, JSON.stringify(waterData));
+}
+
+// Show splash animation
+function showSplashAnimation() {
+    splashEffect.style.opacity = '1';
+    splashEffect.style.transform = 'translateY(-10px)';
+    setTimeout(() => {
+        splashEffect.style.opacity = '0';
+        splashEffect.style.transform = 'translateY(0)';
+    }, 500);
+}
+
+// Get random encouraging message
+function getEncouragingMessage(progress) {
+    if (progress >= 100) {
+        return '🎉 Well done! You\'ve reached your daily water intake goal!';
+    }
+    const index = Math.floor(Math.random() * ENCOURAGING_MESSAGES.length);
+    return ENCOURAGING_MESSAGES[index];
+}
+
+// Update water display
+function updateWaterDisplay() {
+    const progress = (waterData.current / waterData.goal) * 100;
+    const progressLimited = Math.min(progress, 100);
+    
+    // Update water fill with splash animation
+    const currentHeight = waterFill.style.height;
+    waterFill.style.height = `${progressLimited}%`;
+    if (currentHeight !== waterFill.style.height) {
+        showSplashAnimation();
+    }
+    
+    // Update water level text
+    const currentLiters = (waterData.current / 1000).toFixed(1);
+    waterLevel.textContent = `${currentLiters}L`;
+    
+    // Update progress message
+    waterProgressMessage.innerHTML = getEncouragingMessage(progress);
+    
+    // Update undo button state
+    undoWaterBtn.disabled = waterData.history.length === 0;
+    
+    // Save to localStorage
+    saveWaterData();
+
+    // Trigger confetti if goal reached
+    if (progress >= 100 && progress < 101) {
+        triggerConfetti();
+    }
+}
+
+// Add water
+function addWater() {
+    const amount = parseInt(waterAmount.value);
+    waterData.history.push(waterData.current);
+    waterData.current += amount;
+    updateWaterDisplay();
+}
+
+// Undo last water addition
+function undoWater() {
+    if (waterData.history.length > 0) {
+        waterData.current = waterData.history.pop();
+        updateWaterDisplay();
+    }
+}
+
+// Reset water tracking
+function resetWater() {
+    if (confirm('Are you sure you want to reset your water intake for today?')) {
+        waterData.current = 0;
+        waterData.history = [];
+        updateWaterDisplay();
+    }
+}
+
+// Update goal
+function updateGoal() {
+    const goalLiters = parseFloat(waterGoal.value);
+    waterData.goal = goalLiters * 1000; // Convert to milliliters
+    updateWaterDisplay();
+}
+
+// Toggle reminder settings
+function toggleSettings() {
+    reminderSettings.classList.toggle('hidden');
+}
+
+// Confetti animation
+function triggerConfetti() {
+    const duration = 3 * 1000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(function() {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+            return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+        
+        // Confetti from left
+        confetti(Object.assign({}, defaults, { 
+            particleCount, 
+            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } 
+        }));
+        
+        // Confetti from right
+        confetti(Object.assign({}, defaults, { 
+            particleCount, 
+            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } 
+        }));
+    }, 250);
+} 
