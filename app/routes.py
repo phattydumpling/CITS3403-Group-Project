@@ -599,6 +599,21 @@ def init_routes(app):
                 new_password = request.form.get('new_password')
                 university = request.form.get('university')
                 profile_picture = request.form.get('profile_picture')
+                username = request.form.get('username')
+                
+                # Update username if provided
+                if username and username != current_user.username:
+                    # Validate username length
+                    if len(username) < 3 or len(username) > 80:
+                        flash('Username must be between 3 and 80 characters', 'error')
+                    else:
+                        # Check if username is already taken
+                        existing_user = User.query.filter_by(username=username).first()
+                        if existing_user and existing_user.id != current_user.id:
+                            flash('Username already taken', 'error')
+                        else:
+                            current_user.username = username
+                            flash('Username updated successfully', 'success')
                 
                 # Update profile picture if provided
                 if profile_picture is not None:
