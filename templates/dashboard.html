@@ -68,11 +68,14 @@
                     </div>
                     <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-4 md:p-6 border border-gray-100 dark:border-gray-600 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex items-center">
                         <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-6">
-                            <i class="fas fa-check-circle text-2xl text-indigo-600 dark:text-indigo-300"></i>
+                            <i class="fas fa-chart-pie text-2xl text-indigo-600 dark:text-indigo-300"></i>
                         </div>
-                        <div class="flex flex-col items-start justify-center">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Tasks Completed</span>
-                            <span class="text-3xl font-extrabold text-gray-900 dark:text-white leading-tight">{{ completed_tasks }}</span>
+                        <div class="flex flex-col items-start justify-center w-full">
+                            <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Assessments Completed</span>
+                            <span class="text-3xl font-extrabold text-gray-900 dark:text-white leading-tight">{{ assessment_completion_rate }}%</span>
+                            <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 mt-2">
+                                <div class="bg-indigo-500 h-2 rounded-full transition-all duration-500" style="width: {{ assessment_completion_rate }}%"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-4 md:p-6 border border-gray-100 dark:border-gray-600 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex items-center">
@@ -80,7 +83,7 @@
                             <i class="fas fa-hourglass-half text-2xl text-indigo-600 dark:text-indigo-300"></i>
                         </div>
                         <div class="flex flex-col items-start justify-center w-full">
-                            <span class="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1">Time Remaining</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400 mb-1">Time Remaining</span>
                             <div class="space-y-1 w-full">
                                 <div class="flex justify-between w-full text-xs text-gray-500 dark:text-gray-400">
                                     <span>Week:</span>

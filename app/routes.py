@@ -136,13 +136,21 @@ def init_routes(app):
         # Get all upcoming assessments (not done)
         upcoming_assessments = Assessment.query.filter_by(user_id=current_user.id, done=False).order_by(Assessment.due_date).all()
 
+        # Calculate assessment completion rate
+        total_assessments = Assessment.query.filter_by(user_id=current_user.id).count()
+        completed_assessments = Assessment.query.filter_by(user_id=current_user.id, done=True).count()
+        assessment_completion_rate = 0
+        if total_assessments > 0:
+            assessment_completion_rate = int(round((completed_assessments / total_assessments) * 100))
+
         return render_template('dashboard.html',
             total_hours=round(total_hours, 1),
             completed_tasks=completed_tasks,
             weekly_mood=round(weekly_mood, 1),
             unique_subjects=unique_subjects,
             upcoming_assessments=upcoming_assessments,
-            now=date.today()
+            now=date.today(),
+            assessment_completion_rate=assessment_completion_rate
         )
 
     # Study Area Route
