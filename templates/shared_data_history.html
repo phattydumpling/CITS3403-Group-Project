@@ -64,7 +64,7 @@
                                 <div class="hidden max-h-[600px] overflow-y-auto" id="user-{{ user_id }}">
                                     {% set study_data = [] %}
                                     {% set mood_data = [] %}
-                                    {% set tasks_data = [] %}
+                                    {% set assessment_data = [] %}
                                     
                                     {% for data in user_info.shares|sort(attribute='created_at', reverse=true) %}
                                         {% if data.data_content.get('study_progress') %}
@@ -73,86 +73,163 @@
                                         {% if data.data_content.get('mood') %}
                                             {% set _ = mood_data.append(data) %}
                                         {% endif %}
-                                        {% if data.data_content.get('tasks') %}
-                                            {% set _ = tasks_data.append(data) %}
+                                        {% if data.data_content.get('assessments') %}
+                                            {% set _ = assessment_data.append(data) %}
                                         {% endif %}
                                     {% endfor %}
 
                                     <!-- Study Progress Section -->
                                     {% if study_data %}
                                     <div class="border-t border-gray-200 dark:border-gray-500">
-                                        <div class="p-4 bg-indigo-50 dark:bg-indigo-900/30">
-                                            <h4 class="font-medium text-gray-900 dark:text-white flex items-center">
-                                                <i class="fas fa-book-open mr-2 text-indigo-600"></i>
-                                                Study Progress
-                                            </h4>
-                                        </div>
-                                        {% for data in study_data %}
-                                        <div class="p-6 border-t border-gray-200 dark:border-gray-500" data-share-id="{{ data.id }}">
-                                            <div class="flex justify-between items-start mb-4">
-                                                <p class="text-sm text-gray-500 dark:text-gray-400">Shared {{ data.created_at_awst.strftime('%Y-%m-%d %H:%M') }}</p>
-                                                <button onclick="showDeleteModal('{{ data.id }}')" 
-                                                        class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </div>
-                                            <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
-                                                <canvas id="studyChart_{{ data.id }}" class="w-full h-64"></canvas>
+                                        <div class="p-4 bg-indigo-50 dark:bg-indigo-900/30 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors duration-200" 
+                                             onclick="toggleDataTypeSection('study-{{ user_id }}')">
+                                            <div class="flex items-center justify-between">
+                                                <h4 class="font-medium text-gray-900 dark:text-white flex items-center">
+                                                    <i class="fas fa-book-open mr-2 text-indigo-600"></i>
+                                                    Study Progress
+                                                </h4>
+                                                <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200" id="icon-study-{{ user_id }}"></i>
                                             </div>
                                         </div>
-                                        {% endfor %}
+                                        <div id="study-{{ user_id }}" class="hidden">
+                                            {% for data in study_data %}
+                                            <div class="p-6 border-t border-gray-200 dark:border-gray-500" data-share-id="{{ data.id }}">
+                                                <div class="flex justify-between items-start mb-4">
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400">Shared {{ data.created_at_awst.strftime('%Y-%m-%d %H:%M') }}</p>
+                                                    <button onclick="showDeleteModal('{{ data.id }}')" 
+                                                            class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+                                                    <canvas id="studyChart_{{ data.id }}" class="w-full h-64"></canvas>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
                                     </div>
                                     {% endif %}
 
                                     <!-- Mood Tracking Section -->
                                     {% if mood_data %}
                                     <div class="border-t border-gray-200 dark:border-gray-500">
-                                        <div class="p-4 bg-indigo-50 dark:bg-indigo-900/30">
-                                            <h4 class="font-medium text-gray-900 dark:text-white flex items-center">
-                                                <i class="fas fa-face-smile mr-2 text-indigo-600"></i>
-                                                Mood Tracking
-                                            </h4>
-                                        </div>
-                                        {% for data in mood_data %}
-                                        <div class="p-6 border-t border-gray-200 dark:border-gray-500" data-share-id="{{ data.id }}">
-                                            <div class="flex justify-between items-start mb-4">
-                                                <p class="text-sm text-gray-500 dark:text-gray-400">Shared {{ data.created_at_awst.strftime('%Y-%m-%d %H:%M') }}</p>
-                                                <button onclick="showDeleteModal('{{ data.id }}')" 
-                                                        class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </div>
-                                            <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
-                                                <canvas id="moodChart_{{ data.id }}" class="w-full h-64"></canvas>
+                                        <div class="p-4 bg-indigo-50 dark:bg-indigo-900/30 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors duration-200" 
+                                             onclick="toggleDataTypeSection('mood-{{ user_id }}')">
+                                            <div class="flex items-center justify-between">
+                                                <h4 class="font-medium text-gray-900 dark:text-white flex items-center">
+                                                    <i class="fas fa-face-smile mr-2 text-indigo-600"></i>
+                                                    Mood Tracking
+                                                </h4>
+                                                <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200" id="icon-mood-{{ user_id }}"></i>
                                             </div>
                                         </div>
-                                        {% endfor %}
+                                        <div id="mood-{{ user_id }}" class="hidden">
+                                            {% for data in mood_data %}
+                                            <div class="p-6 border-t border-gray-200 dark:border-gray-500" data-share-id="{{ data.id }}">
+                                                <div class="flex justify-between items-start mb-4">
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400">Shared {{ data.created_at_awst.strftime('%Y-%m-%d %H:%M') }}</p>
+                                                    <button onclick="showDeleteModal('{{ data.id }}')" 
+                                                            class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+                                                    <canvas id="moodChart_{{ data.id }}" class="w-full h-64"></canvas>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
                                     </div>
                                     {% endif %}
 
-                                    <!-- Tasks Section -->
-                                    {% if tasks_data %}
+                                    <!-- Assessment Results Section -->
+                                    {% if assessment_data %}
                                     <div class="border-t border-gray-200 dark:border-gray-500">
-                                        <div class="p-4 bg-indigo-50 dark:bg-indigo-900/30">
-                                            <h4 class="font-medium text-gray-900 dark:text-white flex items-center">
-                                                <i class="fas fa-tasks mr-2 text-indigo-600"></i>
-                                                Completed Tasks
-                                            </h4>
-                                        </div>
-                                        {% for data in tasks_data %}
-                                        <div class="p-6 border-t border-gray-200 dark:border-gray-500" data-share-id="{{ data.id }}">
-                                            <div class="flex justify-between items-start mb-4">
-                                                <p class="text-sm text-gray-500 dark:text-gray-400">Shared {{ data.created_at_awst.strftime('%Y-%m-%d %H:%M') }}</p>
-                                                <button onclick="showDeleteModal('{{ data.id }}')" 
-                                                        class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </div>
-                                            <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
-                                                <canvas id="tasksChart_{{ data.id }}" class="w-full h-64"></canvas>
+                                        <div class="p-4 bg-indigo-50 dark:bg-indigo-900/30 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors duration-200" 
+                                             onclick="toggleDataTypeSection('assessments-{{ user_id }}')">
+                                            <div class="flex items-center justify-between">
+                                                <h4 class="font-medium text-gray-900 dark:text-white flex items-center">
+                                                    <i class="fas fa-file-alt mr-2 text-indigo-600"></i>
+                                                    Assessment Results
+                                                </h4>
+                                                <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200" id="icon-assessments-{{ user_id }}"></i>
                                             </div>
                                         </div>
-                                        {% endfor %}
+                                        <div id="assessments-{{ user_id }}" class="hidden">
+                                            {% for data in assessment_data %}
+                                            <div class="p-6 border-t border-gray-200 dark:border-gray-500" data-share-id="{{ data.id }}">
+                                                <div class="flex justify-between items-start mb-4">
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400">Shared {{ data.created_at_awst.strftime('%Y-%m-%d %H:%M') }}</p>
+                                                    <button onclick="showDeleteModal('{{ data.id }}')" 
+                                                            class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-sm">
+                                                    <div class="space-y-6">
+                                                        {% for assessment in data.data_content.assessments %}
+                                                        <div class="border-b border-gray-200 dark:border-gray-600 pb-6 last:border-0 last:pb-0">
+                                                            <div class="flex flex-col space-y-4">
+                                                                <div class="flex justify-between items-start">
+                                                                    <div class="flex-1">
+                                                                        <h5 class="font-semibold text-lg text-gray-900 dark:text-white">{{ assessment.title }}</h5>
+                                                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ assessment.subject }}</p>
+                                                                    </div>
+                                                                    <div class="text-right ml-4">
+                                                                        <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                                                                            {% if assessment.grade >= 80 %}
+                                                                                bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400
+                                                                            {% elif assessment.grade >= 70 %}
+                                                                                bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400
+                                                                            {% elif assessment.grade >= 60 %}
+                                                                                bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400
+                                                                            {% else %}
+                                                                                bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400
+                                                                            {% endif %}">
+                                                                            {{ assessment.grade }}%
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <div class="space-y-2">
+                                                                    <div class="flex justify-between text-sm">
+                                                                        <span class="text-gray-500 dark:text-gray-400">Grade Progress</span>
+                                                                        <span class="text-gray-700 dark:text-gray-300">{{ assessment.grade }}%</span>
+                                                                    </div>
+                                                                    <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5">
+                                                                        <div class="h-2.5 rounded-full
+                                                                            {% if assessment.grade >= 80 %}
+                                                                                bg-green-500
+                                                                            {% elif assessment.grade >= 70 %}
+                                                                                bg-blue-500
+                                                                            {% elif assessment.grade >= 60 %}
+                                                                                bg-yellow-500
+                                                                            {% else %}
+                                                                                bg-red-500
+                                                                            {% endif %}"
+                                                                            style="width: {{ assessment.grade }}%">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="flex justify-between items-center text-sm">
+                                                                    <div class="flex items-center text-gray-500 dark:text-gray-400">
+                                                                        <i class="fas fa-weight-hanging mr-2"></i>
+                                                                        Weight: {{ assessment.weight }}%
+                                                                    </div>
+                                                                    <div class="flex items-center text-gray-500 dark:text-gray-400">
+                                                                        <i class="fas fa-calendar-alt mr-2"></i>
+                                                                        Due: {{ assessment.due_date }}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
                                     </div>
                                     {% endif %}
                                 </div>
@@ -183,6 +260,13 @@
 function toggleUserSection(userId) {
     const section = document.getElementById(userId);
     const icon = document.getElementById('icon-' + userId.replace('user-', ''));
+    section.classList.toggle('hidden');
+    icon.classList.toggle('rotate-180');
+}
+
+function toggleDataTypeSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    const icon = document.getElementById('icon-' + sectionId);
     section.classList.toggle('hidden');
     icon.classList.toggle('rotate-180');
 }
@@ -222,7 +306,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Study Progress Chart
         (function() {
             const chartId = 'studyChart_{{ data.id }}';
-            // Destroy existing chart if it exists
             if (window.chartInstances[chartId]) {
                 window.chartInstances[chartId].destroy();
             }
@@ -233,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const studyDurations = studyData.map(session => {
                 const start = new Date(session.start_time);
                 const end = session.end_time ? new Date(session.end_time) : new Date();
-                return (end - start) / (1000 * 60 * 60); // Convert to hours
+                return (end - start) / (1000 * 60 * 60);
             });
 
             window.chartInstances[chartId] = new Chart(studyCtx, {
@@ -288,7 +371,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Mood Chart
         (function() {
             const chartId = 'moodChart_{{ data.id }}';
-            // Destroy existing chart if it exists
             if (window.chartInstances[chartId]) {
                 window.chartInstances[chartId].destroy();
             }
@@ -305,15 +387,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     datasets: [{
                         label: 'Mood Score',
                         data: moodScores,
-                        borderColor: 'rgb(99, 102, 241)',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderColor: '#F97316',
+                        backgroundColor: 'rgba(249, 115, 22, 0.15)',
                         tension: 0.4,
                         fill: true,
                         pointRadius: 6,
                         pointHoverRadius: 8,
-                        pointBackgroundColor: 'rgb(99, 102, 241)',
+                        pointBackgroundColor: '#F97316',
                         pointBorderColor: '#fff',
-                        pointBorderWidth: 2
+                        pointBorderWidth: 2,
+                        borderWidth: 3
                     }]
                 },
                 options: {
@@ -351,30 +434,26 @@ document.addEventListener('DOMContentLoaded', function() {
         })();
         {% endif %}
 
-        {% if data.data_content.get('tasks') %}
-        // Tasks Chart
+        {% if data.data_content.get('assessments') %}
+        // Assessment Chart
         (function() {
-            const chartId = 'tasksChart_{{ data.id }}';
-            // Destroy existing chart if it exists
+            const chartId = 'assessmentsChart_{{ data.id }}';
             if (window.chartInstances[chartId]) {
                 window.chartInstances[chartId].destroy();
             }
             
-            const tasksCtx = document.getElementById(chartId).getContext('2d');
-            const tasksData = {{ data.data_content.tasks|tojson }};
-            const taskDates = tasksData.map(task => new Date(task.completed_at).toLocaleDateString());
-            const taskCounts = {};
-            taskDates.forEach(date => {
-                taskCounts[date] = (taskCounts[date] || 0) + 1;
-            });
+            const assessmentsCtx = document.getElementById(chartId).getContext('2d');
+            const assessmentsData = {{ data.data_content.assessments|tojson }};
+            const assessmentDates = assessmentsData.map(assessment => new Date(assessment.created_at).toLocaleDateString());
+            const assessmentGrades = assessmentsData.map(assessment => assessment.grade);
 
-            window.chartInstances[chartId] = new Chart(tasksCtx, {
+            window.chartInstances[chartId] = new Chart(assessmentsCtx, {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(taskCounts),
+                    labels: assessmentDates,
                     datasets: [{
-                        label: 'Completed Tasks',
-                        data: Object.values(taskCounts),
+                        label: 'Assessment Grades',
+                        data: assessmentGrades,
                         backgroundColor: 'rgba(99, 102, 241, 0.7)',
                         borderColor: 'rgb(99, 102, 241)',
                         borderWidth: 2,
@@ -389,7 +468,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Number of Tasks',
+                                text: 'Grade',
                                 font: {
                                     size: 12
                                 },
@@ -429,9 +508,6 @@ function showDeleteModal(dataId) {
     setTimeout(() => {
         modalContent.classList.remove('scale-95', 'opacity-0');
     }, 10);
-
-    // Add keyboard event listener
-    document.addEventListener('keydown', handleKeyPress);
 }
 
 function closeDeleteModal() {
@@ -443,15 +519,6 @@ function closeDeleteModal() {
         modal.classList.add('hidden');
     }, 200);
     dataToDelete = null;
-    document.removeEventListener('keydown', handleKeyPress);
-}
-
-function handleKeyPress(event) {
-    if (event.key === 'Enter') {
-        confirmDelete();
-    } else if (event.key === 'Escape') {
-        closeDeleteModal();
-    }
 }
 
 async function confirmDelete() {
@@ -469,16 +536,12 @@ async function confirmDelete() {
             throw new Error('Failed to delete shared data');
         }
 
-        // Remove the data element from the DOM
         const dataElement = document.querySelector(`[data-share-id="${dataToDelete}"]`);
         if (dataElement) {
             dataElement.remove();
         }
         
-        // Close the modal
         closeDeleteModal();
-        
-        // Reload the page to update the UI
         window.location.reload();
     } catch (error) {
         console.error('Error deleting shared data:', error);

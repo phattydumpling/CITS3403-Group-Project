@@ -130,15 +130,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: 'Mood Score',
                     data: moodScores,
-                    borderColor: 'rgb(99, 102, 241)',
-                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    borderColor: '#F97316', // Vibrant orange
+                    backgroundColor: 'rgba(249, 115, 22, 0.15)', // Light orange with transparency
                     tension: 0.4,
                     fill: true,
                     pointRadius: 6,
                     pointHoverRadius: 8,
-                    pointBackgroundColor: 'rgb(99, 102, 241)',
+                    pointBackgroundColor: '#F97316', // Vibrant orange
                     pointBorderColor: '#fff',
-                    pointBorderWidth: 2
+                    pointBorderWidth: 2,
+                    borderWidth: 3
                 }]
             },
             options: {
