@@ -3,7 +3,7 @@ async function shareData() {
     const dataToShare = {
         study_progress: document.getElementById('shareStudyProgress').checked,
         mood: document.getElementById('shareMood').checked,
-        tasks: document.getElementById('shareTasks').checked
+        assessments: document.getElementById('shareAssessments').checked
     };
 
     // Get selected friends

@@ -680,3 +680,26 @@ input:focus, select:focus, textarea:focus {
     text-decoration: line-through;
   }
   
+/* Profile Picture Modal Highlighting */
+#profilePicModal input[type="radio"] {
+  display: none;
+}
+
+#profilePicModal label {
+  cursor: pointer;
+}
+
+#profilePicModal input[type="radio"]:checked + label .aspect-square,
+#profilePicModal input[type="radio"]:checked + label div.w-full.aspect-square {
+  border: 3px solid #6c63ff;
+  box-shadow: 0 0 8px #6c63ff33;
+  border-radius: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+#profilePicModal label .aspect-square {
+  border: 3px solid transparent;
+  border-radius: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+  

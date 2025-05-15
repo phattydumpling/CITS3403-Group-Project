@@ -381,38 +381,4 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="{{ url_for('static', filename='js/health_carer.js') }}"></script>
-<script>
-// Enable Enter key to confirm in the delete entry modal
-let modalConfirmBtn = document.getElementById('modalConfirm');
-let confirmationModal = document.getElementById('confirmationModal');
-let enterListener = null;
-
-function enableEnterToConfirm(modalElement, confirmBtn) {
-    function handler(e) {
-        if (modalElement.classList.contains('flex') && (e.key === 'Enter' || e.keyCode === 13)) {
-            e.preventDefault();
-            confirmBtn.click();
-        }
-    }
-    document.addEventListener('keydown', handler);
-    return handler;
-}
-function disableEnterToConfirm(handler) {
-    document.removeEventListener('keydown', handler);
-}
-// Patch show/hide modal to add/remove Enter listener
-const origShowConfirmationModal = window.showConfirmationModal;
-window.showConfirmationModal = function(entryId) {
-    origShowConfirmationModal(entryId);
-    enterListener = enableEnterToConfirm(confirmationModal, modalConfirmBtn);
-}
-const origHideConfirmationModal = window.hideConfirmationModal;
-window.hideConfirmationModal = function() {
-    origHideConfirmationModal();
-    if (enterListener) {
-        disableEnterToConfirm(enterListener);
-        enterListener = null;
-    }
-}
-</script>
 {% endblock %}

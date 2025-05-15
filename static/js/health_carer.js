@@ -1,17 +1,15 @@
 // Global variables
 let moodChart = null;
 let pendingDeleteId = null;
-
-// <<<<<<< HEAD
-// Water Reminder Functionality
-let waterReminderInterval = null;
-let snoozeTimeout = null;
+let enterListener = null;
 
 // Modal elements
 const waterReminderModal = document.getElementById('waterReminderModal');
 const waterModalContent = document.getElementById('waterModalContent');
 const waterModalSnooze = document.getElementById('waterModalSnooze');
 const waterModalDismiss = document.getElementById('waterModalDismiss');
+const modalConfirmBtn = document.getElementById('modalConfirm');
+const confirmationModal = document.getElementById('confirmationModal');
 
 // Form elements
 const waterReminderForm = document.getElementById('waterReminderForm');
@@ -56,27 +54,22 @@ let waterData = {
     history: [],
     lastUpdated: new Date().toISOString().split('T')[0]
 };
-// =======
-// function toAWST(dateString) {
-//     const date = new Date(dateString);
-//     const options = {
-//         timeZone: 'Australia/Perth',
-//         year: 'numeric',
-//         month: '2-digit',
-//         day: '2-digit',
-//         hour: '2-digit',
-//         minute: '2-digit',
-//         hour12: false
-//     };
-//     const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(date);
-//     const y = parts.find(p => p.type === 'year').value;
-//     const m = parts.find(p => p.type === 'month').value;
-//     const d = parts.find(p => p.type === 'day').value;
-//     const h = parts.find(p => p.type === 'hour').value;
-//     const min = parts.find(p => p.type === 'minute').value;
-//     return `${y}-${m}-${d} ${h}:${min}`;
-// }
-// >>>>>>> ce1efbc2c0c59ebf8757dc8f446616729fab22ce
+
+// Enter key functionality for confirmation modal
+function enableEnterToConfirm(modalElement, confirmBtn) {
+    function handler(e) {
+        if (modalElement.classList.contains('flex') && (e.key === 'Enter' || e.keyCode === 13)) {
+            e.preventDefault();
+            confirmBtn.click();
+        }
+    }
+    document.addEventListener('keydown', handler);
+    return handler;
+}
+
+function disableEnterToConfirm(handler) {
+    document.removeEventListener('keydown', handler);
+}
 
 function showConfirmationModal(entryId) {
     const modal = document.getElementById('confirmationModal');
@@ -89,6 +82,8 @@ function showConfirmationModal(entryId) {
         modalContent.classList.add('scale-100', 'opacity-100');
     }, 10);
     pendingDeleteId = entryId;
+    // Enable Enter key to confirm
+    enterListener = enableEnterToConfirm(confirmationModal, modalConfirmBtn);
 }
 
 function hideConfirmationModal() {
@@ -99,9 +94,14 @@ function hideConfirmationModal() {
     modalContent.classList.add('scale-95', 'opacity-0');
     setTimeout(() => {
         modal.classList.remove('flex');
-    modal.classList.add('hidden');
+        modal.classList.add('hidden');
     }, 200);
     pendingDeleteId = null;
+    // Disable Enter key listener
+    if (enterListener) {
+        disableEnterToConfirm(enterListener);
+        enterListener = null;
+    }
 }
 
 function deleteEntry(entryId) {
