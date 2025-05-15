@@ -116,10 +116,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (maxValue > 0) {
                     suggestedMax = Math.ceil(maxValue * 1.2 * 10) / 10; // 20% headroom
                 }
-                // Only show minutes for day/week views with small values, always show hours for month
-                const showMinutes = (view !== 'month') && (maxValue < 1);
+                // Only show minutes for day view
+                const showMinutes = view === 'day';
                 
-                const label = (view === 'month') ? 'Hours Studied' : 'Minutes Studied';
+                const label = showMinutes ? 'Minutes Studied' : 'Hours Studied';
+                // Calculate total based on view type
+                const totalHours = data.data.reduce((a, b) => a + b, 0);
+                const totalDisplay = showMinutes ? 
+                    `${Math.round(totalHours)}m` : 
+                    `${totalHours.toFixed(1)}h`;
+
                 const chartConfig = {
                     type: "line",
                     data: {
@@ -128,24 +134,85 @@ document.addEventListener("DOMContentLoaded", function () {
                             label: label,
                             data: data.data,
                             borderColor: view === 'day' ? "#f59e0b" : view === 'week' ? "#3b82f6" : "#10b981",
-                            fill: false,
-                            tension: 0.4
+                            backgroundColor: view === 'day' ? "rgba(245, 158, 11, 0.1)" : 
+                                           view === 'week' ? "rgba(59, 130, 246, 0.1)" : 
+                                           "rgba(16, 185, 129, 0.1)",
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: view === 'day' ? "#f59e0b" : 
+                                                view === 'week' ? "#3b82f6" : 
+                                                "#10b981",
+                            pointBorderColor: "#ffffff",
+                            pointBorderWidth: 2
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
                         scales: {
                             y: {
                                 beginAtZero: true,
                                 suggestedMax: suggestedMax,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)',
+                                    drawBorder: false
+                                },
                                 ticks: {
                                     maxTicksLimit: 5,
+                                    padding: 10,
+                                    color: '#6b7280',
+                                    font: {
+                                        size: 12
+                                    },
                                     callback: function(value) {
                                         if (showMinutes) {
-                                            return (value * 60).toFixed(0) + 'm';
+                                            return Math.round(value) + 'm';
                                         }
                                         return value.toFixed(1) + 'h';
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    padding: 10,
+                                    color: '#6b7280',
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                titleFont: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                bodyFont: {
+                                    size: 13
+                                },
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.parsed.y;
+                                        if (showMinutes) {
+                                            return `${Math.round(value)}m`;
+                                        }
+                                        return `${value.toFixed(1)}h`;
                                     }
                                 }
                             }
@@ -159,6 +226,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     lineChart.update();
                 } else {
                     lineChart = new Chart(lineChartEl, chartConfig);
+                }
+
+                // Update the title in the HTML
+                const titleElement = lineChartEl.closest('.bg-white').querySelector('h4');
+                if (titleElement) {
+                    titleElement.innerHTML = `Time Studied <span class="text-indigo-600 dark:text-indigo-300">(${totalDisplay})</span>`;
                 }
             } catch (error) {
                 console.error('Error fetching study session data:', error);

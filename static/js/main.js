@@ -48,6 +48,31 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Delete Account Modal functionality
+    const deleteAccountForm = document.getElementById('deleteAccountForm');
+    const deleteAccountModal = document.getElementById('deleteAccountModal');
+    
+    if (deleteAccountForm && deleteAccountModal) {
+        window.showDeleteConfirmation = function() {
+            deleteAccountModal.classList.remove('hidden');
+        };
+
+        window.hideDeleteConfirmation = function() {
+            deleteAccountModal.classList.add('hidden');
+        };
+
+        window.confirmDelete = function() {
+            deleteAccountForm.submit();
+        };
+
+        // Close modal when clicking outside
+        deleteAccountModal.addEventListener('click', (e) => {
+            if (e.target === deleteAccountModal) {
+                hideDeleteConfirmation();
+            }
+        });
+    }
+
     // Page Transitions
     const navLinks = document.querySelectorAll('nav a');
     const pageContent = document.querySelector('.page-content');
