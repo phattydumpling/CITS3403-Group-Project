@@ -28,7 +28,7 @@ def create_app():
     migrate.init_app(app, db)
 
     # Import and register the blueprint
-    from app.blueprint import main
+    from app.blueprints import main
     app.register_blueprint(main)
     
     # Initialize Flask-Login
