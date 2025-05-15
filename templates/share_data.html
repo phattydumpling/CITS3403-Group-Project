@@ -22,9 +22,18 @@
 <div class="h-full w-full bg-gray-50 dark:bg-gray-800">
     <div class="h-full w-full p-8">
         <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12">
-                <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">Share Your Progress</h1>
-                <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Share your study progress, mood tracking, and completed tasks with your friends to stay motivated together.</p>
+            <!-- Header with Leaderboard Link -->
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
+                        <i class="fas fa-share-nodes text-2xl text-indigo-600 dark:text-indigo-300"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Share Data</h1>
+                </div>
+                <a href="{{ url_for('friend_leaderboard') }}" class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300">
+                    <i class="fas fa-trophy mr-2"></i>
+                    View Leaderboard
+                </a>
             </div>
 
             <!-- Main Content Grid -->
@@ -37,22 +46,39 @@
                         </div>
                         <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">What to Share</h2>
                     </div>
-                    <div class="space-y-4">
-                        <div class="flex items-center">
-                            <input type="checkbox" id="shareStudyProgress" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <label for="shareStudyProgress" class="ml-2 text-gray-700 dark:text-gray-300">Study Progress</label>
+                    <div class="space-y-6">
+                        <div
+                            class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-600 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors duration-200">
+                            <input type="checkbox" id="shareStudyProgress"
+                                class="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
+                            <div>
+                                <label for="shareStudyProgress" class="font-medium text-gray-900 dark:text-white text-lg">Study
+                                    Progress</label>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Share your study time and subjects</p>
+                            </div>
                         </div>
-                        <div class="flex items-center">
-                            <input type="checkbox" id="shareMood" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <label for="shareMood" class="ml-2 text-gray-700 dark:text-gray-300">Mood Tracking</label>
+                        <div
+                            class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-600 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors duration-200">
+                            <input type="checkbox" id="shareMood"
+                                class="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
+                            <div>
+                                <label for="shareMood" class="font-medium text-gray-900 dark:text-white text-lg">Mood Tracking</label>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Share your mood and wellness data</p>
+                            </div>
                         </div>
-                        <div class="flex items-center">
-                            <input type="checkbox" id="shareTasks" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <label for="shareTasks" class="ml-2 text-gray-700 dark:text-gray-300">Task Management</label>
+                        <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-600 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors duration-200">
+                            <input type="checkbox" id="shareTasks" class="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
+                            <div>
+                                <label for="shareTasks" class="font-medium text-gray-900 dark:text-white text-lg">Task Management</label>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Share your completed tasks</p>
+                            </div>
                         </div>
-                        <div class="flex items-center">
-                            <input type="checkbox" id="shareWater" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <label for="shareWater" class="ml-2 text-gray-700 dark:text-gray-300">Water Tracking</label>
+                        <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-600 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors duration-200">
+                            <input type="checkbox" id="shareWater" class="w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
+                            <div>
+                                <label for="shareWater" class="font-medium text-gray-900 dark:text-white text-lg">Water Tracking</label>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Share your daily water intake</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -136,106 +162,8 @@
     </div>
 </div>
 
-<script>
-function shareData() {
-    const dataToShare = {
-        study_progress: document.getElementById('shareStudyProgress').checked,
-        mood: document.getElementById('shareMood').checked,
-        tasks: document.getElementById('shareTasks').checked
-    };
-
-    // Get selected friends
-    const selectedFriends = Array.from(document.querySelectorAll('.friend-checkbox:checked')).map(checkbox => checkbox.id.replace('friend_', ''));
-
-    // Check if any data is selected
-    if (!dataToShare.study_progress && !dataToShare.mood && !dataToShare.tasks) {
-        showModal('No Data Selected', 'Please select at least one type of data to share.');
-        return;
-    }
-
-    // Check if any friends are selected
-    if (selectedFriends.length === 0) {
-        showModal('No Friends Selected', 'Please select at least one friend to share with.');
-        return;
-    }
-
-    // Share with each selected friend
-    const sharePromises = selectedFriends.map(friendId => 
-        fetch('/api/share_data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                friend_id: friendId,
-                data: dataToShare
-            })
-        }).then(response => response.json())
-    );
-
-    Promise.all(sharePromises)
-        .then(results => {
-            const allSuccessful = results.every(result => result.success);
-            if (allSuccessful) {
-                showModal('Success', 'Data shared successfully with all selected friends!');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
-            } else {
-                showModal('Error', 'Error sharing data with some friends. Please try again.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showModal('Error', 'Error sharing data. Please try again.');
-        });
-}
-
-function showModal(title, message) {
-    const modal = document.getElementById('customModal');
-    const modalContent = document.getElementById('modalContent');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalMessage = document.getElementById('modalMessage');
-
-    modalTitle.textContent = title;
-    modalMessage.textContent = message;
-    
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    
-    // Trigger animation
-    setTimeout(() => {
-        modalContent.classList.remove('scale-95', 'opacity-0');
-        modalContent.classList.add('scale-100', 'opacity-100');
-    }, 10);
-}
-
-function closeModal() {
-    const modal = document.getElementById('customModal');
-    const modalContent = document.getElementById('modalContent');
-    
-    modalContent.classList.remove('scale-100', 'opacity-100');
-    modalContent.classList.add('scale-95', 'opacity-0');
-    
-    setTimeout(() => {
-        modal.classList.remove('flex');
-        modal.classList.add('hidden');
-    }, 200);
-}
-
-// Close modal when clicking outside
-document.getElementById('customModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeModal();
-    }
-});
-
-// Close modal with Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeModal();
-    }
-});
-</script>
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/share_data.js') }}"></script>
+{% endblock %}
 {% endblock %}
 

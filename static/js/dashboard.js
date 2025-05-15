@@ -116,10 +116,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (maxValue > 0) {
                     suggestedMax = Math.ceil(maxValue * 1.2 * 10) / 10; // 20% headroom
                 }
-                // Only show minutes for day/week views with small values, always show hours for month
-                const showMinutes = (view !== 'month') && (maxValue < 1);
+                // Only show minutes for day view
+                const showMinutes = view === 'day';
                 
-                const label = (view === 'month') ? 'Hours Studied' : 'Minutes Studied';
+                const label = showMinutes ? 'Minutes Studied' : 'Hours Studied';
+                // Calculate total based on view type
+                const totalHours = data.data.reduce((a, b) => a + b, 0);
+                const totalDisplay = showMinutes ? 
+                    `${Math.round(totalHours)}m` : 
+                    `${totalHours.toFixed(1)}h`;
+
                 const chartConfig = {
                     type: "line",
                     data: {
@@ -128,24 +134,85 @@ document.addEventListener("DOMContentLoaded", function () {
                             label: label,
                             data: data.data,
                             borderColor: view === 'day' ? "#f59e0b" : view === 'week' ? "#3b82f6" : "#10b981",
-                            fill: false,
-                            tension: 0.4
+                            backgroundColor: view === 'day' ? "rgba(245, 158, 11, 0.1)" : 
+                                           view === 'week' ? "rgba(59, 130, 246, 0.1)" : 
+                                           "rgba(16, 185, 129, 0.1)",
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: view === 'day' ? "#f59e0b" : 
+                                                view === 'week' ? "#3b82f6" : 
+                                                "#10b981",
+                            pointBorderColor: "#ffffff",
+                            pointBorderWidth: 2
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
                         scales: {
                             y: {
                                 beginAtZero: true,
                                 suggestedMax: suggestedMax,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)',
+                                    drawBorder: false
+                                },
                                 ticks: {
                                     maxTicksLimit: 5,
+                                    padding: 10,
+                                    color: '#6b7280',
+                                    font: {
+                                        size: 12
+                                    },
                                     callback: function(value) {
                                         if (showMinutes) {
-                                            return (value * 60).toFixed(0) + 'm';
+                                            return Math.round(value) + 'm';
                                         }
                                         return value.toFixed(1) + 'h';
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    padding: 10,
+                                    color: '#6b7280',
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                titleFont: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                bodyFont: {
+                                    size: 13
+                                },
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.parsed.y;
+                                        if (showMinutes) {
+                                            return `${Math.round(value)}m`;
+                                        }
+                                        return `${value.toFixed(1)}h`;
                                     }
                                 }
                             }
@@ -159,6 +226,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     lineChart.update();
                 } else {
                     lineChart = new Chart(lineChartEl, chartConfig);
+                }
+
+                // Update the title in the HTML
+                const titleElement = lineChartEl.closest('.bg-white').querySelector('h4');
+                if (titleElement) {
+                    titleElement.innerHTML = `Time Studied <span class="text-indigo-600 dark:text-indigo-300">(${totalDisplay})</span>`;
                 }
             } catch (error) {
                 console.error('Error fetching study session data:', error);
@@ -271,21 +344,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
         function createTaskItem(task) {
             const li = document.createElement("li");
-            li.className = "flex items-center justify-between p-2 border rounded dark:bg-gray-700 dark:text-white bg-gray-50 cursor-grab";
+            li.className = "flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow duration-200 group cursor-grab";
             li.draggable = true;
             li.dataset.taskId = task.id;
 
+            // Check button (not functional, just for UI)
+            const checkBtn = document.createElement("button");
+            checkBtn.className = "w-6 h-6 flex items-center justify-center rounded-full border-2 border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-700 mr-3 group-hover:border-indigo-500 transition-colors duration-200 focus:outline-none";
+            checkBtn.innerHTML = '<svg class="w-4 h-4 text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>';
+            // Completion logic
+            checkBtn.addEventListener('click', function () {
+                li.classList.toggle('todo-completed');
+                checkBtn.classList.toggle('todo-check-checked');
+            });
+
+            // Task text
             const span = document.createElement("span");
             span.textContent = task.title;
+            span.className = "flex-1 truncate text-gray-900 dark:text-white font-medium";
 
+            // Delete button
             const del = document.createElement("button");
-            del.innerHTML = "&times;";
-            del.className = "text-red-500 hover:text-red-700 text-lg font-bold ml-4 focus:outline-none";
+            del.innerHTML = '<i class="fas fa-trash"></i>';
+            del.className = "ml-3 text-red-500 hover:text-red-700 bg-red-50 dark:bg-red-900 rounded-full p-1.5 transition-colors duration-200 focus:outline-none";
+            del.title = "Delete task";
             del.onclick = async () => {
                 await deleteTask(task.id);
                 li.remove();
             };
 
+            li.appendChild(checkBtn);
             li.appendChild(span);
             li.appendChild(del);
 

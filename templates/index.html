@@ -17,10 +17,10 @@
         </h2>
         <div class="flex justify-center gap-4 mb-16">
         {% if not current_user.is_authenticated %}
-            <a href="{{ url_for('signup') }}" class="px-8 py-4 bg-[#173B64] text-white rounded-lg hover:bg-[#1a4a7d] transition-all duration-300 transform hover:scale-105 font-semibold">
+            <a href="{{ url_for('signup') }}" class="px-8 py-4 bg-indigo-600 text-white rounded-lg font-semibold">
                 Get Started
             </a>
-            <a href="{{ url_for('login') }}" class="px-8 py-4 bg-white text-[#173B64] rounded-lg hover:bg-gray-50 transition-all duration-300 transform hover:scale-105 font-semibold border border-[#173B64]">
+            <a href="{{ url_for('login') }}" class="px-8 py-4 bg-white text-indigo-600 rounded-lg font-semibold border border-indigo-600">
                 Sign In
             </a>
         {% endif %}

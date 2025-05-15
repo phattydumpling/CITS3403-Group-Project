@@ -1,9 +1,9 @@
 from flask import render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from app.models import User, StudySession, Task, WellnessCheck, MoodEntry, Friendship, FriendRequest, SharedData
+from app.models import User, StudySession, Task, WellnessCheck, MoodEntry, Friendship, FriendRequest, SharedData, Assessment
 from app.forms import LoginForm, RegistrationForm, StudySessionForm, TaskForm, WellnessCheckForm
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from flask_login import login_user, logout_user, login_required, current_user
 from app import login_manager
 import logging
@@ -17,9 +17,9 @@ logger = logging.getLogger(__name__)
 AWST = ZoneInfo("Australia/Perth")
 
 def hash_password(password):
-    """Safely hash a password using pbkdf2:sha256 with a salt."""
+    """Safely hash a password using scrypt."""
     try:
-        return generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
+        return generate_password_hash(password, method='scrypt')
     except Exception as e:
         logger.error(f"Error hashing password: {str(e)}")
         raise
@@ -101,13 +101,69 @@ def init_routes(app):
     @app.route('/dashboard')
     @login_required
     def dashboard():
-        # Get total study time
-        total_study_time = StudySession.query.filter_by(user_id=current_user.id).all()
-        total_hours = sum(
+        # Get the start of the current week (Sunday)
+        today = datetime.utcnow().date()
+        start_of_week = today - timedelta(days=today.weekday() + 1 if today.weekday() != 6 else 0)
+        start_of_week = datetime.combine(start_of_week, datetime.min.time())
+
+        # Calculate study streak
+        streak = 0
+        current_date = today
+        while True:
+            # Check if there are any study sessions for the current date
+            sessions = StudySession.query.filter(
+                StudySession.user_id == current_user.id,
+                StudySession.start_time >= datetime.combine(current_date, datetime.min.time()),
+                StudySession.start_time < datetime.combine(current_date, datetime.max.time())
+            ).first()
+            
+            if sessions:
+                streak += 1
+                current_date -= timedelta(days=1)
+            else:
+                break
+
+        # Get all friends
+        friends = current_user.friends
+
+        # Calculate study hours for each friend
+        friend_study_hours = []
+        for friend in friends:
+            # Get study sessions for this week
+            sessions = StudySession.query.filter(
+                StudySession.user_id == friend.id,
+                StudySession.start_time >= start_of_week
+            ).all()
+
+            # Calculate total hours
+            total_hours = sum(
+                (session.end_time - session.start_time).total_seconds() / 3600 
+                for session in sessions 
+                if session.end_time
+            )
+
+            friend_study_hours.append({
+                'friend': friend,
+                'hours': round(total_hours, 1)
+            })
+
+        # Add current user's study hours
+        user_sessions = StudySession.query.filter(
+            StudySession.user_id == current_user.id,
+            StudySession.start_time >= start_of_week
+        ).all()
+        user_hours = sum(
             (session.end_time - session.start_time).total_seconds() / 3600 
-            for session in total_study_time 
+            for session in user_sessions 
             if session.end_time
         )
+        friend_study_hours.append({
+            'friend': current_user,
+            'hours': round(user_hours, 1)
+        })
+
+        # Sort by hours in descending order
+        friend_study_hours.sort(key=lambda x: x['hours'], reverse=True)
 
         # Get completed tasks count
         completed_tasks = Task.query.filter_by(
@@ -133,11 +189,26 @@ def init_routes(app):
             StudySession.subject != ''
         ).distinct().count()
 
+        # Get all upcoming assessments (not done)
+        upcoming_assessments = Assessment.query.filter_by(user_id=current_user.id, done=False).order_by(Assessment.due_date).all()
+
+        # Calculate assessment completion rate
+        total_assessments = Assessment.query.filter_by(user_id=current_user.id).count()
+        completed_assessments = Assessment.query.filter_by(user_id=current_user.id, done=True).count()
+        assessment_completion_rate = 0
+        if total_assessments > 0:
+            assessment_completion_rate = int(round((completed_assessments / total_assessments) * 100))
+
         return render_template('dashboard.html',
-            total_hours=round(total_hours, 1),
+            friend_study_hours=friend_study_hours[:3],  # Only pass top 3 for the podium
             completed_tasks=completed_tasks,
             weekly_mood=round(weekly_mood, 1),
-            unique_subjects=unique_subjects
+            unique_subjects=unique_subjects,
+            upcoming_assessments=upcoming_assessments,
+            now=date.today(),
+            assessment_completion_rate=assessment_completion_rate,
+            study_streak=streak,
+            timedelta=timedelta  # Add timedelta to template context
         )
 
     # Study Area Route
@@ -603,6 +674,21 @@ def init_routes(app):
                 new_password = request.form.get('new_password')
                 university = request.form.get('university')
                 profile_picture = request.form.get('profile_picture')
+                username = request.form.get('username')
+                
+                # Update username if provided
+                if username and username != current_user.username:
+                    # Validate username length
+                    if len(username) < 3 or len(username) > 80:
+                        flash('Username must be between 3 and 80 characters', 'error')
+                    else:
+                        # Check if username is already taken
+                        existing_user = User.query.filter_by(username=username).first()
+                        if existing_user and existing_user.id != current_user.id:
+                            flash('Username already taken', 'error')
+                        else:
+                            current_user.username = username
+                            flash('Username updated successfully', 'success')
                 
                 # Update profile picture if provided
                 if profile_picture is not None:
@@ -656,6 +742,59 @@ def init_routes(app):
                 flash('An error occurred while updating your profile. Please try again.', 'error')
         
         return render_template('profile.html', current_user=current_user, pending_requests=pending_requests)
+
+    @app.route('/delete_account', methods=['POST'])
+    @login_required
+    def delete_account():
+        try:
+            # Delete all user's data
+            # Delete study sessions
+            StudySession.query.filter_by(user_id=current_user.id).delete()
+            
+            # Delete tasks
+            Task.query.filter_by(user_id=current_user.id).delete()
+            
+            # Delete wellness checks
+            WellnessCheck.query.filter_by(user_id=current_user.id).delete()
+            
+            # Delete mood entries
+            MoodEntry.query.filter_by(user_id=current_user.id).delete()
+            
+            # Delete friendships
+            Friendship.query.filter(
+                (Friendship.user_id == current_user.id) | 
+                (Friendship.friend_id == current_user.id)
+            ).delete()
+            
+            # Delete friend requests
+            FriendRequest.query.filter(
+                (FriendRequest.from_user_id == current_user.id) | 
+                (FriendRequest.to_user_id == current_user.id)
+            ).delete()
+            
+            # Delete shared data
+            SharedData.query.filter(
+                (SharedData.from_user_id == current_user.id) | 
+                (SharedData.to_user_id == current_user.id)
+            ).delete()
+            
+            # Delete assessments
+            Assessment.query.filter_by(user_id=current_user.id).delete()
+            
+            # Finally, delete the user
+            db.session.delete(current_user)
+            db.session.commit()
+            
+            # Logout the user
+            logout_user()
+            flash('Your account has been successfully deleted.', 'success')
+            return redirect(url_for('index'))
+            
+        except Exception as e:
+            logger.error(f"Account deletion error: {str(e)}")
+            db.session.rollback()
+            flash('An error occurred while deleting your account. Please try again.', 'error')
+            return redirect(url_for('profile'))
 
     @app.route('/api/mood_entries', methods=['POST'])
     @login_required
@@ -789,10 +928,10 @@ def init_routes(app):
     @login_required
     def get_study_sessions():
         view = request.args.get('view', 'week')  # Default to weekly view
-        now = datetime.utcnow()
+        now = datetime.now(AWST)  # Use AWST timezone
         
         if view == 'day':
-            # Get data for the current day
+            # Get data for the current day in AWST
             start_time = now.replace(hour=0, minute=0, second=0, microsecond=0)
             sessions = StudySession.query.filter(
                 StudySession.user_id == current_user.id,
@@ -803,8 +942,10 @@ def init_routes(app):
             hours = [0] * 24
             for session in sessions:
                 if session.end_time:
-                    hour = session.start_time.hour
-                    duration = (session.end_time - session.start_time).total_seconds() / 3600
+                    # Convert session time to AWST
+                    session_start = to_awst(session.start_time)
+                    hour = session_start.hour
+                    duration = (session.end_time - session.start_time).total_seconds() / 60  # Convert to minutes
                     hours[hour] += duration
             
             return jsonify({
@@ -813,7 +954,7 @@ def init_routes(app):
             })
             
         elif view == 'week':
-            # Get data for the current week (Sunday to Saturday)
+            # Get data for the current week (Sunday to Saturday) in AWST
             today = now.date()
             # Find the most recent Sunday
             start_of_week = today - timedelta(days=today.weekday() + 1 if today.weekday() != 6 else 0)
@@ -826,8 +967,9 @@ def init_routes(app):
             days = [0] * 7
             for session in sessions:
                 if session.end_time:
-                    session_date = session.start_time.date()
-                    weekday = session_date.weekday()  # 0=Monday, 6=Sunday
+                    # Convert session time to AWST
+                    session_start = to_awst(session.start_time)
+                    weekday = session_start.weekday()  # 0=Monday, 6=Sunday
                     weekday = (weekday + 1) % 7      # Convert to 0=Sunday, 6=Saturday
                     duration = (session.end_time - session.start_time).total_seconds() / 3600
                     days[weekday] += duration
@@ -838,7 +980,7 @@ def init_routes(app):
             })
             
         else:  # month view
-            # Get data for the current month
+            # Get data for the current month in AWST
             first_day = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             sessions = StudySession.query.filter(
                 StudySession.user_id == current_user.id,
@@ -849,7 +991,9 @@ def init_routes(app):
             weeks = [0] * 4
             for session in sessions:
                 if session.end_time:
-                    session_date = session.start_time.date()
+                    # Convert session time to AWST
+                    session_start = to_awst(session.start_time)
+                    session_date = session_start.date()
                     # Calculate week index: 0 for days 1-7, 1 for 8-14, 2 for 15-21, 3 for 22-end
                     week_index = (session_date.day - 1) // 7
                     if 0 <= week_index < 4:
@@ -873,4 +1017,111 @@ def init_routes(app):
                 subject_times[session.subject] = subject_times.get(session.subject, 0) + duration
         labels = list(subject_times.keys())
         data = [round(subject_times[subj], 2) for subj in labels]
-        return jsonify({'labels': labels, 'data': data}) 
+        return jsonify({'labels': labels, 'data': data})
+
+    # API Endpoints for Assessments
+    @app.route('/api/assessments', methods=['GET'])
+    @login_required
+    def get_assessments():
+        assessments = Assessment.query.filter_by(user_id=current_user.id).order_by(Assessment.due_date).all()
+        return jsonify([
+            {
+                'id': a.id,
+                'subject': a.subject,
+                'title': a.title,
+                'due_date': a.due_date.isoformat(),
+                'done': a.done,
+                'grade': a.grade,
+                'weight': a.weight
+            } for a in assessments
+        ])
+
+    @app.route('/api/assessments', methods=['POST'])
+    @login_required
+    def create_assessment():
+        data = request.get_json()
+        if not data or not all(k in data for k in ('subject', 'title', 'due_date')):
+            return jsonify({'error': 'Missing required fields'}), 400
+        assessment = Assessment(
+            user_id=current_user.id,
+            subject=data['subject'],
+            title=data['title'],
+            due_date=datetime.fromisoformat(data['due_date']).date(),
+            done=data.get('done', False),
+            grade=data.get('grade'),
+            weight=data.get('weight')
+        )
+        db.session.add(assessment)
+        db.session.commit()
+        return jsonify({'id': assessment.id}), 201
+
+    @app.route('/api/assessments/<int:assessment_id>', methods=['PUT'])
+    @login_required
+    def update_assessment(assessment_id):
+        assessment = Assessment.query.filter_by(id=assessment_id, user_id=current_user.id).first()
+        if not assessment:
+            return jsonify({'error': 'Assessment not found'}), 404
+        data = request.get_json()
+        if 'subject' in data:
+            assessment.subject = data['subject']
+        if 'title' in data:
+            assessment.title = data['title']
+        if 'due_date' in data:
+            assessment.due_date = datetime.fromisoformat(data['due_date']).date()
+        if 'done' in data:
+            assessment.done = data['done']
+        if 'grade' in data:
+            assessment.grade = data['grade']
+        if 'weight' in data:
+            assessment.weight = data['weight']
+        db.session.commit()
+        return jsonify({'success': True})
+
+    @app.route('/api/assessments/<int:assessment_id>', methods=['DELETE'])
+    @login_required
+    def delete_assessment(assessment_id):
+        assessment = Assessment.query.filter_by(id=assessment_id, user_id=current_user.id).first()
+        if not assessment:
+            return jsonify({'error': 'Assessment not found'}), 404
+        db.session.delete(assessment)
+        db.session.commit()
+        return '', 204
+
+    @app.route('/friend_leaderboard')
+    @login_required
+    def friend_leaderboard():
+        # Get the start of the current week (Sunday)
+        today = datetime.utcnow().date()
+        start_of_week = today - timedelta(days=today.weekday() + 1 if today.weekday() != 6 else 0)
+        start_of_week = datetime.combine(start_of_week, datetime.min.time())
+
+        # Get all friends
+        friends = current_user.friends
+
+        # Calculate study hours for each friend
+        friend_study_hours = []
+        for friend in friends:
+            # Get study sessions for this week
+            sessions = StudySession.query.filter(
+                StudySession.user_id == friend.id,
+                StudySession.start_time >= start_of_week
+            ).all()
+
+            # Calculate total hours
+            total_hours = sum(
+                (session.end_time - session.start_time).total_seconds() / 3600 
+                for session in sessions 
+                if session.end_time
+            )
+
+            friend_study_hours.append({
+                'friend': friend,
+                'hours': round(total_hours, 1)
+            })
+
+        # Sort by hours in descending order
+        friend_study_hours.sort(key=lambda x: x['hours'], reverse=True)
+
+        return render_template('friend_leaderboard.html', 
+                             friend_study_hours=friend_study_hours,
+                             start_of_week=start_of_week) 

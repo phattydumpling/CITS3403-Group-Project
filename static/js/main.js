@@ -48,6 +48,31 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Delete Account Modal functionality
+    const deleteAccountForm = document.getElementById('deleteAccountForm');
+    const deleteAccountModal = document.getElementById('deleteAccountModal');
+    
+    if (deleteAccountForm && deleteAccountModal) {
+        window.showDeleteConfirmation = function() {
+            deleteAccountModal.classList.remove('hidden');
+        };
+
+        window.hideDeleteConfirmation = function() {
+            deleteAccountModal.classList.add('hidden');
+        };
+
+        window.confirmDelete = function() {
+            deleteAccountForm.submit();
+        };
+
+        // Close modal when clicking outside
+        deleteAccountModal.addEventListener('click', (e) => {
+            if (e.target === deleteAccountModal) {
+                hideDeleteConfirmation();
+            }
+        });
+    }
+
     // Page Transitions
     const navLinks = document.querySelectorAll('nav a');
     const pageContent = document.querySelector('.page-content');
@@ -138,4 +163,43 @@ document.addEventListener('DOMContentLoaded', function () {
         // Check special character
         updateRequirement(requirements.special, /[!@#$%^&*(),.?":{}|<>]/.test(value));
     });
+
+    // Profile picture modal and toast logic (from profile.html)
+    if (document.getElementById('profilePicTrigger')) {
+        const profilePicTrigger = document.getElementById('profilePicTrigger');
+        const profilePicModal = document.getElementById('profilePicModal');
+        const closeProfilePicModal = document.getElementById('closeProfilePicModal');
+        const profilePicForm = document.getElementById('profilePicForm');
+        const profilePicToast = document.getElementById('profilePicToast');
+
+        profilePicTrigger.addEventListener('click', () => {
+            profilePicModal.classList.remove('hidden');
+        });
+        closeProfilePicModal.addEventListener('click', () => {
+            profilePicModal.classList.add('hidden');
+        });
+        // Optional: close modal when clicking outside
+        profilePicModal.addEventListener('click', (e) => {
+            if (e.target === profilePicModal) {
+                profilePicModal.classList.add('hidden');
+            }
+        });
+
+        // Show toast on successful profile picture update
+        profilePicForm.addEventListener('submit', function(e) {
+            // Let the form submit normally, but show the toast after redirect
+            localStorage.setItem('showProfilePicToast', '1');
+        });
+        window.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('showProfilePicToast') === '1') {
+                profilePicToast.classList.remove('opacity-0', 'pointer-events-none');
+                profilePicToast.classList.add('opacity-100');
+                setTimeout(() => {
+                    profilePicToast.classList.add('opacity-0');
+                    profilePicToast.classList.remove('opacity-100');
+                    localStorage.removeItem('showProfilePicToast');
+                }, 2000);
+            }
+        });
+    }
 });
