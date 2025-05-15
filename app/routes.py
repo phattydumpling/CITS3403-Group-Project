@@ -217,11 +217,13 @@ def init_routes(app):
     @app.route('/study_area')
     @login_required
     def study_area():
-        today = datetime.today().date()
+        # Get today's date in AWST
+        today_awst = datetime.now(AWST).date()
         user_id = current_user.id
 
-        # Query today's sessions
-        sessions_today = StudySession.query.filter_by(user_id=user_id).filter(StudySession.start_time >= today).all()
+        # Query today's sessions (using UTC for database query)
+        start_of_day_utc = datetime.combine(today_awst, datetime.min.time()).astimezone(UTC)
+        sessions_today = StudySession.query.filter_by(user_id=user_id).filter(StudySession.start_time >= start_of_day_utc).all()
 
         # Total time in seconds
         total_time_seconds = sum(
@@ -242,7 +244,7 @@ def init_routes(app):
         # Convert times to AWST for template
         for session in recent_sessions:
             session.start_time_awst = to_awst(session.start_time)
-            session.end_time_awst = to_awst(session.end_time)
+            session.end_time_awst = to_awst(session.end_time) if session.end_time else None
 
         return render_template(
             'study_area.html',
@@ -987,16 +989,18 @@ def init_routes(app):
         if view == 'day':
             # Get data for the current day in AWST
             start_time = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            # Convert to UTC for database query
+            start_time_utc = start_time.astimezone(UTC)
             sessions = StudySession.query.filter(
                 StudySession.user_id == current_user.id,
-                StudySession.start_time >= start_time
+                StudySession.start_time >= start_time_utc
             ).all()
             
             # Group by hour
             hours = [0] * 24
             for session in sessions:
                 if session.end_time:
-                    # Convert session time to AWST
+                    # Convert session time to AWST for display
                     session_start = to_awst(session.start_time)
                     hour = session_start.hour
                     duration = (session.end_time - session.start_time).total_seconds() / 60  # Convert to minutes
@@ -1012,16 +1016,18 @@ def init_routes(app):
             today = now.date()
             # Find the most recent Sunday
             start_of_week = today - timedelta(days=today.weekday() + 1 if today.weekday() != 6 else 0)
+            # Convert to UTC for database query
+            start_of_week_utc = datetime.combine(start_of_week, datetime.min.time()).astimezone(UTC)
             sessions = StudySession.query.filter(
                 StudySession.user_id == current_user.id,
-                StudySession.start_time >= datetime.combine(start_of_week, datetime.min.time())
+                StudySession.start_time >= start_of_week_utc
             ).all()
 
             # Group by weekday (0=Sunday, 6=Saturday)
             days = [0] * 7
             for session in sessions:
                 if session.end_time:
-                    # Convert session time to AWST
+                    # Convert session time to AWST for display
                     session_start = to_awst(session.start_time)
                     weekday = session_start.weekday()  # 0=Monday, 6=Sunday
                     weekday = (weekday + 1) % 7      # Convert to 0=Sunday, 6=Saturday
@@ -1036,16 +1042,18 @@ def init_routes(app):
         else:  # month view
             # Get data for the current month in AWST
             first_day = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            # Convert to UTC for database query
+            first_day_utc = first_day.astimezone(UTC)
             sessions = StudySession.query.filter(
                 StudySession.user_id == current_user.id,
-                StudySession.start_time >= first_day
+                StudySession.start_time >= first_day_utc
             ).all()
 
             # Group by week of the month (1-4)
             weeks = [0] * 4
             for session in sessions:
                 if session.end_time:
-                    # Convert session time to AWST
+                    # Convert session time to AWST for display
                     session_start = to_awst(session.start_time)
                     session_date = session_start.date()
                     # Calculate week index: 0 for days 1-7, 1 for 8-14, 2 for 15-21, 3 for 22-end
