@@ -400,7 +400,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .health-carer-container.all-selected {
-  /* Gradient handled inline by React style */
+  /* Styling */
   box-shadow: 0 6px 32px 0 rgba(80, 120, 180, 0.12);
 }
 
