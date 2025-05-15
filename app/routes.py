@@ -1187,6 +1187,21 @@ def init_routes(app):
                 'hours': round(total_hours, 1)
             })
 
+        # Add current user's study hours
+        user_sessions = StudySession.query.filter(
+            StudySession.user_id == current_user.id,
+            StudySession.start_time >= start_of_week
+        ).all()
+        user_hours = sum(
+            (session.end_time - session.start_time).total_seconds() / 3600 
+            for session in user_sessions 
+            if session.end_time
+        )
+        friend_study_hours.append({
+            'friend': current_user,
+            'hours': round(user_hours, 1)
+        })
+
         # Sort by hours in descending order
         friend_study_hours.sort(key=lambda x: x['hours'], reverse=True)
 
