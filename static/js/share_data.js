@@ -1,3 +1,5 @@
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
 // JavaScript for the Share Data page
 async function shareData() {
     const dataToShare = {
@@ -32,7 +34,7 @@ async function shareData() {
             const response = await fetch('/api/share_data', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({

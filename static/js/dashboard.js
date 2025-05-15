@@ -1,3 +1,5 @@
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
 document.addEventListener("DOMContentLoaded", function () {
     const calendarDiv = document.getElementById("flatCalendar");
 
@@ -265,7 +267,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const response = await fetch('/api/tasks', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json','X-CSRFToken': csrfToken,
                     },
                     body: JSON.stringify({ title: text })
                 });

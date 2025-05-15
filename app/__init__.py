@@ -5,10 +5,14 @@ from flask_login import LoginManager
 import os
 from flask import url_for, current_app
 from config import DeploymentConfig
+from flask_wtf.csrf import CSRFProtect
+
 
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
+csrf = CSRFProtect()
+
 
 def create_app():
     app = Flask(__name__, 
@@ -27,6 +31,8 @@ def create_app():
     login_manager.login_view = 'login'
     login_manager.login_message = 'Please log in to access this page.'
     login_manager.login_message_category = 'info'
+
+    csrf.init_app(app)  # Enable CSRF protection
 
     # Initialize routes
     from app.routes import init_routes

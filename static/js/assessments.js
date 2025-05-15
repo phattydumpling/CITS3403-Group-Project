@@ -1,3 +1,5 @@
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
 // JavaScript for the Assessments page
 // Backend-integrated assessments array
 let assessments = [];
@@ -155,7 +157,7 @@ async function markDone(id) {
     if (a) {
         await fetch(`/api/assessments/${a.id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
             body: JSON.stringify({ done: !a.done })
         });
         await fetchAssessments();
@@ -205,14 +207,14 @@ document.getElementById('assessmentForm').addEventListener('submit', async funct
         // Update
         await fetch(`/api/assessments/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
             body: JSON.stringify(payload)
         });
     } else {
         // Create
         await fetch('/api/assessments', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
             body: JSON.stringify(payload)
         });
     }
