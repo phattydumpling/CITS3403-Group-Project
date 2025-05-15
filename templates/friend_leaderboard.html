@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Friend Leaderboard{% endblock %}
+
+{% block content %}
+<div class="h-full w-full bg-gray-50 dark:bg-gray-800">
+    <div class="h-full w-full p-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <div class="mb-8">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
+                        <i class="fas fa-trophy text-2xl text-indigo-600 dark:text-indigo-300"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Friend Leaderboard</h1>
+                </div>
+                <p class="text-gray-600 dark:text-gray-400">Weekly study hours competition among friends</p>
+            </div>
+
+            {% if friend_study_hours %}
+                <!-- Podium Display -->
+                <div class="grid grid-cols-3 gap-8 mb-12">
+                    <!-- Second Place -->
+                    {% if friend_study_hours|length >= 2 %}
+                    <div class="flex flex-col items-center justify-end">
+                        <div class="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center mb-4">
+                            <span class="text-4xl font-bold text-gray-600 dark:text-gray-300">2</span>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 rounded-2xl p-6 w-full text-center shadow-lg">
+                            <div class="w-16 h-16 rounded-full bg-gray-300 dark:bg-gray-500 flex items-center justify-center mx-auto mb-4">
+                                <span class="text-2xl font-bold text-white">{{ friend_study_hours[1].friend.username[0]|upper }}</span>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 dark:text-white text-lg mb-2">{{ friend_study_hours[1].friend.username }}</h3>
+                            <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-300">{{ friend_study_hours[1].hours }}h</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- First Place -->
+                    {% if friend_study_hours|length >= 1 %}
+                    <div class="flex flex-col items-center justify-end">
+                        <div class="w-24 h-24 rounded-full bg-yellow-200 dark:bg-yellow-600 flex items-center justify-center mb-4">
+                            <span class="text-4xl font-bold text-yellow-600 dark:text-yellow-300">1</span>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 rounded-2xl p-6 w-full text-center shadow-lg transform -translate-y-8">
+                            <div class="w-16 h-16 rounded-full bg-yellow-400 dark:bg-yellow-500 flex items-center justify-center mx-auto mb-4">
+                                <span class="text-2xl font-bold text-white">{{ friend_study_hours[0].friend.username[0]|upper }}</span>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 dark:text-white text-lg mb-2">{{ friend_study_hours[0].friend.username }}</h3>
+                            <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-300">{{ friend_study_hours[0].hours }}h</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Third Place -->
+                    {% if friend_study_hours|length >= 3 %}
+                    <div class="flex flex-col items-center justify-end">
+                        <div class="w-24 h-24 rounded-full bg-amber-200 dark:bg-amber-600 flex items-center justify-center mb-4">
+                            <span class="text-4xl font-bold text-amber-600 dark:text-amber-300">3</span>
+                        </div>
+                        <div class="bg-white dark:bg-gray-700 rounded-2xl p-6 w-full text-center shadow-lg">
+                            <div class="w-16 h-16 rounded-full bg-amber-400 dark:bg-amber-500 flex items-center justify-center mx-auto mb-4">
+                                <span class="text-2xl font-bold text-white">{{ friend_study_hours[2].friend.username[0]|upper }}</span>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 dark:text-white text-lg mb-2">{{ friend_study_hours[2].friend.username }}</h3>
+                            <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-300">{{ friend_study_hours[2].hours }}h</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Remaining Friends List -->
+                {% if friend_study_hours|length > 3 %}
+                <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Other Friends</h2>
+                    <div class="space-y-4">
+                        {% for entry in friend_study_hours[3:] %}
+                        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-600 rounded-xl">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-lg">
+                                    {{ entry.friend.username[0]|upper }}
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-900 dark:text-white">{{ entry.friend.username }}</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Study Hours</p>
+                                </div>
+                            </div>
+                            <p class="text-xl font-bold text-indigo-600 dark:text-indigo-300">{{ entry.hours }}h</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            {% else %}
+                <!-- No Friends Message -->
+                <div class="text-center py-12">
+                    <div class="w-20 h-20 mx-auto mb-6 text-gray-400">
+                        <i class="fas fa-users text-6xl"></i>
+                    </div>
+                    <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-3">No Friends Yet</h3>
+                    <p class="text-gray-500 dark:text-gray-400">Add friends to compete in the study hours leaderboard!</p>
+                    <a href="{{ url_for('friends') }}" class="inline-block mt-6 px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300">
+                        Add Friends
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
