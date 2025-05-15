@@ -1,4 +1,4 @@
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
 from app import db
 from flask_login import UserMixin
 
@@ -11,9 +11,9 @@ class FriendRequest(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
-    # Define relationships without backrefs
-    from_user = db.relationship('User', foreign_keys=[from_user_id])
-    to_user = db.relationship('User', foreign_keys=[to_user_id])
+    # Define relationships with back_populates
+    from_user = db.relationship('User', foreign_keys=[from_user_id], back_populates='sent_friend_requests')
+    to_user = db.relationship('User', foreign_keys=[to_user_id], back_populates='received_friend_requests')
 
 class Friendship(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -44,11 +44,11 @@ class User(UserMixin, db.Model):
     # Update relationship names to avoid conflicts
     sent_friend_requests = db.relationship('FriendRequest', 
                                          foreign_keys='FriendRequest.from_user_id',
-                                         backref='sender',
+                                         back_populates='from_user',
                                          lazy=True)
     received_friend_requests = db.relationship('FriendRequest',
                                             foreign_keys='FriendRequest.to_user_id',
-                                            backref='receiver',
+                                            back_populates='to_user',
                                             lazy=True)
 
 class StudySession(db.Model):
@@ -83,7 +83,7 @@ class MoodEntry(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     mood_score = db.Column(db.Integer, nullable=False)
     reflection = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
 
     user = db.relationship('User', backref=db.backref('mood_entries', lazy=True))
 

@@ -234,6 +234,12 @@ document.addEventListener('DOMContentLoaded', function() {
             reflection: document.getElementById('reflection').value
         };
 
+        // Add date if provided
+        const entryDate = document.getElementById('entry_date').value;
+        if (entryDate) {
+            data.created_at = new Date(entryDate).toISOString();
+        }
+
         fetch('/api/mood_entries', {
             method: 'POST',
             headers: {
