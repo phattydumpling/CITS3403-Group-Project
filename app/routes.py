@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.models import User, StudySession, Task, WellnessCheck, MoodEntry, Friendship, FriendRequest, SharedData, Assessment
 from app.forms import LoginForm, RegistrationForm, StudySessionForm, TaskForm, WellnessCheckForm
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone, UTC
 from flask_login import login_user, logout_user, login_required, current_user
 from app import login_manager
 import logging
@@ -32,7 +32,7 @@ def to_awst(dt):
     if dt is None:
         return None
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=ZoneInfo("UTC"))
+        dt = dt.replace(tzinfo=timezone.utc)
     return dt.astimezone(AWST)
 
 def init_routes(app):
@@ -330,7 +330,7 @@ def init_routes(app):
         # Convert times to AWST for template
         for entry in mood_entries:
             entry.created_at_awst = to_awst(entry.created_at)
-        return render_template('health_carer.html', mood_entries=mood_entries)
+        return render_template('health_carer.html', mood_entries=mood_entries, today=datetime.now(UTC).strftime('%Y-%m-%d'))
 
     @app.route('/wellness_check', methods=['GET', 'POST'])
     @login_required
@@ -393,68 +393,100 @@ def init_routes(app):
     @app.route('/api/share_data', methods=['POST'])
     @login_required
     def share_data_api():
-        data = request.get_json()
-        if not data or 'friend_id' not in data or 'data' not in data:
-            return jsonify({'success': False, 'error': 'Missing required fields'}), 400
+        try:
+            data = request.get_json()
+            if not data or 'friend_id' not in data or 'data' not in data:
+                return jsonify({'success': False, 'error': 'Missing required fields'}), 400
 
-        friend = User.query.get(data['friend_id'])
-        if not friend or friend not in current_user.friends:
-            return jsonify({'success': False, 'error': 'Invalid friend'}), 400
+            friend = User.query.get(data['friend_id'])
+            if not friend or friend not in current_user.friends:
+                return jsonify({'success': False, 'error': 'Invalid friend'}), 400
 
-        # Prepare data to share based on selected options
-        shared_data = {}
-        if data['data'].get('study_progress'):
-            # Get study sessions from the last 7 days
-            week_ago = datetime.utcnow() - timedelta(days=7)
-            study_sessions = StudySession.query.filter(
-                StudySession.user_id == current_user.id,
-                StudySession.created_at >= week_ago
-            ).all()
-            shared_data['study_progress'] = [{
-                'subject': session.subject,
-                'start_time': session.start_time.isoformat(),
-                'end_time': session.end_time.isoformat() if session.end_time else None,
-                'notes': session.notes
-            } for session in study_sessions]
+            # Check for recent shares (within last minute)
+            recent_share = SharedData.query.filter(
+                SharedData.from_user_id == current_user.id,
+                SharedData.to_user_id == friend.id,
+                SharedData.created_at >= datetime.now(timezone.utc) - timedelta(minutes=1)
+            ).first()
+            
+            if recent_share:
+                return jsonify({
+                    'success': False, 
+                    'error': 'Please wait 1 minute before sharing data with this friend again.'
+                }), 429
 
-        if data['data'].get('mood'):
-            # Get mood entries from the last 7 days
-            week_ago = datetime.utcnow() - timedelta(days=7)
-            mood_entries = MoodEntry.query.filter(
-                MoodEntry.user_id == current_user.id,
-                MoodEntry.created_at >= week_ago
-            ).all()
-            shared_data['mood'] = [{
-                'mood_score': entry.mood_score,
-                'reflection': entry.reflection,
-                'created_at': entry.created_at.isoformat()
-            } for entry in mood_entries]
+            # Prepare data to share based on selected options
+            shared_data = {}
+            has_data = False
 
-        if data['data'].get('tasks'):
-            # Get completed tasks from the last 7 days
-            week_ago = datetime.utcnow() - timedelta(days=7)
-            tasks = Task.query.filter(
-                Task.user_id == current_user.id,
-                Task.status == 'completed',
-                Task.created_at >= week_ago
-            ).all()
-            shared_data['tasks'] = [{
-                'title': task.title,
-                'description': task.description,
-                'completed_at': task.created_at.isoformat()
-            } for task in tasks]
+            if data['data'].get('study_progress'):
+                # Get study sessions from the last 7 days
+                week_ago = datetime.now(timezone.utc) - timedelta(days=7)
+                study_sessions = StudySession.query.filter(
+                    StudySession.user_id == current_user.id,
+                    StudySession.created_at >= week_ago
+                ).all()
+                if study_sessions:
+                    shared_data['study_progress'] = [{
+                        'subject': session.subject,
+                        'start_time': session.start_time.isoformat(),
+                        'end_time': session.end_time.isoformat() if session.end_time else None,
+                        'notes': session.notes
+                    } for session in study_sessions]
+                    has_data = True
 
-        # Create shared data entry
-        shared_data_entry = SharedData(
-            from_user_id=current_user.id,
-            to_user_id=friend.id,
-            data_type='combined',
-            data_content=shared_data
-        )
-        db.session.add(shared_data_entry)
-        db.session.commit()
+            if data['data'].get('mood'):
+                # Get mood entries from the last 7 days
+                week_ago = datetime.now(timezone.utc) - timedelta(days=7)
+                mood_entries = MoodEntry.query.filter(
+                    MoodEntry.user_id == current_user.id,
+                    MoodEntry.created_at >= week_ago
+                ).all()
+                if mood_entries:
+                    shared_data['mood'] = [{
+                        'mood_score': entry.mood_score,
+                        'reflection': entry.reflection,
+                        'created_at': entry.created_at.isoformat()
+                    } for entry in mood_entries]
+                    has_data = True
 
-        return jsonify({'success': True})
+            if data['data'].get('tasks'):
+                # Get completed tasks from the last 7 days
+                week_ago = datetime.now(timezone.utc) - timedelta(days=7)
+                tasks = Task.query.filter(
+                    Task.user_id == current_user.id,
+                    Task.status == 'completed',
+                    Task.created_at >= week_ago
+                ).all()
+                if tasks:
+                    shared_data['tasks'] = [{
+                        'title': task.title,
+                        'description': task.description,
+                        'completed_at': task.created_at.isoformat()
+                    } for task in tasks]
+                    has_data = True
+
+            if not has_data:
+                return jsonify({
+                    'success': False,
+                    'error': 'No data available to share for the selected options'
+                }), 400
+
+            # Create shared data entry
+            shared_data_entry = SharedData(
+                from_user_id=current_user.id,
+                to_user_id=friend.id,
+                data_type='combined',
+                data_content=shared_data
+            )
+            db.session.add(shared_data_entry)
+            db.session.commit()
+
+            return jsonify({'success': True})
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error sharing data: {str(e)}")
+            return jsonify({'success': False, 'error': 'An error occurred while sharing data'}), 500
 
     @app.route('/notifications')
     @login_required
@@ -674,10 +706,15 @@ def init_routes(app):
         data = request.get_json()
         if not data or 'mood_score' not in data:
             return jsonify({'error': 'Missing required fields'}), 400
+        
+        # Set created_at to provided date or current time
+        created_at = datetime.fromisoformat(data['created_at']) if 'created_at' in data else datetime.now(UTC)
+        
         entry = MoodEntry(
             user_id=current_user.id,
             mood_score=int(data['mood_score']),
-            reflection=data.get('reflection', '')
+            reflection=data.get('reflection', ''),
+            created_at=created_at
         )
         db.session.add(entry)
         db.session.commit()
@@ -952,4 +989,21 @@ def init_routes(app):
             return jsonify({'error': 'Assessment not found'}), 404
         db.session.delete(assessment)
         db.session.commit()
-        return '', 204 
+        return '', 204
+
+    @app.route('/api/shared-data/<int:data_id>', methods=['DELETE'])
+    @login_required
+    def delete_shared_data(data_id):
+        shared_data = SharedData.query.get_or_404(data_id)
+        
+        # Check if the current user is the one who shared the data
+        if shared_data.from_user_id != current_user.id:
+            return jsonify({'error': 'Unauthorized'}), 403
+        
+        try:
+            db.session.delete(shared_data)
+            db.session.commit()
+            return jsonify({'message': 'Shared data deleted successfully'}), 200
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': str(e)}), 500 

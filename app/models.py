@@ -1,4 +1,4 @@
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
 from app import db
 from flask_login import UserMixin
 
@@ -83,7 +83,7 @@ class MoodEntry(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     mood_score = db.Column(db.Integer, nullable=False)
     reflection = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
 
     user = db.relationship('User', backref=db.backref('mood_entries', lazy=True))
 

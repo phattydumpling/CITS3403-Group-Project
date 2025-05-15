@@ -1,5 +1,5 @@
 // JavaScript for the Share Data page
-function shareData() {
+async function shareData() {
     const dataToShare = {
         study_progress: document.getElementById('shareStudyProgress').checked,
         mood: document.getElementById('shareMood').checked,
@@ -7,61 +7,93 @@ function shareData() {
     };
 
     // Get selected friends
-    const selectedFriends = Array.from(document.querySelectorAll('.friend-checkbox:checked')).map(checkbox => checkbox.id.replace('friend_', ''));
+    const selectedFriends = Array.from(document.querySelectorAll('.friend-checkbox:checked')).map(cb => cb.id.replace('friend_', ''));
 
-    // Check if any data is selected
-    if (!dataToShare.study_progress && !dataToShare.mood && !dataToShare.tasks) {
-        showModal('No Data Selected', 'Please select at least one type of data to share.');
+    // Validate selections
+    if (!Object.values(dataToShare).some(v => v)) {
+        showModal('Error', 'Please select at least one type of data to share.');
         return;
     }
 
-    // Check if any friends are selected
     if (selectedFriends.length === 0) {
-        showModal('No Friends Selected', 'Please select at least one friend to share with.');
+        showModal('Error', 'Please select at least one friend to share with.');
         return;
     }
 
-    // Share with each selected friend
-    const sharePromises = selectedFriends.map(friendId => 
-        fetch('/api/share_data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                friend_id: friendId,
-                data: dataToShare
-            })
-        }).then(response => response.json())
-    );
+    // Disable share button and show loading state
+    const shareButton = document.querySelector('button[onclick="shareData()"]');
+    const originalButtonText = shareButton.innerHTML;
+    shareButton.disabled = true;
+    shareButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sharing...';
 
-    Promise.all(sharePromises)
-        .then(results => {
-            const allSuccessful = results.every(result => result.success);
-            if (allSuccessful) {
-                showModal('Success', 'Data shared successfully with all selected friends!');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
-            } else {
-                showModal('Error', 'Error sharing data with some friends. Please try again.');
+    try {
+        // Share with each selected friend
+        const sharePromises = selectedFriends.map(async (friendId) => {
+            const response = await fetch('/api/share_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    friend_id: friendId,
+                    data: dataToShare
+                })
+            });
+
+            const result = await response.json();
+            
+            if (!response.ok) {
+                if (response.status === 429) {
+                    // Rate limit error - show countdown
+                    const errorMessage = result.error;
+                    showModal('Rate Limited', errorMessage);
+                    
+                    // Start countdown timer
+                    let timeLeft = 60; // 1 minute in seconds
+                    const countdownInterval = setInterval(() => {
+                        timeLeft--;
+                        if (timeLeft <= 0) {
+                            clearInterval(countdownInterval);
+                            shareButton.disabled = false;
+                            shareButton.innerHTML = originalButtonText;
+                        } else {
+                            shareButton.innerHTML = `<i class="fas fa-clock mr-2"></i>Wait ${timeLeft}s`;
+                        }
+                    }, 1000);
+                    
+                    throw new Error(errorMessage);
+                }
+                throw new Error(result.error || 'Failed to share data');
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showModal('Error', 'Error sharing data. Please try again.');
+            
+            return result;
         });
+
+        await Promise.all(sharePromises);
+        showModal('Success', 'Data shared successfully!');
+    } catch (error) {
+        if (!error.message.includes('Rate Limited')) {
+            showModal('Error', error.message);
+        }
+    } finally {
+        // Only re-enable the button if we're not in a countdown
+        if (!shareButton.innerHTML.includes('Wait')) {
+            shareButton.disabled = false;
+            shareButton.innerHTML = originalButtonText;
+        }
+    }
 }
 
 function showModal(title, message) {
     const modal = document.getElementById('customModal');
-    const modalContent = document.getElementById('modalContent');
     const modalTitle = document.getElementById('modalTitle');
     const modalMessage = document.getElementById('modalMessage');
+    const modalContent = document.getElementById('modalContent');
 
     modalTitle.textContent = title;
     modalMessage.textContent = message;
-    
+
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     
@@ -75,10 +107,10 @@ function showModal(title, message) {
 function closeModal() {
     const modal = document.getElementById('customModal');
     const modalContent = document.getElementById('modalContent');
-    
+
     modalContent.classList.remove('scale-100', 'opacity-100');
     modalContent.classList.add('scale-95', 'opacity-0');
-    
+
     setTimeout(() => {
         modal.classList.remove('flex');
         modal.classList.add('hidden');

@@ -4,11 +4,6 @@
 <div class="h-full w-full bg-gray-50 dark:bg-gray-800">
     <div class="h-full w-full p-8">
         <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12">
-                <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">Data Shared With You</h1>
-                <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">View data that your friends have shared with you.</p>
-            </div>
-
             <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600">
                 <div class="flex items-center mb-6">
                     <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
@@ -18,77 +13,128 @@
                 </div>
 
                 {% if data_shared_with_you %}
+                    {% set user_data = {} %}
+                    {% for data in data_shared_with_you %}
+                        {% if data.from_user.id not in user_data %}
+                            {% set _ = user_data.update({data.from_user.id: {'user': data.from_user, 'shares': []}}) %}
+                        {% endif %}
+                        {% set _ = user_data[data.from_user.id]['shares'].append(data) %}
+                    {% endfor %}
+
                     <div class="space-y-6">
-                        {% for data in data_shared_with_you %}
-                            <div class="bg-gray-50 dark:bg-gray-600 rounded-xl p-6 hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors duration-200">
-                                <div class="flex items-center space-x-4 mb-6">
-                                    <div class="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-xl font-bold text-white">
-                                        {{ data.from_user.username[0]|upper }}
-                                    </div>
-                                    <div>
-                                        <h3 class="font-medium text-gray-900 dark:text-white text-lg">From {{ data.from_user.username }}</h3>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">Shared {{ data.created_at_awst.strftime('%Y-%m-%d %H:%M') }}</p>
-                                    </div>
-                                </div>
-                                
-                                {% if data.data_content.get('study_progress') %}
-                                <div class="mb-6">
-                                    <h4 class="font-medium text-gray-900 dark:text-white mb-3 flex items-center">
-                                        <i class="fas fa-book-open mr-2 text-indigo-600"></i>
-                                        Study Progress
-                                    </h4>
-                                    <div class="space-y-3">
-                                        {% for session in data.data_content.study_progress %}
-                                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
-                                            <p class="text-sm"><strong>Subject:</strong> {{ session.subject }}</p>
-                                            <p class="text-sm"><strong>Duration:</strong> {{ session.start_time }} - {{ session.end_time or 'Ongoing' }}</p>
-                                            {% if session.notes %}
-                                            <p class="text-sm"><strong>Notes:</strong> {{ session.notes }}</p>
-                                            {% endif %}
+                        {% for user_id, user_info in user_data.items() %}
+                            <div class="bg-gray-50 dark:bg-gray-600 rounded-xl overflow-hidden">
+                                <!-- User Header -->
+                                <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors duration-200" 
+                                     onclick="toggleUserSection('user-{{ user_id }}')">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-14 h-14 rounded-full bg-indigo-600 flex items-center justify-center text-xl font-bold text-white">
+                                            {{ user_info.user.username[0]|upper }}
                                         </div>
-                                        {% endfor %}
+                                        <div>
+                                            <h3 class="font-medium text-gray-900 dark:text-white text-lg">{{ user_info.user.username }}</h3>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ user_info.shares|length }} share{{ 's' if user_info.shares|length != 1 else '' }}</p>
+                                        </div>
                                     </div>
+                                    <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200" id="icon-{{ user_id }}"></i>
                                 </div>
-                                {% endif %}
 
-                                {% if data.data_content.get('mood') %}
-                                <div class="mb-6">
-                                    <h4 class="font-medium text-gray-900 dark:text-white mb-3 flex items-center">
-                                        <i class="fas fa-face-smile mr-2 text-indigo-600"></i>
-                                        Mood Tracking
-                                    </h4>
-                                    <div class="space-y-3">
-                                        {% for entry in data.data_content.mood %}
-                                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
-                                            <p class="text-sm"><strong>Mood Score:</strong> {{ entry.mood_score }}/10</p>
-                                            {% if entry.reflection %}
-                                            <p class="text-sm"><strong>Reflection:</strong> {{ entry.reflection }}</p>
-                                            {% endif %}
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                {% endif %}
+                                <!-- User's Shared Data -->
+                                <div class="hidden max-h-[600px] overflow-y-auto" id="user-{{ user_id }}">
+                                    {% set study_data = [] %}
+                                    {% set mood_data = [] %}
+                                    {% set tasks_data = [] %}
+                                    
+                                    {% for data in user_info.shares|sort(attribute='created_at', reverse=true) %}
+                                        {% if data.data_content.get('study_progress') %}
+                                            {% set _ = study_data.append(data) %}
+                                        {% endif %}
+                                        {% if data.data_content.get('mood') %}
+                                            {% set _ = mood_data.append(data) %}
+                                        {% endif %}
+                                        {% if data.data_content.get('tasks') %}
+                                            {% set _ = tasks_data.append(data) %}
+                                        {% endif %}
+                                    {% endfor %}
 
-                                {% if data.data_content.get('tasks') %}
-                                <div class="mb-6">
-                                    <h4 class="font-medium text-gray-900 dark:text-white mb-3 flex items-center">
-                                        <i class="fas fa-tasks mr-2 text-indigo-600"></i>
-                                        Completed Tasks
-                                    </h4>
-                                    <div class="space-y-3">
-                                        {% for task in data.data_content.tasks %}
-                                        <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
-                                            <p class="text-sm"><strong>Task:</strong> {{ task.title }}</p>
-                                            {% if task.description %}
-                                            <p class="text-sm"><strong>Description:</strong> {{ task.description }}</p>
-                                            {% endif %}
-                                            <p class="text-sm"><strong>Completed:</strong> {{ task.completed_at }}</p>
+                                    <!-- Study Progress Section -->
+                                    {% if study_data %}
+                                    <div class="border-t border-gray-200 dark:border-gray-500">
+                                        <div class="p-4 bg-indigo-50 dark:bg-indigo-900/30 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors duration-200" 
+                                             onclick="toggleDataTypeSection('study-{{ user_id }}')">
+                                            <div class="flex items-center justify-between">
+                                                <h4 class="font-medium text-gray-900 dark:text-white flex items-center">
+                                                    <i class="fas fa-book-open mr-2 text-indigo-600"></i>
+                                                    Study Progress
+                                                </h4>
+                                                <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200" id="icon-study-{{ user_id }}"></i>
+                                            </div>
                                         </div>
-                                        {% endfor %}
+                                        <div id="study-{{ user_id }}">
+                                            {% for data in study_data %}
+                                            <div class="p-6 border-t border-gray-200 dark:border-gray-500">
+                                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Shared {{ data.created_at_awst.strftime('%Y-%m-%d %H:%M') }}</p>
+                                                <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+                                                    <canvas id="studyChart_{{ data.id }}" class="w-full h-64"></canvas>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
                                     </div>
+                                    {% endif %}
+
+                                    <!-- Mood Tracking Section -->
+                                    {% if mood_data %}
+                                    <div class="border-t border-gray-200 dark:border-gray-500">
+                                        <div class="p-4 bg-indigo-50 dark:bg-indigo-900/30 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors duration-200" 
+                                             onclick="toggleDataTypeSection('mood-{{ user_id }}')">
+                                            <div class="flex items-center justify-between">
+                                                <h4 class="font-medium text-gray-900 dark:text-white flex items-center">
+                                                    <i class="fas fa-face-smile mr-2 text-indigo-600"></i>
+                                                    Mood Tracking
+                                                </h4>
+                                                <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200" id="icon-mood-{{ user_id }}"></i>
+                                            </div>
+                                        </div>
+                                        <div id="mood-{{ user_id }}">
+                                            {% for data in mood_data %}
+                                            <div class="p-6 border-t border-gray-200 dark:border-gray-500">
+                                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Shared {{ data.created_at_awst.strftime('%Y-%m-%d %H:%M') }}</p>
+                                                <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+                                                    <canvas id="moodChart_{{ data.id }}" class="w-full h-64"></canvas>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Tasks Section -->
+                                    {% if tasks_data %}
+                                    <div class="border-t border-gray-200 dark:border-gray-500">
+                                        <div class="p-4 bg-indigo-50 dark:bg-indigo-900/30 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors duration-200" 
+                                             onclick="toggleDataTypeSection('tasks-{{ user_id }}')">
+                                            <div class="flex items-center justify-between">
+                                                <h4 class="font-medium text-gray-900 dark:text-white flex items-center">
+                                                    <i class="fas fa-tasks mr-2 text-indigo-600"></i>
+                                                    Completed Tasks
+                                                </h4>
+                                                <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200" id="icon-tasks-{{ user_id }}"></i>
+                                            </div>
+                                        </div>
+                                        <div id="tasks-{{ user_id }}">
+                                            {% for data in tasks_data %}
+                                            <div class="p-6 border-t border-gray-200 dark:border-gray-500">
+                                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Shared {{ data.created_at_awst.strftime('%Y-%m-%d %H:%M') }}</p>
+                                                <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+                                                    <canvas id="tasksChart_{{ data.id }}" class="w-full h-64"></canvas>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
                                 </div>
-                                {% endif %}
                             </div>
                         {% endfor %}
                     </div>
@@ -105,4 +151,256 @@
         </div>
     </div>
 </div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Move toggleUserSection to global scope
+function toggleUserSection(userId) {
+    const section = document.getElementById(userId);
+    const icon = document.getElementById('icon-' + userId.replace('user-', ''));
+    section.classList.toggle('hidden');
+    icon.classList.toggle('rotate-180');
+}
+
+// Add toggle function for data type sections
+function toggleDataTypeSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    const icon = document.getElementById('icon-' + sectionId);
+    section.classList.toggle('hidden');
+    icon.classList.toggle('rotate-180');
+}
+
+// Initialize global chart instances object if it doesn't exist
+window.chartInstances = window.chartInstances || {};
+
+// Common chart options
+const commonChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            position: 'top',
+            labels: {
+                font: {
+                    size: 12
+                },
+                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+            }
+        },
+        title: {
+            display: true,
+            font: {
+                size: 16,
+                weight: 'bold'
+            },
+            color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+            padding: 20
+        }
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    {% for data in data_shared_with_you %}
+        {% if data.data_content.get('study_progress') %}
+        // Study Progress Chart
+        (function() {
+            const chartId = 'studyChart_{{ data.id }}';
+            // Destroy existing chart if it exists
+            if (window.chartInstances[chartId]) {
+                window.chartInstances[chartId].destroy();
+            }
+            
+            const studyCtx = document.getElementById(chartId).getContext('2d');
+            const studyData = {{ data.data_content.study_progress|tojson }};
+            const studyLabels = studyData.map(session => session.subject);
+            const studyDurations = studyData.map(session => {
+                const start = new Date(session.start_time);
+                const end = session.end_time ? new Date(session.end_time) : new Date();
+                return (end - start) / (1000 * 60 * 60); // Convert to hours
+            });
+
+            window.chartInstances[chartId] = new Chart(studyCtx, {
+                type: 'bar',
+                data: {
+                    labels: studyLabels,
+                    datasets: [{
+                        label: 'Study Duration (hours)',
+                        data: studyDurations,
+                        backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                        borderColor: 'rgb(99, 102, 241)',
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        barThickness: 30
+                    }]
+                },
+                options: {
+                    ...commonChartOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Hours',
+                                font: {
+                                    size: 12
+                                },
+                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+                            },
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+                            },
+                            grid: {
+                                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+                            },
+                            grid: {
+                                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        })();
+        {% endif %}
+
+        {% if data.data_content.get('mood') %}
+        // Mood Chart
+        (function() {
+            const chartId = 'moodChart_{{ data.id }}';
+            // Destroy existing chart if it exists
+            if (window.chartInstances[chartId]) {
+                window.chartInstances[chartId].destroy();
+            }
+            
+            const moodCtx = document.getElementById(chartId).getContext('2d');
+            const moodData = {{ data.data_content.mood|tojson }};
+            const moodLabels = moodData.map(entry => new Date(entry.created_at).toLocaleDateString());
+            const moodScores = moodData.map(entry => entry.mood_score);
+
+            window.chartInstances[chartId] = new Chart(moodCtx, {
+                type: 'line',
+                data: {
+                    labels: moodLabels,
+                    datasets: [{
+                        label: 'Mood Score',
+                        data: moodScores,
+                        borderColor: 'rgb(99, 102, 241)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: 'rgb(99, 102, 241)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    ...commonChartOptions,
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 10,
+                            title: {
+                                display: true,
+                                text: 'Mood Score',
+                                font: {
+                                    size: 12
+                                },
+                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+                            },
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+                            },
+                            grid: {
+                                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+                            },
+                            grid: {
+                                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        })();
+        {% endif %}
+
+        {% if data.data_content.get('tasks') %}
+        // Tasks Chart
+        (function() {
+            const chartId = 'tasksChart_{{ data.id }}';
+            // Destroy existing chart if it exists
+            if (window.chartInstances[chartId]) {
+                window.chartInstances[chartId].destroy();
+            }
+            
+            const tasksCtx = document.getElementById(chartId).getContext('2d');
+            const tasksData = {{ data.data_content.tasks|tojson }};
+            const taskDates = tasksData.map(task => new Date(task.completed_at).toLocaleDateString());
+            const taskCounts = {};
+            taskDates.forEach(date => {
+                taskCounts[date] = (taskCounts[date] || 0) + 1;
+            });
+
+            window.chartInstances[chartId] = new Chart(tasksCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(taskCounts),
+                    datasets: [{
+                        label: 'Completed Tasks',
+                        data: Object.values(taskCounts),
+                        backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                        borderColor: 'rgb(99, 102, 241)',
+                        borderWidth: 2,
+                        borderRadius: 5,
+                        barThickness: 30
+                    }]
+                },
+                options: {
+                    ...commonChartOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Tasks',
+                                font: {
+                                    size: 12
+                                },
+                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+                            },
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+                            },
+                            grid: {
+                                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
+                            },
+                            grid: {
+                                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        })();
+        {% endif %}
+    {% endfor %}
+});
+</script>
+{% endblock %}
 {% endblock %} 
