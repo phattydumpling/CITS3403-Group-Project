@@ -631,3 +631,52 @@ input:focus, select:focus, textarea:focus {
     min-height: 2.5rem;
     transition: color 0.2s;
 }
+
+.goal-settings {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+    align-self: flex-end;
+    display: none;
+    transition: color 0.3s ease;
+  }
+  
+  .goal-settings:hover {
+    color: #374151;
+  }
+  
+  /* Keep space even when input is hidden */
+  .goal-input-area {
+    min-height: 60px;
+    transition: opacity 0.3s ease;
+    position: relative;
+  }
+  
+  .goal-input-area.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    position: absolute;
+  }
+  
+  .goal-list label {
+    border-width: 2px;
+    border-radius: 1rem;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .goal-list label input[type="checkbox"] {
+    accent-color: #4f46e5; /* Tailwind indigo-600 */
+  }
+  
+  .goal-list label span.completed {
+    color: #9ca3af; /* Tailwind gray-400 */
+    text-decoration: line-through;
+  }
+  
