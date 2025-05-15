@@ -41,13 +41,13 @@ def init_routes(app):
         return to_awst(dt)
 
     # Authentication Routes
-    @app.route('/')
+    @main.route('/')
     def index():
         if current_user.is_authenticated:
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('main.dashboard'))
         return render_template('index.html')
 
-    @app.route('/login', methods=['GET', 'POST'])
+    @main.route('/login', methods=['GET', 'POST'])
     def login():
         form = LoginForm()
         if form.validate_on_submit():
@@ -60,14 +60,14 @@ def init_routes(app):
                 if user and check_password_hash(user.password, form.password.data):
                     login_user(user, remember=form.remember_me.data)
                     flash('Login successful!', 'success')
-                    return redirect(url_for('dashboard'))
+                    return redirect(url_for('main.dashboard'))
                 flash('Invalid username/email or password', 'error')
             except Exception as e:
                 logger.error(f"Login error: {str(e)}")
                 flash('An error occurred during login. Please try again.', 'error')
         return render_template('login.html', form=form)
 
-    @app.route('/signup', methods=['GET', 'POST'])
+    @main.route('/signup', methods=['GET', 'POST'])
     def signup():
         form = RegistrationForm()
         if form.validate_on_submit():
@@ -81,24 +81,24 @@ def init_routes(app):
                 db.session.add(new_user)
                 db.session.commit()
                 flash('Registration successful! Please login.', 'success')
-                return redirect(url_for('login'))
+                return redirect(url_for('main.login'))
             except Exception as e:
                 logger.error(f"Registration error: {str(e)}")
                 db.session.rollback()
                 flash('An error occurred during registration. Please try again.', 'error')
         return render_template('signup.html', form=form)
 
-    @app.route('/logout')
+    @main.route('/logout')
     @login_required
     def logout():
         logout_user()
         session.clear()  # Clear all session data including flash messages
-        response = redirect(url_for('index'))
+        response = redirect(url_for('main.index'))
         response.delete_cookie('remember_token')  # Clear the remember me cookie
         return response
 
     # Main Dashboard
-    @app.route('/dashboard')
+    @main.route('/dashboard')
     @login_required
     def dashboard():
         # Get the start of the current week (Sunday)
@@ -212,7 +212,7 @@ def init_routes(app):
         )
 
     # Study Area Route
-    @app.route('/study_area')
+    @main.route('/study_area')
     @login_required
     def study_area():
         today = datetime.today().date()
@@ -250,7 +250,7 @@ def init_routes(app):
             sessions=recent_sessions
         )
 
-    @app.route('/study_session', methods=['GET', 'POST'])
+    @main.route('/study_session', methods=['GET', 'POST'])
     @login_required
     def study_session():
         if request.method == 'POST':
@@ -287,10 +287,10 @@ def init_routes(app):
                     db.session.add(study_session)
                     db.session.commit()
                     flash('Study session recorded successfully!', 'success')
-                    return redirect(url_for('dashboard'))
+                    return redirect(url_for('main.dashboard'))
         return render_template('study_session.html', form=form)
 
-    @app.route('/study_session/<int:session_id>', methods=['DELETE'])
+    @main.route('/study_session/<int:session_id>', methods=['DELETE'])
     @login_required
     def delete_study_session(session_id):
         session = StudySession.query.get_or_404(session_id)
@@ -300,7 +300,7 @@ def init_routes(app):
         db.session.commit()
         return '', 204
 
-    @app.route('/study_session/<int:session_id>', methods=['PUT'])
+    @main.route('/study_session/<int:session_id>', methods=['PUT'])
     @login_required
     def update_study_session(session_id):
         session = StudySession.query.get_or_404(session_id)
@@ -314,7 +314,7 @@ def init_routes(app):
         db.session.commit()
         return jsonify({'success': True})
 
-    @app.route('/active_session')
+    @main.route('/active_session')
     @login_required
     def get_active_session():
         # Find the most recent session without an end time
@@ -328,7 +328,7 @@ def init_routes(app):
             'session_id': active_session.id if active_session else None
         })
 
-    @app.route('/study_history')
+    @main.route('/study_history')
     @login_required
     def study_history():
         sessions = StudySession.query.filter_by(user_id=current_user.id).order_by(StudySession.start_time.desc()).all()
@@ -339,7 +339,7 @@ def init_routes(app):
         return render_template('study_history.html', sessions=sessions)
 
 
-    @app.route('/task_overview', methods=['GET', 'POST'])
+    @main.route('/task_overview', methods=['GET', 'POST'])
     @login_required
     def task_overview():
         form = TaskForm()
@@ -355,28 +355,28 @@ def init_routes(app):
             db.session.add(task)
             db.session.commit()
             flash('Task created successfully!', 'success')
-            return redirect(url_for('task_overview'))
+            return redirect(url_for('main.task_overview'))
         
         tasks = Task.query.filter_by(user_id=current_user.id).all()
         return render_template('task_overview.html', form=form, tasks=tasks)
 
-    @app.route('/lecture_log')
+    @main.route('/lecture_log')
     @login_required
     def lecture_log():
         return render_template('lecture_log.html')
 
-    @app.route('/assessments')
+    @main.route('/assessments')
     @login_required
     def assessments():
         return render_template('assessments.html')
 
-    @app.route('/resources')
+    @main.route('/resources')
     @login_required
     def resources():
         return render_template('resources.html')
 
     # Care Page Routes
-    @app.route('/health_carer', methods=['GET', 'POST'])
+    @main.route('/health_carer', methods=['GET', 'POST'])
     @login_required
     def health_carer():
         # Handle main goals form submission
@@ -407,7 +407,7 @@ def init_routes(app):
             entry.created_at_awst = to_awst(entry.created_at)
         return render_template('health_carer.html', mood_entries=mood_entries, today=datetime.now(UTC).strftime('%Y-%m-%d'))
 
-    @app.route('/wellness_check', methods=['GET', 'POST'])
+    @main.route('/wellness_check', methods=['GET', 'POST'])
     @login_required
     def wellness_check():
         form = WellnessCheckForm()
@@ -421,11 +421,11 @@ def init_routes(app):
             db.session.add(check)
             db.session.commit()
             flash('Wellness check recorded successfully!', 'success')
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('main.dashboard'))
         return render_template('wellness_check.html', form=form)
 
     # Data Sharing Route
-    @app.route('/share_data')
+    @main.route('/share_data')
     @login_required
     def share_data():
         # Get friends list with user objects
@@ -445,7 +445,7 @@ def init_routes(app):
         
         return render_template('share_data.html', friends=friends)
 
-    @app.route('/shared_data_history')
+    @main.route('/shared_data_history')
     @login_required
     def shared_data_history():
         # Get shared data history (data you've shared)
@@ -455,7 +455,7 @@ def init_routes(app):
             data.created_at_awst = to_awst(data.created_at)
         return render_template('shared_data_history.html', shared_data=shared_data)
 
-    @app.route('/data_shared_with_you')
+    @main.route('/data_shared_with_you')
     @login_required
     def data_shared_with_you():
         # Get data shared with you
@@ -465,7 +465,7 @@ def init_routes(app):
             data.created_at_awst = to_awst(data.created_at)
         return render_template('data_shared_with_you.html', data_shared_with_you=data_shared_with_you)
 
-    @app.route('/api/share_data', methods=['POST'])
+    @main.route('/api/share_data', methods=['POST'])
     @login_required
     def share_data_api():
         try:
@@ -578,7 +578,7 @@ def init_routes(app):
             logger.error(f"Error sharing data: {str(e)}")
             return jsonify({'success': False, 'error': 'An error occurred while sharing data'}), 500
 
-    @app.route('/notifications')
+    @main.route('/notifications')
     @login_required
     def notifications():
         pending_requests = FriendRequest.query.filter_by(to_user_id=current_user.id, status='pending').all()
@@ -636,7 +636,7 @@ def init_routes(app):
         return dict(pending_requests_count=0, accepted_requests_count=0, unread_shared_data_count=0)
 
     # API Routes for Tasks
-    @app.route('/api/tasks', methods=['GET'])
+    @main.route('/api/tasks', methods=['GET'])
     @login_required
     def get_tasks():
         tasks = Task.query.filter_by(user_id=current_user.id).order_by(Task.created_at.desc()).all()
@@ -648,7 +648,7 @@ def init_routes(app):
             'created_at': task.created_at.isoformat()
         } for task in tasks])
 
-    @app.route('/api/tasks', methods=['POST'])
+    @main.route('/api/tasks', methods=['POST'])
     @login_required
     def create_task():
         data = request.get_json()
@@ -672,7 +672,7 @@ def init_routes(app):
             'created_at': task.created_at.isoformat()
         }), 201
 
-    @app.route('/api/tasks/<int:task_id>', methods=['DELETE'])
+    @main.route('/api/tasks/<int:task_id>', methods=['DELETE'])
     @login_required
     def delete_task(task_id):
         task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()
@@ -683,7 +683,7 @@ def init_routes(app):
         db.session.commit()
         return '', 204
 
-    @app.route('/api/tasks/<int:task_id>', methods=['PUT'])
+    @main.route('/api/tasks/<int:task_id>', methods=['PUT'])
     @login_required
     def update_task(task_id):
         task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()
@@ -707,7 +707,7 @@ def init_routes(app):
             'created_at': task.created_at.isoformat()
         })
 
-    @app.route('/profile', methods=['GET', 'POST'])
+    @main.route('/profile', methods=['GET', 'POST'])
     @login_required
     def profile():
         # Show pending friend requests
@@ -782,7 +782,7 @@ def init_routes(app):
                         flash('Current password is incorrect', 'error')
                 
                 db.session.commit()
-                return redirect(url_for('profile'))
+                return redirect(url_for('main.profile'))
             except Exception as e:
                 logger.error(f"Profile update error: {str(e)}")
                 db.session.rollback()
@@ -790,7 +790,7 @@ def init_routes(app):
         
         return render_template('profile.html', current_user=current_user, pending_requests=pending_requests)
 
-    @app.route('/delete_account', methods=['POST'])
+    @main.route('/delete_account', methods=['POST'])
     @login_required
     def delete_account():
         try:
@@ -835,15 +835,15 @@ def init_routes(app):
             # Logout the user
             logout_user()
             flash('Your account has been successfully deleted.', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('main.index'))
             
         except Exception as e:
             logger.error(f"Account deletion error: {str(e)}")
             db.session.rollback()
             flash('An error occurred while deleting your account. Please try again.', 'error')
-            return redirect(url_for('profile'))
+            return redirect(url_for('main.profile'))
 
-    @app.route('/api/mood_entries', methods=['POST'])
+    @main.route('/api/mood_entries', methods=['POST'])
     @login_required
     def create_mood_entry():
         data = request.get_json()
@@ -868,7 +868,7 @@ def init_routes(app):
             'created_at': entry.created_at.isoformat()
         }), 201
 
-    @app.route('/api/mood_entries', methods=['GET'])
+    @main.route('/api/mood_entries', methods=['GET'])
     @login_required
     def get_mood_entries():
         week_ago = datetime.utcnow() - timedelta(days=7)
@@ -883,7 +883,7 @@ def init_routes(app):
             'created_at': entry.created_at.isoformat()
         } for entry in entries])
 
-    @app.route('/api/mood_entries/<int:entry_id>', methods=['DELETE'])
+    @main.route('/api/mood_entries/<int:entry_id>', methods=['DELETE'])
     @login_required
     def delete_mood_entry(entry_id):
         try:
@@ -899,7 +899,7 @@ def init_routes(app):
             db.session.rollback()
             return jsonify({'error': str(e)}), 500
 
-    @app.route('/friends', methods=['GET', 'POST'])
+    @main.route('/friends', methods=['GET', 'POST'])
     @login_required
     def friends():
         friends = current_user.friends
@@ -921,11 +921,11 @@ def init_routes(app):
                 db.session.add(new_request)
                 db.session.commit()
                 flash(f'Friend request sent to {friend.username}!', 'success')
-            return redirect(url_for('friends'))
+            return redirect(url_for('main.friends'))
 
         return render_template('friends.html', friends=friends, pending_requests=pending_requests)
 
-    @app.route('/remove_friend/<int:friend_id>', methods=['POST'])
+    @main.route('/remove_friend/<int:friend_id>', methods=['POST'])
     @login_required
     def remove_friend(friend_id):
         # Remove both friendship records
@@ -942,9 +942,9 @@ def init_routes(app):
             flash('Friend removed.', 'success')
         else:
             flash('Friendship not found.', 'error')
-        return redirect(url_for('friends'))
+        return redirect(url_for('main.friends'))
 
-    @app.route('/accept_friend/<int:request_id>', methods=['POST'])
+    @main.route('/accept_friend/<int:request_id>', methods=['POST'])
     @login_required
     def accept_friend(request_id):
         friend_request = FriendRequest.query.get(request_id)
@@ -962,9 +962,9 @@ def init_routes(app):
             flash(f'You are now friends with {friend_request.from_user.username}!', 'success')
         else:
             flash('Invalid friend request.', 'error')
-        return redirect(url_for('friends'))
+        return redirect(url_for('main.friends'))
 
-    @app.route('/reject_friend/<int:request_id>', methods=['POST'])
+    @main.route('/reject_friend/<int:request_id>', methods=['POST'])
     @login_required
     def reject_friend(request_id):
         friend_request = FriendRequest.query.get(request_id)
@@ -974,9 +974,9 @@ def init_routes(app):
             flash('Friend request rejected.', 'info')
         else:
             flash('Invalid friend request.', 'error')
-        return redirect(url_for('friends'))
+        return redirect(url_for('main.friends'))
 
-    @app.route('/api/study_sessions', methods=['GET'])
+    @main.route('/api/study_sessions', methods=['GET'])
     @login_required
     def get_study_sessions():
         view = request.args.get('view', 'week')  # Default to weekly view
@@ -1057,7 +1057,7 @@ def init_routes(app):
                 'data': weeks
             })
 
-    @app.route('/api/unit_distribution')
+    @main.route('/api/unit_distribution')
     @login_required
     def unit_distribution():
         # Get all study sessions for the user with a non-empty subject
@@ -1072,7 +1072,7 @@ def init_routes(app):
         return jsonify({'labels': labels, 'data': data})
 
     # API Endpoints for Assessments
-    @app.route('/api/assessments', methods=['GET'])
+    @main.route('/api/assessments', methods=['GET'])
     @login_required
     def get_assessments():
         assessments = Assessment.query.filter_by(user_id=current_user.id).order_by(Assessment.due_date).all()
@@ -1088,7 +1088,7 @@ def init_routes(app):
             } for a in assessments
         ])
 
-    @app.route('/api/assessments', methods=['POST'])
+    @main.route('/api/assessments', methods=['POST'])
     @login_required
     def create_assessment():
         data = request.get_json()
@@ -1107,7 +1107,7 @@ def init_routes(app):
         db.session.commit()
         return jsonify({'id': assessment.id}), 201
 
-    @app.route('/api/assessments/<int:assessment_id>', methods=['PUT'])
+    @main.route('/api/assessments/<int:assessment_id>', methods=['PUT'])
     @login_required
     def update_assessment(assessment_id):
         assessment = Assessment.query.filter_by(id=assessment_id, user_id=current_user.id).first()
@@ -1129,7 +1129,7 @@ def init_routes(app):
         db.session.commit()
         return jsonify({'success': True})
 
-    @app.route('/api/assessments/<int:assessment_id>', methods=['DELETE'])
+    @main.route('/api/assessments/<int:assessment_id>', methods=['DELETE'])
     @login_required
     def delete_assessment(assessment_id):
         assessment = Assessment.query.filter_by(id=assessment_id, user_id=current_user.id).first()
@@ -1139,7 +1139,7 @@ def init_routes(app):
         db.session.commit()
         return '', 204
 
-    @app.route('/api/shared-data/<int:data_id>', methods=['DELETE'])
+    @main.route('/api/shared-data/<int:data_id>', methods=['DELETE'])
     @login_required
     def delete_shared_data(data_id):
         shared_data = SharedData.query.get_or_404(data_id)
@@ -1155,7 +1155,7 @@ def init_routes(app):
         except Exception as e:
             db.session.rollback()
             return jsonify({'error': str(e)}), 500 
-    @app.route('/friend_leaderboard')
+    @main.route('/friend_leaderboard')
     @login_required
     def friend_leaderboard():
         # Get the start of the current week (Sunday)
