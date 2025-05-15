@@ -189,6 +189,38 @@ function addEntryToList(entry) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Retrieve and populate goal inputs from localStorage
+    const goalInputs = document.querySelectorAll('.goal-input');
+    goalInputs.forEach((input, index) => {
+        const storedValue = localStorage.getItem(`goalInput${index}`);
+        if (storedValue) {
+            input.value = storedValue;
+        }
+        input.addEventListener('input', () => {
+            localStorage.setItem(`goalInput${index}`, input.value);
+        });
+    });
+    // Retrieve and populate goal checkboxes from localStorage
+    const goalCheckboxes = document.querySelectorAll('.goal-input');
+    goalInputs.forEach((input, index) => {
+        const storedValue = localStorage.getItem(`goalCheckbox${index}`);
+        if (storedValue) {
+            input.checked = storedValue === 'true';
+        }
+        input.addEventListener('change', () => {
+            localStorage.setItem(`goalCheckbox${index}`, input.checked);
+        });
+    });
+    // Retrieve and populate goal inputs from localStorage
+    goalCheckboxes.forEach((input, index) => {
+        const storedValue = localStorage.getItem(`goalInput${index}`);
+        if (storedValue) {
+            input.value = storedValue;
+        }
+        input.addEventListener('input', () => {
+            localStorage.setItem(`goalInput${index}`, input.value);
+        });
+    });
     // Mood slider value display
     const moodSlider = document.getElementById('mood');
     const moodValue = document.getElementById('moodValue');
