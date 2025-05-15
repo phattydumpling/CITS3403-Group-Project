@@ -21,8 +21,8 @@ const stopReminderBtn = document.getElementById('stopReminder');
 // Water Tracking Functionality
 const WATER_STORAGE_KEY = 'waterTrackerData';
 // Define the cup capacity in liters and milliliters
-const CUP_CAPACITY_LITERS = 2.0;
-const CUP_CAPACITY_ML = CUP_CAPACITY_LITERS * 1000;
+let CUP_CAPACITY_LITERS = 2.0;
+let CUP_CAPACITY_ML = CUP_CAPACITY_LITERS * 1000;
 const ENCOURAGING_MESSAGES = [
     "You're doing great! Keep hydrating! 💧",
     "Every sip counts towards your goal! 🌊",
@@ -189,6 +189,20 @@ function addEntryToList(entry) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Set waterGoal select value to current capacity on page load
+    waterGoal.value = CUP_CAPACITY_LITERS.toString();
+
+    // Retrieve and populate goal inputs from localStorage
+    const goalInputsLocal = document.querySelectorAll('.goal-input');
+    goalInputsLocal.forEach((input, index) => {
+        const storedValue = localStorage.getItem(`goalInput${index}`);
+        if (storedValue) {
+            input.value = storedValue;
+        }
+        input.addEventListener('input', () => {
+            localStorage.setItem(`goalInput${index}`, input.value);
+        });
+    });
     // Retrieve and populate goal inputs from localStorage
     const goalInputs = document.querySelectorAll('.goal-input');
     goalInputs.forEach((input, index) => {
@@ -322,6 +336,22 @@ document.addEventListener('DOMContentLoaded', function() {
     undoWaterBtn.addEventListener('click', undoWater);
     resetWaterBtn.addEventListener('click', resetWater);
     waterGoal.addEventListener('change', updateGoal);
+    
+    function updateGoal() {
+        const selectedValue = parseFloat(waterGoal.value);
+        if (selectedValue < 0.5) {
+            waterGoal.value = "0.5";
+            CUP_CAPACITY_LITERS = 0.5;
+        } else if (selectedValue > 4.0) {
+            waterGoal.value = "4.0";
+            CUP_CAPACITY_LITERS = 4.0;
+        } else {
+            CUP_CAPACITY_LITERS = selectedValue;
+        }
+        CUP_CAPACITY_ML = CUP_CAPACITY_LITERS * 1000;
+        waterData.goal = CUP_CAPACITY_ML;  // Update waterData goal to match selected daily water goal
+        updateWaterDisplay();
+    }
     toggleReminderSettings.addEventListener('click', toggleSettings);
 
     // Load initial water data
@@ -716,11 +746,9 @@ function resetWater() {
 // Update goal
 function updateGoal() {
     let goalLiters = parseFloat(waterGoal.value);
-    if (goalLiters > CUP_CAPACITY_LITERS) {
-        goalLiters = CUP_CAPACITY_LITERS;
-        waterGoal.value = CUP_CAPACITY_LITERS;
-    }
-    waterData.goal = goalLiters * 1000; // Convert to milliliters
+    CUP_CAPACITY_LITERS = goalLiters;
+    CUP_CAPACITY_ML = CUP_CAPACITY_LITERS * 1000;
+    waterData.goal = CUP_CAPACITY_ML;
     updateWaterDisplay();
 }
 
