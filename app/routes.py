@@ -472,6 +472,21 @@ def init_routes(app):
                     'error': 'No data available to share for the selected options'
                 }), 400
 
+            # Check for identical data content in recent shares (last 24 hours)
+            day_ago = datetime.now(timezone.utc) - timedelta(days=1)
+            recent_shares = SharedData.query.filter(
+                SharedData.from_user_id == current_user.id,
+                SharedData.to_user_id == friend.id,
+                SharedData.created_at >= day_ago
+            ).all()
+
+            for share in recent_shares:
+                if share.data_content == shared_data:
+                    return jsonify({
+                        'success': False,
+                        'error': 'You have already shared identical data with this friend in the last 24 hours.'
+                    }), 400
+
             # Create shared data entry
             shared_data_entry = SharedData(
                 from_user_id=current_user.id,
