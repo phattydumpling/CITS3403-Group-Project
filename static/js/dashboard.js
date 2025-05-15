@@ -304,7 +304,11 @@ document.addEventListener("DOMContentLoaded", function () {
         async function deleteTask(taskId) {
             try {
                 const response = await fetch(`/api/tasks/${taskId}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    }
                 });
                 if (!response.ok) {
                     console.error('Failed to delete task');
@@ -312,7 +316,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (error) {
                 console.error('Error:', error);
             }
-        }
+        }        
 
         let dragged = null;
 

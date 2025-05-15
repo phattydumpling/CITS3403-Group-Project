@@ -228,7 +228,13 @@ document.getElementById('deleteModal').addEventListener('click', function(e) {
 });
 document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
     const id = this.getAttribute('data-id');
-    await fetch(`/api/assessments/${id}`, { method: 'DELETE' });
+    await fetch(`/api/assessments/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        }
+    });
     hideDeleteModal();
     await fetchAssessments();
 });

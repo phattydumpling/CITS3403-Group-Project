@@ -277,6 +277,10 @@ document.getElementById('confirmDeleteSession').addEventListener('click', async 
     try {
         const response = await fetch(`/study_session/${sessionToDelete}`, {
             method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
         });
         if (response.ok) {
             window.location.reload();

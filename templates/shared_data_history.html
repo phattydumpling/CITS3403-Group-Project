@@ -256,6 +256,7 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 // Move toggleUserSection to global scope
 function toggleUserSection(userId) {
     const section = document.getElementById(userId);
@@ -528,7 +529,8 @@ async function confirmDelete() {
         const response = await fetch(`/api/shared-data/${dataToDelete}`, {
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
             }
         });
 
