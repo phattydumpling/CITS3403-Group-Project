@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
@@ -36,6 +36,11 @@ def create_app():
     # Initialize routes
     from app.routes import init_routes
     init_routes(app)
+
+    # Error handlers
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('404.html'), 404
 
     # Cache-busting static file helper
     def static_file(filename):
