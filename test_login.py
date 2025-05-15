@@ -10,12 +10,15 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class StudyTrackerTests(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
+    def setUp(self):
         service = Service(ChromeDriverManager().install())
-        cls.driver = webdriver.Chrome(service=service)
-        cls.driver.maximize_window()
-        cls.base_url = "http://localhost:5000"
+        self.driver = webdriver.Chrome(service=service)
+        self.driver.maximize_window()
+        self.driver.implicitly_wait(10)
+        self.base_url = "http://127.0.0.1:5000"
+
+    def tearDown(self):
+        self.driver.quit()
 
     def test_login(self):
         driver = self.driver
@@ -61,10 +64,6 @@ class StudyTrackerTests(unittest.TestCase):
 
         self.assertTrue(error_div.is_displayed())
         print("Error message text:", error_div.text)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.driver.quit()
 
 
 if __name__ == "__main__":
