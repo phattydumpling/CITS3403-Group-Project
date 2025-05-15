@@ -14,13 +14,18 @@ login_manager = LoginManager()
 csrf = CSRFProtect()
 
 
-def create_app():
-    app = Flask(__name__, 
-                template_folder='../templates',  # Point to the templates directory at root level
-                static_folder='../static')  # Also point to the static directory at root level
+def create_app(config_object=None):
+    app = Flask(
+        __name__,
+        template_folder='../templates',
+        static_folder='../static'
+    )
 
     # Load configuration
-    app.config.from_object(DeploymentConfig)
+    if config_object:
+        app.config.from_object(config_object)
+    else:
+        app.config.from_object(DeploymentConfig)
 
     # Initialize the database
     db.init_app(app)

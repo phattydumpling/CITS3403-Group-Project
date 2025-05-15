@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db
+from app import db, csrf
 from app.models import User, StudySession, Task, WellnessCheck, MoodEntry, Friendship, FriendRequest, SharedData, Assessment
 from app.forms import LoginForm, RegistrationForm, StudySessionForm, TaskForm, WellnessCheckForm
 from datetime import datetime, timedelta, date, timezone, UTC
@@ -48,6 +48,7 @@ def init_routes(app):
         return render_template('index.html')
 
     @app.route('/login', methods=['GET', 'POST'])
+    @csrf.exempt
     def login():
         form = LoginForm()
         if form.validate_on_submit():
@@ -68,6 +69,7 @@ def init_routes(app):
         return render_template('login.html', form=form)
 
     @app.route('/signup', methods=['GET', 'POST'])
+    @csrf.exempt
     def signup():
         form = RegistrationForm()
         if form.validate_on_submit():
@@ -102,7 +104,7 @@ def init_routes(app):
     @login_required
     def dashboard():
         # Get the start of the current week (Sunday)
-        today = datetime.utcnow().date()
+        today = datetime.now(UTC).date()
         start_of_week = today - timedelta(days=today.weekday() + 1 if today.weekday() != 6 else 0)
         start_of_week = datetime.combine(start_of_week, datetime.min.time())
 
@@ -172,7 +174,7 @@ def init_routes(app):
         ).count()
 
         # Get weekly mood average
-        week_ago = datetime.utcnow() - timedelta(days=7)
+        week_ago = datetime.now(UTC) - timedelta(days=7)
         mood_entries = MoodEntry.query.filter(
             MoodEntry.user_id == current_user.id,
             MoodEntry.created_at >= week_ago
@@ -397,7 +399,7 @@ def init_routes(app):
             flash(f"Goals submitted: Emotional - {selected_goals['emotional']}, Physical - {selected_goals['physical']}, Study - {selected_goals['study']}", "success")
 
         # Get user's mood entries for the past week
-        week_ago = datetime.utcnow() - timedelta(days=7)
+        week_ago = datetime.now(UTC) - timedelta(days=7)
         mood_entries = MoodEntry.query.filter(
             MoodEntry.user_id == current_user.id,
             MoodEntry.created_at >= week_ago
@@ -871,7 +873,7 @@ def init_routes(app):
     @app.route('/api/mood_entries', methods=['GET'])
     @login_required
     def get_mood_entries():
-        week_ago = datetime.utcnow() - timedelta(days=7)
+        week_ago = datetime.now(UTC) - timedelta(days=7)
         entries = MoodEntry.query.filter(
             MoodEntry.user_id == current_user.id,
             MoodEntry.created_at >= week_ago
@@ -1159,7 +1161,7 @@ def init_routes(app):
     @login_required
     def friend_leaderboard():
         # Get the start of the current week (Sunday)
-        today = datetime.utcnow().date()
+        today = datetime.now(UTC).date()
         start_of_week = today - timedelta(days=today.weekday() + 1 if today.weekday() != 6 else 0)
         start_of_week = datetime.combine(start_of_week, datetime.min.time())
 
