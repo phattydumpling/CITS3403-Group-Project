@@ -525,26 +525,26 @@ def init_routes(app):
                     } for entry in mood_entries]
                     has_data = True
 
-            if data['data'].get('tasks'):
-                # Get completed tasks from the last 7 days
-                week_ago = datetime.now(timezone.utc) - timedelta(days=7)
-                tasks = Task.query.filter(
-                    Task.user_id == current_user.id,
-                    Task.status == 'completed',
-                    Task.created_at >= week_ago
+            if data['data'].get('assessments'):
+                # Get all assessments with grades
+                assessments = Assessment.query.filter(
+                    Assessment.user_id == current_user.id,
+                    Assessment.grade.isnot(None)  # Only share assessments with grades
                 ).all()
-                if tasks:
-                    shared_data['tasks'] = [{
-                        'title': task.title,
-                        'description': task.description,
-                        'completed_at': task.created_at.isoformat()
-                    } for task in tasks]
+                if assessments:
+                    shared_data['assessments'] = [{
+                        'subject': assessment.subject,
+                        'title': assessment.title,
+                        'grade': assessment.grade,
+                        'weight': assessment.weight,
+                        'due_date': assessment.due_date.isoformat()
+                    } for assessment in assessments]
                     has_data = True
 
             if not has_data:
                 return jsonify({
                     'success': False,
-                    'error': 'No data available to share for the selected options'
+                    'error': 'No data available to share for the selected options.'
                 }), 400
 
             # Check for identical data content in recent shares (last 24 hours)
@@ -563,13 +563,13 @@ def init_routes(app):
                     }), 400
 
             # Create shared data entry
-            shared_data_entry = SharedData(
+            shared = SharedData(
                 from_user_id=current_user.id,
                 to_user_id=friend.id,
-                data_type='combined',
+                data_type='data_share',
                 data_content=shared_data
             )
-            db.session.add(shared_data_entry)
+            db.session.add(shared)
             db.session.commit()
 
             return jsonify({'success': True})

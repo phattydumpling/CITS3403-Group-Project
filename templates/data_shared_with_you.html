@@ -43,7 +43,7 @@
                                 <div class="hidden max-h-[600px] overflow-y-auto" id="user-{{ user_id }}">
                                     {% set study_data = [] %}
                                     {% set mood_data = [] %}
-                                    {% set tasks_data = [] %}
+                                    {% set assessment_data = [] %}
                                     
                                     {% for data in user_info.shares|sort(attribute='created_at', reverse=true) %}
                                         {% if data.data_content.get('study_progress') %}
@@ -52,8 +52,8 @@
                                         {% if data.data_content.get('mood') %}
                                             {% set _ = mood_data.append(data) %}
                                         {% endif %}
-                                        {% if data.data_content.get('tasks') %}
-                                            {% set _ = tasks_data.append(data) %}
+                                        {% if data.data_content.get('assessments') %}
+                                            {% set _ = assessment_data.append(data) %}
                                         {% endif %}
                                     {% endfor %}
 
@@ -75,6 +75,7 @@
                                             <div class="p-6 border-t border-gray-200 dark:border-gray-500">
                                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Shared {{ data.created_at_awst.strftime('%Y-%m-%d %H:%M') }}</p>
                                                 <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+                                                    <script type="application/json" id="studyData_{{ data.id }}">{{ data.data_content.study_progress|tojson }}</script>
                                                     <canvas id="studyChart_{{ data.id }}" class="w-full h-64"></canvas>
                                                 </div>
                                             </div>
@@ -101,6 +102,7 @@
                                             <div class="p-6 border-t border-gray-200 dark:border-gray-500">
                                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Shared {{ data.created_at_awst.strftime('%Y-%m-%d %H:%M') }}</p>
                                                 <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+                                                    <script type="application/json" id="moodData_{{ data.id }}">{{ data.data_content.mood|tojson }}</script>
                                                     <canvas id="moodChart_{{ data.id }}" class="w-full h-64"></canvas>
                                                 </div>
                                             </div>
@@ -109,25 +111,84 @@
                                     </div>
                                     {% endif %}
 
-                                    <!-- Tasks Section -->
-                                    {% if tasks_data %}
+                                    <!-- Assessment Results Section -->
+                                    {% if assessment_data %}
                                     <div class="border-t border-gray-200 dark:border-gray-500">
                                         <div class="p-4 bg-indigo-50 dark:bg-indigo-900/30 cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors duration-200" 
-                                             onclick="toggleDataTypeSection('tasks-{{ user_id }}')">
+                                             onclick="toggleDataTypeSection('assessments-{{ user_id }}')">
                                             <div class="flex items-center justify-between">
                                                 <h4 class="font-medium text-gray-900 dark:text-white flex items-center">
-                                                    <i class="fas fa-tasks mr-2 text-indigo-600"></i>
-                                                    Completed Tasks
+                                                    <i class="fas fa-file-alt mr-2 text-indigo-600"></i>
+                                                    Assessment Results
                                                 </h4>
-                                                <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200" id="icon-tasks-{{ user_id }}"></i>
+                                                <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200" id="icon-assessments-{{ user_id }}"></i>
                                             </div>
                                         </div>
-                                        <div id="tasks-{{ user_id }}">
-                                            {% for data in tasks_data %}
+                                        <div id="assessments-{{ user_id }}">
+                                            {% for data in assessment_data %}
                                             <div class="p-6 border-t border-gray-200 dark:border-gray-500">
                                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Shared {{ data.created_at_awst.strftime('%Y-%m-%d %H:%M') }}</p>
-                                                <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
-                                                    <canvas id="tasksChart_{{ data.id }}" class="w-full h-64"></canvas>
+                                                <div class="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-sm">
+                                                    <div class="space-y-6">
+                                                        {% for assessment in data.data_content.assessments %}
+                                                        <div class="border-b border-gray-200 dark:border-gray-600 pb-6 last:border-0 last:pb-0">
+                                                            <div class="flex flex-col space-y-4">
+                                                                <div class="flex justify-between items-start">
+                                                                    <div class="flex-1">
+                                                                        <h5 class="font-semibold text-lg text-gray-900 dark:text-white">{{ assessment.title }}</h5>
+                                                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ assessment.subject }}</p>
+                                                                    </div>
+                                                                    <div class="text-right ml-4">
+                                                                        <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                                                                            {% if assessment.grade >= 80 %}
+                                                                                bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400
+                                                                            {% elif assessment.grade >= 70 %}
+                                                                                bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400
+                                                                            {% elif assessment.grade >= 60 %}
+                                                                                bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400
+                                                                            {% else %}
+                                                                                bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400
+                                                                            {% endif %}">
+                                                                            {{ assessment.grade }}%
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <div class="space-y-2">
+                                                                    <div class="flex justify-between text-sm">
+                                                                        <span class="text-gray-500 dark:text-gray-400">Grade Progress</span>
+                                                                        <span class="text-gray-700 dark:text-gray-300">{{ assessment.grade }}%</span>
+                                                                    </div>
+                                                                    <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5">
+                                                                        <div class="h-2.5 rounded-full
+                                                                            {% if assessment.grade >= 80 %}
+                                                                                bg-green-500
+                                                                            {% elif assessment.grade >= 70 %}
+                                                                                bg-blue-500
+                                                                            {% elif assessment.grade >= 60 %}
+                                                                                bg-yellow-500
+                                                                            {% else %}
+                                                                                bg-red-500
+                                                                            {% endif %}"
+                                                                            style="width: {{ assessment.grade }}%">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="flex justify-between items-center text-sm">
+                                                                    <div class="flex items-center text-gray-500 dark:text-gray-400">
+                                                                        <i class="fas fa-weight-hanging mr-2"></i>
+                                                                        Weight: {{ assessment.weight }}%
+                                                                    </div>
+                                                                    <div class="flex items-center text-gray-500 dark:text-gray-400">
+                                                                        <i class="fas fa-calendar-alt mr-2"></i>
+                                                                        Due: {{ assessment.due_date }}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
                                                 </div>
                                             </div>
                                             {% endfor %}
@@ -154,253 +215,6 @@
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-// Move toggleUserSection to global scope
-function toggleUserSection(userId) {
-    const section = document.getElementById(userId);
-    const icon = document.getElementById('icon-' + userId.replace('user-', ''));
-    section.classList.toggle('hidden');
-    icon.classList.toggle('rotate-180');
-}
-
-// Add toggle function for data type sections
-function toggleDataTypeSection(sectionId) {
-    const section = document.getElementById(sectionId);
-    const icon = document.getElementById('icon-' + sectionId);
-    section.classList.toggle('hidden');
-    icon.classList.toggle('rotate-180');
-}
-
-// Initialize global chart instances object if it doesn't exist
-window.chartInstances = window.chartInstances || {};
-
-// Common chart options
-const commonChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-        legend: {
-            position: 'top',
-            labels: {
-                font: {
-                    size: 12
-                },
-                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
-            }
-        },
-        title: {
-            display: true,
-            font: {
-                size: 16,
-                weight: 'bold'
-            },
-            color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
-            padding: 20
-        }
-    }
-};
-
-document.addEventListener('DOMContentLoaded', function() {
-    {% for data in data_shared_with_you %}
-        {% if data.data_content.get('study_progress') %}
-        // Study Progress Chart
-        (function() {
-            const chartId = 'studyChart_{{ data.id }}';
-            // Destroy existing chart if it exists
-            if (window.chartInstances[chartId]) {
-                window.chartInstances[chartId].destroy();
-            }
-            
-            const studyCtx = document.getElementById(chartId).getContext('2d');
-            const studyData = {{ data.data_content.study_progress|tojson }};
-            const studyLabels = studyData.map(session => session.subject);
-            const studyDurations = studyData.map(session => {
-                const start = new Date(session.start_time);
-                const end = session.end_time ? new Date(session.end_time) : new Date();
-                return (end - start) / (1000 * 60 * 60); // Convert to hours
-            });
-
-            window.chartInstances[chartId] = new Chart(studyCtx, {
-                type: 'bar',
-                data: {
-                    labels: studyLabels,
-                    datasets: [{
-                        label: 'Study Duration (hours)',
-                        data: studyDurations,
-                        backgroundColor: 'rgba(99, 102, 241, 0.7)',
-                        borderColor: 'rgb(99, 102, 241)',
-                        borderWidth: 2,
-                        borderRadius: 5,
-                        barThickness: 30
-                    }]
-                },
-                options: {
-                    ...commonChartOptions,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Hours',
-                                font: {
-                                    size: 12
-                                },
-                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
-                            },
-                            ticks: {
-                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
-                            },
-                            grid: {
-                                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
-                            },
-                            grid: {
-                                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                            }
-                        }
-                    }
-                }
-            });
-        })();
-        {% endif %}
-
-        {% if data.data_content.get('mood') %}
-        // Mood Chart
-        (function() {
-            const chartId = 'moodChart_{{ data.id }}';
-            // Destroy existing chart if it exists
-            if (window.chartInstances[chartId]) {
-                window.chartInstances[chartId].destroy();
-            }
-            
-            const moodCtx = document.getElementById(chartId).getContext('2d');
-            const moodData = {{ data.data_content.mood|tojson }};
-            const moodLabels = moodData.map(entry => new Date(entry.created_at).toLocaleDateString());
-            const moodScores = moodData.map(entry => entry.mood_score);
-
-            window.chartInstances[chartId] = new Chart(moodCtx, {
-                type: 'line',
-                data: {
-                    labels: moodLabels,
-                    datasets: [{
-                        label: 'Mood Score',
-                        data: moodScores,
-                        borderColor: 'rgb(99, 102, 241)',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
-                        pointBackgroundColor: 'rgb(99, 102, 241)',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2
-                    }]
-                },
-                options: {
-                    ...commonChartOptions,
-                    scales: {
-                        y: {
-                            min: 0,
-                            max: 10,
-                            title: {
-                                display: true,
-                                text: 'Mood Score',
-                                font: {
-                                    size: 12
-                                },
-                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
-                            },
-                            ticks: {
-                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
-                            },
-                            grid: {
-                                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
-                            },
-                            grid: {
-                                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                            }
-                        }
-                    }
-                }
-            });
-        })();
-        {% endif %}
-
-        {% if data.data_content.get('tasks') %}
-        // Tasks Chart
-        (function() {
-            const chartId = 'tasksChart_{{ data.id }}';
-            // Destroy existing chart if it exists
-            if (window.chartInstances[chartId]) {
-                window.chartInstances[chartId].destroy();
-            }
-            
-            const tasksCtx = document.getElementById(chartId).getContext('2d');
-            const tasksData = {{ data.data_content.tasks|tojson }};
-            const taskDates = tasksData.map(task => new Date(task.completed_at).toLocaleDateString());
-            const taskCounts = {};
-            taskDates.forEach(date => {
-                taskCounts[date] = (taskCounts[date] || 0) + 1;
-            });
-
-            window.chartInstances[chartId] = new Chart(tasksCtx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(taskCounts),
-                    datasets: [{
-                        label: 'Completed Tasks',
-                        data: Object.values(taskCounts),
-                        backgroundColor: 'rgba(99, 102, 241, 0.7)',
-                        borderColor: 'rgb(99, 102, 241)',
-                        borderWidth: 2,
-                        borderRadius: 5,
-                        barThickness: 30
-                    }]
-                },
-                options: {
-                    ...commonChartOptions,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Number of Tasks',
-                                font: {
-                                    size: 12
-                                },
-                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
-                            },
-                            ticks: {
-                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
-                            },
-                            grid: {
-                                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151'
-                            },
-                            grid: {
-                                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-                            }
-                        }
-                    }
-                }
-            });
-        })();
-        {% endif %}
-    {% endfor %}
-});
-</script>
+<script src="{{ url_for('static', filename='js/data_shared_charts.js') }}"></script>
 {% endblock %}
 {% endblock %} 
