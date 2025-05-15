@@ -16,7 +16,11 @@
 
     <!-- Logo at Top-Left Corner -->
     <div class="absolute top-8 left-8 z-10">
-        <a href="{{ url_for('index') }}" class="text-[#173B64] text-2xl font-bold hover:text-[#1a4a7d] transition-colors duration-200">StudyTracker</a>
+        <a href="{{ url_for('index') }}"
+           class="flex items-center space-x-2 text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-indigo-400 bg-clip-text text-transparent hover:from-indigo-500 hover:to-indigo-300 transition-all duration-300">
+            <i class="fas fa-graduation-cap text-indigo-600"></i>
+            <span>StudyTracker</span>
+        </a>
     </div>
 
     <div class="flex min-h-screen items-center justify-center p-8">
