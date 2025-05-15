@@ -252,7 +252,7 @@
                                         <div>
                                             <label for="minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Minutes</label>
                                             <select id="minutes" name="minutes" class="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                                {% for minute in range(0, 61, 5) %}
+                                                {% for minute in range(0, 61, 1) %}
                                                 <option value="{{ minute }}">{{ minute }}</option>
                                                 {% endfor %}
                                             </select>
