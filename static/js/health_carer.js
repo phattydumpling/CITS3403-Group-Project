@@ -813,3 +813,52 @@ function triggerConfetti() {
   physicalRadios.forEach(r => r.addEventListener('change', updateGoals));
   studyRadios.forEach(r => r.addEventListener('change', updateGoals));
 })();
+
+document.addEventListener("DOMContentLoaded", function () {
+    const sections = document.querySelectorAll(".goal-section");
+  
+    sections.forEach((section) => {
+      const input = section.querySelector(".goal-input");
+      const button = section.querySelector(".goal-submit");
+      const list = section.querySelector(".goal-list");
+      const inputArea = section.querySelector(".goal-input-area");
+      const settingsBtn = section.querySelector(".goal-settings");
+  
+      const borderColor = section.dataset.color;
+      const titleColor = section.dataset.headingColor;
+      section.querySelector(".goal-title").style.color = titleColor;
+  
+      settingsBtn.addEventListener("click", () => {
+        inputArea.classList.remove("hidden");
+        settingsBtn.style.display = "none";
+      });
+  
+      button.addEventListener("click", function () {
+        const value = input.value.trim();
+        if (!value) return;
+  
+        const label = document.createElement("label");
+        label.style.borderColor = borderColor;
+  
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+  
+        const span = document.createElement("span");
+        span.textContent = value;
+  
+        checkbox.addEventListener("change", () => {
+          span.classList.toggle("completed", checkbox.checked);
+        });
+  
+        label.appendChild(checkbox);
+        label.appendChild(span);
+        list.innerHTML = "";
+        list.appendChild(label);
+  
+        input.value = "";
+        inputArea.classList.add("hidden");
+        settingsBtn.style.display = "inline-block";
+      });
+    });
+  });
+  

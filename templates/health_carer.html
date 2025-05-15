@@ -48,11 +48,7 @@
 <div class="h-full w-full bg-gray-50 dark:bg-gray-800">
     <div class="h-full w-full p-8">
         <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-12">
-                <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">Health Carer</h1>
-                <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Take care of yourself and maintain a healthy study-life balance.</p>
-            </div>
-<!-- 3 Main Health Goals Section (ported from React) -->
+<!-- 3 Main Health Goals Section -->
 <div id="main-health-goals" class="mb-12 bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600">
   <header class="mb-6 text-center">
     <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">3 Daily Goals</h2>
@@ -62,101 +58,105 @@
   </header>
   <div class="flex flex-col md:flex-row justify-center gap-8 mb-6">
     <!-- Emotional -->
-    <div class="flex-1">
-      <h3 class="text-lg font-semibold mb-4" style="color: #2787e6;">Emotional</h3>
-      <div class="flex flex-col gap-3">
-        <label class="goal-card pill cursor-pointer border-2 rounded-xl px-4 py-2 flex items-center" style="border-color: #A7C7E7;">
-          <input type="form" placeholder="Meditate for 5 minutes"/>
-          <button>"Submit"</button>
-      </div>
-    </div>
-    <!-- Physical -->
-    <div class="flex-1">
-      <h3 class="text-lg font-semibold mb-4" style="color: #d1341f;">Physical</h3>
-      <div class="flex flex-col gap-3">
-        <label class="goal-card pill cursor-pointer border-2 rounded-xl px-4 py-2 flex items-center" style="border-color: #FFD6B0;">
-          <input type="radio" name="physical-goal" value="0" class="mr-2" />
-          <span>Go for a walk</span>
-        </label>
-        <label class="goal-card pill cursor-pointer border-2 rounded-xl px-4 py-2 flex items-center" style="border-color: #FFD6B0;">
-          <input type="radio" name="physical-goal" value="1" class="mr-2" />
-          <span>Do 10 push-ups</span>
-        </label>
-        <label class="goal-card pill cursor-pointer border-2 rounded-xl px-4 py-2 flex items-center" style="border-color: #FFD6B0;">
-          <input type="radio" name="physical-goal" value="2" class="mr-2" />
-          <span>Stretch for 5 minutes</span>
-        </label>
-      </div>
-    </div>
-    <!-- Study -->
-    <div class="flex-1">
-      <h3 class="text-lg font-semibold mb-4" style="color: #55be24;">Study</h3>
-      <div class="flex flex-col gap-3">
-        <label class="goal-card pill cursor-pointer border-2 rounded-xl px-4 py-2 flex items-center" style="border-color: #B6E2A1;">
-          <input type="radio" name="study-goal" value="0" class="mr-2" />
-          <span>Review lecture notes</span>
-        </label>
-        <label class="goal-card pill cursor-pointer border-2 rounded-xl px-4 py-2 flex items-center" style="border-color: #B6E2A1;">
-          <input type="radio" name="study-goal" value="1" class="mr-2" />
-          <span>Complete 1 practice question</span>
-        </label>
-        <label class="goal-card pill cursor-pointer border-2 rounded-xl px-4 py-2 flex items-center" style="border-color: #B6E2A1;">
-          <input type="radio" name="study-goal" value="2" class="mr-2" />
-          <span>Organize study space</span>
-        </label>
-      </div>
-    </div>
-    </div>
-</div>
-</div>
-            <!-- Main Content Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Left Column - Mental Health & Study Break -->
-                <div class="space-y-8 w-full">
+    <div class="flex-1 goal-section" data-color="#A7C7E7" data-heading-color="#2787e6">
+        <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold goal-title" style="color: #2787e6;">Emotional</h3>
+        <button class="goal-settings text-gray-500 hover:text-gray-700 transition-colors duration-200">⚙️</button>
+        </div>
 
-                    <!-- Study Break Section -->
-                    <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600">
-                        <div class="flex items-center mb-6">
-                            <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
-                                <i class="fas fa-coffee text-2xl text-indigo-600 dark:text-indigo-300"></i>
-                            </div>
-                            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Study Break</h2>
-                        </div>
-                        <!-- Study Break Timer -->
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Study Break Timer</h3>
-                            <div class="flex flex-col items-center">
-                                <span id="studyBreakTimerDisplay" class="text-5xl font-bold text-gray-900 dark:text-white mb-1">30:00</span>
-                                <span class="text-sm text-gray-600 dark:text-gray-300 mb-4">(time till next break)</span>
-                                <div class="flex items-center space-x-4 mb-4">
-                                    <div>
-                                        <select id="studyBreakHours" class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                            {% for i in range(0, 25) %}
-                                            <option value="{{ i }}">{{ i }}</option>
-                                            {% endfor %}
-                                        </select>
-                                        <span class="text-gray-700 dark:text-gray-300 ml-1">hours</span>
-                                    </div>
-                                    <div>
-                                        <select id="studyBreakMinutes" class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                            {% for i in range(1, 61, 1) %}
-                                            <option value="{{ i }}" {% if i == 30 %}selected{% endif %}>{{ i }}</option>
-                                            {% endfor %}
-                                        </select>
-                                        <span class="text-gray-700 dark:text-gray-300 ml-1">minutes</span>
-                                    </div>
-                                </div>
-                                <button id="startStudyBreakReminder" class="w-full px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">Start Reminder</button>
-                            </div>
-                        </div>
-                        <!-- Study Break Ideas -->
-                        <div>
-                            <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Study break ideas:</h4>
-                            <div id="studyBreakIdeas" class="text-gray-700 dark:text-gray-200 italic">
-                                <span>Take a deep breath and stretch your arms!</span>
-                            </div>
-                        </div>
+        <div class="goal-input-area relative h-[60px] flex items-center gap-2">
+        <input type="text" placeholder="Meditate for 5 minutes" class="goal-input flex-1 px-3 py-2 rounded-lg border border-gray-300 shadow-sm" />
+        <button type="button" class="goal-submit bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-indigo-700 transition-colors duration-300">
+            Submit
+        </button>
+        </div>
+
+        <div class="goal-list mt-4 flex flex-col gap-3"></div>
+    </div>
+
+    <!-- Physical -->
+    <div class="flex-1 goal-section" data-color="#FFD6B0" data-heading-color="#d1341f">
+        <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold goal-title" style="color: #d1341f;">Physical</h3>
+        <button class="goal-settings text-gray-500 hover:text-gray-700 transition-colors duration-200">⚙️</button>
+        </div>
+
+        <div class="goal-input-area relative h-[60px] flex items-center gap-2">
+        <input type="text" placeholder="Do 5 pushups" class="goal-input flex-1 px-3 py-2 rounded-lg border border-gray-300 shadow-sm" />
+        <button type="button" class="goal-submit bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-indigo-700 transition-colors duration-300">
+            Submit
+        </button>
+        </div>
+
+        <div class="goal-list mt-4 flex flex-col gap-3"></div>
+    </div>
+
+    <!-- Study -->
+    <div class="flex-1 goal-section" data-color="#B6E2A1" data-heading-color="#55be24">
+        <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold goal-title" style="color: #55be24;">Study</h3>
+        <button class="goal-settings text-gray-500 hover:text-gray-700 transition-colors duration-200">⚙️</button>
+        </div>
+
+        <div class="goal-input-area relative h-[60px] flex items-center gap-2">
+        <input type="text" placeholder="Review today's lecture notes" class="goal-input flex-1 px-3 py-2 rounded-lg border border-gray-300 shadow-sm" />
+        <button type="button" class="goal-submit bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-indigo-700 transition-colors duration-300">
+            Submit
+        </button>
+        </div>
+
+        <div class="goal-list mt-4 flex flex-col gap-3"></div>
+    </div>
+    </div>
+</div>
+</div>
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column - Mental Health & Study Break -->
+        <div class="space-y-8 w-full">
+            <!-- Study Break Section -->
+            <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
+                        <i class="fas fa-coffee text-2xl text-indigo-600 dark:text-indigo-300"></i>
                     </div>
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Study Break</h2>
+                </div>
+                <!-- Study Break Timer -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Study Break Timer</h3>
+                    <div class="flex flex-col items-center">
+                        <span id="studyBreakTimerDisplay" class="text-5xl font-bold text-gray-900 dark:text-white mb-1">30:00</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-300 mb-4">(time till next break)</span>
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div>
+                                <select id="studyBreakHours" class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    {% for i in range(0, 25) %}
+                                    <option value="{{ i }}">{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="text-gray-700 dark:text-gray-300 ml-1">hours</span>
+                            </div>
+                            <div>
+                                <select id="studyBreakMinutes" class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    {% for i in range(1, 61, 1) %}
+                                    <option value="{{ i }}" {% if i == 30 %}selected{% endif %}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="text-gray-700 dark:text-gray-300 ml-1">minutes</span>
+                            </div>
+                        </div>
+                        <button id="startStudyBreakReminder" class="w-full px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">Start Reminder</button>
+                    </div>
+                </div>
+                <!-- Study Break Ideas -->
+                <div>
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Study break ideas:</h4>
+                    <div id="studyBreakIdeas" class="text-gray-700 dark:text-gray-200 italic">
+                        <span>Take a deep breath and stretch your arms!</span>
+                    </div>
+                </div>
+            </div>
 
                     <!-- Water Tracker Section -->
                     <div class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200">
