@@ -93,11 +93,14 @@ The Study Tracker contains the following:
    ```
 4. **Set up environment variables**
    Create a `.env` file in the project root directory
+
+   In terminal, input the following:
    ```python
    import secrets
    print(secrets.token_hex(16))
    ```
-   Replace with generate secret keys
+   Input the 'print(secrets.token_hex(16))' twice to generate two secret keys
+   Replace the below placeholders with the generated secret keys
    ```bash
    # Flask application secret key
    SECRET_KEY=your_generated_secret_key
@@ -105,21 +108,22 @@ The Study Tracker contains the following:
    # CSRF protection secret key
    WTF_CSRF_SECRET_KEY=your_generated_csrf_secret_key
    ```
-5. **Run the Application**:
+   Paste this into the '.env' file
+6. **Run the Application**:
    ```bash
    python app.py
    ```
-6. **Access the Application**:
+7. **Access the Application**:
    Open a web browser and navigate to `http://127.0.0.1:5000`.
 
 
 ### Running Tests
 - To run the tests for the application, execute the following command:
    ```bash
-   python3 -m unittest tests/unit.py # For Unittests
+   python3 -m unittest tests/unittest.py # For Unittests
    python3 -m unittest tests/selenium.py # For Selenium Tests
    ```
 - Ensure that the application is running and the database is initialised before running tests to verify functionality.
 
 ### References
-This project includes code and implementation generated with the assistance of GitHub Copilot, OpenAI's ChatGPT, Cursor and Stack Overflow.
+This project includes code and implementation generated with the assistance of GitHub Copilot, OpenAI's ChatGPT, Cursor, PearAI and Stack Overflow.
