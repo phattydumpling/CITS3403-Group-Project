@@ -34,6 +34,7 @@ class User(UserMixin, db.Model):
     study_sessions = db.relationship('StudySession', backref='user', lazy=True)
     tasks = db.relationship('Task', backref='user', lazy=True)
     wellness_checks = db.relationship('WellnessCheck', backref='user', lazy=True)
+    study_goals = db.relationship('StudyGoal', backref='user', lazy=True)
     friends = db.relationship(
         'User',
         secondary='friendship',
@@ -107,4 +108,19 @@ class Assessment(db.Model):
     due_date = db.Column(db.Date, nullable=False)
     done = db.Column(db.Boolean, default=False)
     grade = db.Column(db.Float, nullable=True)
-    weight = db.Column(db.Float, nullable=True) 
+    weight = db.Column(db.Float, nullable=True)
+
+class StudyGoal(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    subject = db.Column(db.String(100), nullable=False)
+    target_hours = db.Column(db.Float, nullable=False)  # Target study hours per week
+    current_hours = db.Column(db.Float, default=0)  # Current study hours this week
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=False)
+    status = db.Column(db.String(20), default='active')  # active, completed, abandoned
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
+
+    def __repr__(self):
+        return f'<StudyGoal {self.subject} - {self.target_hours} hours>' 

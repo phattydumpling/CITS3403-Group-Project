@@ -3,6 +3,7 @@ from datetime import datetime, UTC, timedelta
 from app import create_app, db
 from app.models import User, FriendRequest, StudySession, Task, WellnessCheck, Assessment
 from config import TestConfig
+from werkzeug.security import generate_password_hash
 
 class TestModels(unittest.TestCase):
     def setUp(self):
@@ -15,6 +16,23 @@ class TestModels(unittest.TestCase):
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
+
+    def test_database(self):
+        """Test basic database functionality"""
+        test_user = User(
+            username='testuser2',
+            email='test2@example.com',
+            password=generate_password_hash('testpass123')
+        )
+        
+        db.session.add(test_user)
+        db.session.commit()
+        
+        # Verify we can query the user
+        user = User.query.filter_by(username='testuser2').first()
+        self.assertIsNotNone(user)
+        self.assertEqual(user.username, 'testuser2')
+        self.assertEqual(user.email, 'test2@example.com')
 
     def test_user_creation(self):
         """Test user creation and validation"""
@@ -198,6 +216,92 @@ class TestRoutes(unittest.TestCase):
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'dashboard', response.data.lower())  # Adjust as needed for your dashboard page
+
+    def test_profile_update(self):
+        """Test profile update functionality"""
+        # First create and login a user
+        self.client.post('/signup', data={
+            'username': 'profileuser',
+            'email': 'profile@example.com',
+            'password': 'ProfilePass123!',
+            'confirm_password': 'ProfilePass123!'
+        })
+        
+        self.client.post('/login', data={
+            'username_or_email': 'profileuser',
+            'password': 'ProfilePass123!'
+        })
+
+        # Test profile update
+        response = self.client.post('/profile', data={
+            'email': 'updated@example.com',
+            'university': 'Updated University',
+            'current_password': 'ProfilePass123!',
+            'new_password': 'NewPass123!',
+            'confirm_password': 'NewPass123!'
+        }, follow_redirects=True)
+        
+        self.assertEqual(response.status_code, 200)
+        # Check for individual success messages
+        self.assertIn(b'Email updated successfully', response.data)
+        self.assertIn(b'University updated successfully', response.data)
+        self.assertIn(b'Password updated successfully', response.data)
+
+        # Verify the changes in the database
+        user = User.query.filter_by(username='profileuser').first()
+        self.assertEqual(user.email, 'updated@example.com')
+        self.assertEqual(user.university, 'Updated University')
+
+    def test_unit_distribution(self):
+        """Test unit distribution API endpoint"""
+        # Create and login a user
+        self.client.post('/signup', data={
+            'username': 'studyuser',
+            'email': 'study@example.com',
+            'password': 'StudyPass123!',
+            'confirm_password': 'StudyPass123!'
+        })
+        
+        self.client.post('/login', data={
+            'username_or_email': 'studyuser',
+            'password': 'StudyPass123!'
+        })
+
+        # Create some study sessions
+        user = User.query.filter_by(username='studyuser').first()
+        start_time = datetime.now(UTC)
+        
+        # Add study sessions for different subjects
+        sessions = [
+            StudySession(
+                user_id=user.id,
+                start_time=start_time,
+                end_time=start_time + timedelta(hours=2),
+                subject='Mathematics',
+                notes='Studied calculus'
+            ),
+            StudySession(
+                user_id=user.id,
+                start_time=start_time + timedelta(hours=3),
+                end_time=start_time + timedelta(hours=5),
+                subject='Physics',
+                notes='Studied mechanics'
+            )
+        ]
+        db.session.add_all(sessions)
+        db.session.commit()
+
+        # Test the unit distribution API
+        response = self.client.get('/api/unit_distribution')
+        self.assertEqual(response.status_code, 200)
+        
+        data = response.get_json()
+        self.assertIn('labels', data)
+        self.assertIn('data', data)
+        self.assertEqual(len(data['labels']), 2)
+        self.assertEqual(len(data['data']), 2)
+        self.assertIn('Mathematics', data['labels'])
+        self.assertIn('Physics', data['labels'])
 
     def test_login_invalid(self):
         response = self.client.post('/login', data={
