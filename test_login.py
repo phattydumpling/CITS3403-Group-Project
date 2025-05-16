@@ -86,6 +86,45 @@ class StudyTrackerTests(unittest.TestCase):
         self.assertFalse(is_username_valid)
         self.assertFalse(is_password_valid)
 
+    def test_multiple_invalid_login_attempts(self):
+        driver = self.driver
+        driver.get(f"{self.base_url}/login")
+        
+        wrong_passwords = ["wrongpass1", "123456", "password", "admin1234", "letmein"]
+        
+        for pwd in wrong_passwords:
+            email_field = self.wait.until(EC.presence_of_element_located((By.NAME, "username_or_email")))
+            email_field.clear()
+            email_field.send_keys("admin2@gmail.com")
+
+            password_field = self.wait.until(EC.presence_of_element_located((By.NAME, "password")))
+            password_field.clear()
+            password_field.send_keys(pwd)
+            password_field.send_keys(Keys.RETURN)
+
+            # Wait for the error message after login attempt
+            error_div = self.wait.until(
+                EC.visibility_of_element_located(
+                    (By.CSS_SELECTOR, "div.bg-red-50.text-red-700.border.border-red-200")
+                )
+            )
+
+            # Refetch element here in case it went stale (optional safety)
+            error_div = driver.find_element(By.CSS_SELECTOR, "div.bg-red-50.text-red-700.border.border-red-200")
+
+            self.assertTrue(error_div.is_displayed(), f"Error message not displayed for password: {pwd}")
+            print(f"Attempt with password '{pwd}' shows error: {error_div.text}")
+
+            time.sleep(1)
+
+            
+            self.assertTrue(error_div.is_displayed(), f"Error message not displayed for password: {pwd}")
+            print(f"Attempt with password '{pwd}' shows error: {error_div.text}")
+            
+            # Optionally wait a bit before next attempt to avoid quick retries
+            time.sleep(1)
+
+
     def test_study_timer_starts(self):
         driver = self.driver
         
