@@ -16,6 +16,8 @@ class StudyTrackerTests(unittest.TestCase):
         self.driver.maximize_window()
         self.driver.implicitly_wait(10)
         self.base_url = "http://127.0.0.1:5000"
+        self.wait = WebDriverWait(self.driver, 10)  
+
 
     def tearDown(self):
         self.driver.quit()
@@ -35,10 +37,6 @@ class StudyTrackerTests(unittest.TestCase):
 
         # Optional: wait for dashboard to load before assertions
         wait.until(EC.title_contains("Dashboard"))
-
-        print("Current URL after login:", driver.current_url)
-        print("Page title after login:", driver.title)
-        print("Page content snippet:", driver.page_source[:500])
 
         self.assertIn("Dashboard", driver.title)
 
@@ -64,6 +62,37 @@ class StudyTrackerTests(unittest.TestCase):
 
         self.assertTrue(error_div.is_displayed())
         print("Error message text:", error_div.text)
+
+    def test_login_with_empty_fields(self):
+        driver = self.driver
+        driver.get(f"{self.base_url}/login")
+
+        # Find the login button and click it
+        login_button = self.wait.until(
+            EC.element_to_be_clickable((By.XPATH, "//button[text()='Login'] | //input[@type='submit']"))
+        )
+        login_button.click()
+
+        # Use JavaScript to check if the username_or_email input is valid
+        is_username_valid = driver.execute_script(
+            "return document.getElementsByName('username_or_email')[0].checkValidity();"
+        )
+        is_password_valid = driver.execute_script(
+            "return document.getElementsByName('password')[0].checkValidity();"
+        )
+
+        # Assert that both inputs are invalid (since they are empty and required)
+        self.assertFalse(is_username_valid)
+        self.assertFalse(is_password_valid)
+
+
+
+
+    
+
+
+
+
 
 
 if __name__ == "__main__":
