@@ -39,13 +39,13 @@
                                         </div>
                                     </div>
                                     <div class="flex space-x-2">
-                                        <form action="{{ url_for('accept_friend', request_id=notif.request.id) }}" method="POST" class="inline">
+                                        <form action="{{ url_for('main.accept_friend', request_id=notif.request.id) }}" method="POST" class="inline">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                             <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-300">
                                                 Accept
                                             </button>
                                         </form>
-                                        <form action="{{ url_for('reject_friend', request_id=notif.request.id) }}" method="POST" class="inline">
+                                        <form action="{{ url_for('main.reject_friend', request_id=notif.request.id) }}" method="POST" class="inline">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                             <button type="submit" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-300">
                                                 Reject

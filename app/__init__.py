@@ -4,6 +4,8 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 import os
 from flask import url_for, current_app
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from config import DeploymentConfig
 from flask_wtf.csrf import CSRFProtect
 
@@ -13,6 +15,15 @@ migrate = Migrate()
 login_manager = LoginManager()
 csrf = CSRFProtect()
 
+
+AWST = ZoneInfo("Australia/Perth")
+
+def to_awst(dt):
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(AWST)
 
 def create_app(config_object=None):
     app = Flask(
@@ -30,23 +41,27 @@ def create_app(config_object=None):
     # Initialize the database
     db.init_app(app)
     migrate.init_app(app, db)
-    
+
     # Initialize Flask-Login
     login_manager.init_app(app)
-    login_manager.login_view = 'login'
+    login_manager.login_view = 'main.login'
     login_manager.login_message = 'Please log in to access this page.'
     login_manager.login_message_category = 'info'
 
     csrf.init_app(app)  # Enable CSRF protection
 
-    # Initialize routes
-    from app.routes import init_routes
-    init_routes(app)
+
+    # Register blueprints
+    from app.blueprints import main
+    app.register_blueprint(main)
 
     # Error handlers
     @app.errorhandler(404)
     def page_not_found(e):
-        return render_template('404.html'), 404
+        return render_template('404.html', 
+                             pending_requests_count=0,
+                             accepted_requests_count=0,
+                             unread_shared_data_count=0), 404
 
     # Cache-busting static file helper
     def static_file(filename):
@@ -60,5 +75,10 @@ def create_app(config_object=None):
         return url_for('static', filename=filename, v=version)
 
     app.jinja_env.globals['static_file'] = static_file
+
+    # Add AWST template filter
+    @app.template_filter('awst')
+    def awst_filter(dt):
+        return to_awst(dt)
 
     return app
