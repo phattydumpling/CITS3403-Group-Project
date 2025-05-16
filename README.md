@@ -65,8 +65,12 @@ The Study Tracker contains the following:
 - User authentication
 - Secure password handling
 
-## Getting Started
+# Getting Started
 
+## Prerequisites
+- Python 3.13
+- pip 25.1.1
+  
 ### Deployment/Launch
 1. **Clone the Repository**: 
    ```bash
@@ -75,29 +79,45 @@ The Study Tracker contains the following:
    ```
 2. **Set Up Virtual Environment**:
    ```bash
+   # For macOS/Linux
    python -m venv venv
    source venv/bin/activate
-   venv\Scripts\activate # For Windows 
+
+   # For Windows
+   python -m venv venv
+   venv\Scripts\activate
    ```
 3. **Install Dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
-4. **Initialise the Database**:
+4. **Set up environment variables**
+   Create a `.env` file in the project root directory
+   ```python
+   import secrets
+   print(secrets.token_hex(16))
+   ```
+   Replace with generate secret keys
    ```bash
-   python create_db.py
+   # Flask application secret key
+   SECRET_KEY=your_generated_secret_key
+
+   # CSRF protection secret key
+   WTF_CSRF_SECRET_KEY=your_generated_csrf_secret_key
    ```
 5. **Run the Application**:
    ```bash
    python app.py
    ```
-6. **Access the Application**: Open a web browser and navigate to `http://127.0.0.1:5000`.
+6. **Access the Application**:
+   Open a web browser and navigate to `http://127.0.0.1:5000`.
+
 
 ### Running Tests
 - To run the tests for the application, execute the following command:
    ```bash
-   python -m unittest tests/unit.py # For Unittests
-   Selenium.py python -m unittest tests/selenium.py # For Selenium Tests
+   python3 -m unittest tests/unit.py # For Unittests
+   python3 -m unittest tests/selenium.py # For Selenium Tests
    ```
 - Ensure that the application is running and the database is initialised before running tests to verify functionality.
 
