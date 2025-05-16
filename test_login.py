@@ -1,4 +1,5 @@
 import unittest
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -84,6 +85,42 @@ class StudyTrackerTests(unittest.TestCase):
         # Assert that both inputs are invalid (since they are empty and required)
         self.assertFalse(is_username_valid)
         self.assertFalse(is_password_valid)
+
+    def test_study_timer_starts(self):
+        driver = self.driver
+        
+        # First login to be able to access study area
+        driver.get(f"{self.base_url}/login")
+        email_field = self.wait.until(EC.presence_of_element_located((By.NAME, "username_or_email")))
+        email_field.send_keys("admin2@gmail.com")
+        password_field = self.wait.until(EC.presence_of_element_located((By.NAME, "password")))
+        password_field.send_keys("Admin123@")
+        password_field.send_keys(Keys.RETURN)
+
+        # Wait until redirected to dashboard or home page
+        self.wait.until(EC.title_contains("Dashboard"))
+
+        # Navigate to study area page
+        driver.get(f"{self.base_url}/study_area")
+
+        # Wait for the timer display to appear
+        timer_display = self.wait.until(EC.visibility_of_element_located((By.ID, "timer-display")))
+
+        # Verify initial timer text is "25:00"
+        self.assertEqual(timer_display.text, "25:00", f"Expected timer to start at 25:00 but got {timer_display.text}")
+
+        # Find and click the start button
+        start_button = self.wait.until(EC.element_to_be_clickable((By.ID, "start-button")))
+        start_button.click()
+
+        # Wait 3 seconds to allow timer to count down
+        time.sleep(3)
+
+        # Check the timer text again, it should have changed from 25:00
+        updated_time = timer_display.text
+        print("Timer after starting:", updated_time)
+        self.assertNotEqual(updated_time, "25:00", "Timer did not start counting down.")
+
 
 
 
