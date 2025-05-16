@@ -122,6 +122,54 @@ class StudyTrackerTests(unittest.TestCase):
         self.assertNotEqual(updated_time, "25:00", "Timer did not start counting down.")
 
 
+    def test_study_timer_pause(self):
+        driver = self.driver
+
+        # login and navigate to study area as you already do
+        driver.get(f"{self.base_url}/login")
+        email_field = self.wait.until(EC.presence_of_element_located((By.NAME, "username_or_email")))
+        email_field.send_keys("admin2@gmail.com")
+        password_field = self.wait.until(EC.presence_of_element_located((By.NAME, "password")))
+        password_field.send_keys("Admin123@")
+        password_field.send_keys(Keys.RETURN)
+        self.wait.until(EC.title_contains("Dashboard"))
+
+        driver.get(f"{self.base_url}/study_area")
+        timer_display = self.wait.until(EC.visibility_of_element_located((By.ID, "timer-display")))
+
+        start_button = self.wait.until(EC.element_to_be_clickable((By.ID, "start-button")))
+        start_button.click()
+
+        time.sleep(3)
+        running_time = timer_display.text
+
+        pause_button = self.wait.until(EC.element_to_be_clickable((By.ID, "pause-button")))
+        pause_button.click()
+
+        time.sleep(2)
+        paused_time = timer_display.text
+
+        print("Time before pause:", running_time)
+        print("Time after pause:", paused_time)
+
+        # Convert mm:ss strings to total seconds helper
+        def time_to_seconds(t):
+            m, s = map(int, t.split(":"))
+            return m * 60 + s
+
+        running_seconds = time_to_seconds(running_time)
+        paused_seconds = time_to_seconds(paused_time)
+
+        # Assert paused_seconds is less than or equal to running_seconds
+        # but not less than running_seconds by more than 2 seconds
+        self.assertTrue(
+            paused_seconds <= running_seconds and (running_seconds - paused_seconds) <= 2,
+            f"Timer did not pause correctly; time changed from {running_time} to {paused_time} which is more than 2 seconds."
+    )
+
+
+
+
 
 
 
