@@ -1,15 +1,19 @@
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
 // Global variables
 let moodChart = null;
 let pendingDeleteId = null;
-let enterListener = null;
+
+
+// Water Reminder Functionality
+let waterReminderInterval = null;
+let snoozeTimeout = null;
 
 // Modal elements
 const waterReminderModal = document.getElementById('waterReminderModal');
 const waterModalContent = document.getElementById('waterModalContent');
 const waterModalSnooze = document.getElementById('waterModalSnooze');
 const waterModalDismiss = document.getElementById('waterModalDismiss');
-const modalConfirmBtn = document.getElementById('modalConfirm');
-const confirmationModal = document.getElementById('confirmationModal');
 
 // Form elements
 const waterReminderForm = document.getElementById('waterReminderForm');
@@ -19,8 +23,8 @@ const stopReminderBtn = document.getElementById('stopReminder');
 // Water Tracking Functionality
 const WATER_STORAGE_KEY = 'waterTrackerData';
 // Define the cup capacity in liters and milliliters
-const CUP_CAPACITY_LITERS = 2.0;
-const CUP_CAPACITY_ML = CUP_CAPACITY_LITERS * 1000;
+let CUP_CAPACITY_LITERS = 2.0;
+let CUP_CAPACITY_ML = CUP_CAPACITY_LITERS * 1000;
 const ENCOURAGING_MESSAGES = [
     "You're doing great! Keep hydrating! 💧",
     "Every sip counts towards your goal! 🌊",
@@ -55,20 +59,24 @@ let waterData = {
     lastUpdated: new Date().toISOString().split('T')[0]
 };
 
-// Enter key functionality for confirmation modal
-function enableEnterToConfirm(modalElement, confirmBtn) {
-    function handler(e) {
-        if (modalElement.classList.contains('flex') && (e.key === 'Enter' || e.keyCode === 13)) {
-            e.preventDefault();
-            confirmBtn.click();
-        }
-    }
-    document.addEventListener('keydown', handler);
-    return handler;
-}
-
-function disableEnterToConfirm(handler) {
-    document.removeEventListener('keydown', handler);
+ function toAWST(dateString) {
+     const date = new Date(dateString);
+     const options = {
+         timeZone: 'Australia/Perth',
+         year: 'numeric',
+         month: '2-digit',
+         day: '2-digit',
+         hour: '2-digit',
+         minute: '2-digit',
+         hour12: false
+     };
+     const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(date);
+     const y = parts.find(p => p.type === 'year').value;
+     const m = parts.find(p => p.type === 'month').value;
+     const d = parts.find(p => p.type === 'day').value;
+     const h = parts.find(p => p.type === 'hour').value;
+     const min = parts.find(p => p.type === 'minute').value;
+     return `${y}-${m}-${d} ${h}:${min}`;
 }
 
 function showConfirmationModal(entryId) {
@@ -82,8 +90,6 @@ function showConfirmationModal(entryId) {
         modalContent.classList.add('scale-100', 'opacity-100');
     }, 10);
     pendingDeleteId = entryId;
-    // Enable Enter key to confirm
-    enterListener = enableEnterToConfirm(confirmationModal, modalConfirmBtn);
 }
 
 function hideConfirmationModal() {
@@ -94,14 +100,9 @@ function hideConfirmationModal() {
     modalContent.classList.add('scale-95', 'opacity-0');
     setTimeout(() => {
         modal.classList.remove('flex');
-        modal.classList.add('hidden');
+    modal.classList.add('hidden');
     }, 200);
     pendingDeleteId = null;
-    // Disable Enter key listener
-    if (enterListener) {
-        disableEnterToConfirm(enterListener);
-        enterListener = null;
-    }
 }
 
 function deleteEntry(entryId) {
@@ -114,7 +115,8 @@ function confirmDelete() {
     fetch(`/api/mood_entries/${pendingDeleteId}`, {
         method: 'DELETE',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
         }
     })
     .then(response => {
@@ -189,6 +191,52 @@ function addEntryToList(entry) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Set waterGoal select value to current capacity on page load
+    waterGoal.value = CUP_CAPACITY_LITERS.toString();
+
+    // Retrieve and populate goal inputs from localStorage
+    const goalInputsLocal = document.querySelectorAll('.goal-input');
+    goalInputsLocal.forEach((input, index) => {
+        const storedValue = localStorage.getItem(`goalInput${index}`);
+        if (storedValue) {
+            input.value = storedValue;
+        }
+        input.addEventListener('input', () => {
+            localStorage.setItem(`goalInput${index}`, input.value);
+        });
+    });
+    // Retrieve and populate goal inputs from localStorage
+    const goalInputs = document.querySelectorAll('.goal-input');
+    goalInputs.forEach((input, index) => {
+        const storedValue = localStorage.getItem(`goalInput${index}`);
+        if (storedValue) {
+            input.value = storedValue;
+        }
+        input.addEventListener('input', () => {
+            localStorage.setItem(`goalInput${index}`, input.value);
+        });
+    });
+    // Retrieve and populate goal checkboxes from localStorage
+    const goalCheckboxes = document.querySelectorAll('.goal-input');
+    goalInputs.forEach((input, index) => {
+        const storedValue = localStorage.getItem(`goalCheckbox${index}`);
+        if (storedValue) {
+            input.checked = storedValue === 'true';
+        }
+        input.addEventListener('change', () => {
+            localStorage.setItem(`goalCheckbox${index}`, input.checked);
+        });
+    });
+    // Retrieve and populate goal inputs from localStorage
+    goalCheckboxes.forEach((input, index) => {
+        const storedValue = localStorage.getItem(`goalInput${index}`);
+        if (storedValue) {
+            input.value = storedValue;
+        }
+        input.addEventListener('input', () => {
+            localStorage.setItem(`goalInput${index}`, input.value);
+        });
+    });
     // Mood slider value display
     const moodSlider = document.getElementById('mood');
     const moodValue = document.getElementById('moodValue');
@@ -244,6 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
             },
             body: JSON.stringify(data)
         })
@@ -290,6 +339,22 @@ document.addEventListener('DOMContentLoaded', function() {
     undoWaterBtn.addEventListener('click', undoWater);
     resetWaterBtn.addEventListener('click', resetWater);
     waterGoal.addEventListener('change', updateGoal);
+    
+    function updateGoal() {
+        const selectedValue = parseFloat(waterGoal.value);
+        if (selectedValue < 0.5) {
+            waterGoal.value = "0.5";
+            CUP_CAPACITY_LITERS = 0.5;
+        } else if (selectedValue > 4.0) {
+            waterGoal.value = "4.0";
+            CUP_CAPACITY_LITERS = 4.0;
+        } else {
+            CUP_CAPACITY_LITERS = selectedValue;
+        }
+        CUP_CAPACITY_ML = CUP_CAPACITY_LITERS * 1000;
+        waterData.goal = CUP_CAPACITY_ML;  // Update waterData goal to match selected daily water goal
+        updateWaterDisplay();
+    }
     toggleReminderSettings.addEventListener('click', toggleSettings);
 
     // Load initial water data
@@ -336,8 +401,7 @@ function shareData() {
     const dataToShare = {
         study_progress: document.getElementById('shareStudyProgress').checked,
         mood: document.getElementById('shareMood').checked,
-        tasks: document.getElementById('shareTasks').checked,
-        water: document.getElementById('shareWater').checked
+        tasks: document.getElementById('shareTasks').checked
     };
 
     // Get selected friends
@@ -361,6 +425,7 @@ function shareData() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
             },
             body: JSON.stringify({
                 friend_id: friendId,
@@ -399,7 +464,24 @@ if (document.getElementById('customModal')) {
 // Close modal with Escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        closeModal();
+        const customModal = document.getElementById('customModal');
+        const confirmationModal = document.getElementById('confirmationModal');
+        
+        if (customModal && !customModal.classList.contains('hidden')) {
+            closeModal();
+        }
+        if (confirmationModal && !confirmationModal.classList.contains('hidden')) {
+            hideConfirmationModal();
+        }
+    }
+});
+
+// Add event listener for Enter key in confirmation modal
+document.addEventListener('keydown', function(e) {
+    const modal = document.getElementById('confirmationModal');
+    if (!modal.classList.contains('hidden') && e.key === 'Enter') {
+        e.preventDefault();
+        confirmDelete();
     }
 });
 
@@ -685,11 +767,9 @@ function resetWater() {
 // Update goal
 function updateGoal() {
     let goalLiters = parseFloat(waterGoal.value);
-    if (goalLiters > CUP_CAPACITY_LITERS) {
-        goalLiters = CUP_CAPACITY_LITERS;
-        waterGoal.value = CUP_CAPACITY_LITERS;
-    }
-    waterData.goal = goalLiters * 1000; // Convert to milliliters
+    CUP_CAPACITY_LITERS = goalLiters;
+    CUP_CAPACITY_ML = CUP_CAPACITY_LITERS * 1000;
+    waterData.goal = CUP_CAPACITY_ML;
     updateWaterDisplay();
 }
 

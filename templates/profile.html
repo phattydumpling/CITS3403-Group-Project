@@ -28,10 +28,10 @@
                         <p class="text-gray-600 dark:text-gray-300">{{ current_user.email }}</p>
                     </div>
                     <nav class="space-y-2">
-                        <a href="{{ url_for('profile') }}" class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">
+                        <a href="{{ url_for('main.profile') }}" class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">
                             <i class="fas fa-cog mr-2"></i> Account Settings
                         </a>
-                        <a href="{{ url_for('notifications') }}" class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">
+                        <a href="{{ url_for('main.notifications') }}" class="block px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600">
                             <i class="fas fa-bell mr-2"></i> Notifications
                         </a>
                     </nav>
@@ -62,7 +62,8 @@
                         </div>
                     {% endif %}
                     {% endwith %}
-                    <form method="POST" action="{{ url_for('profile') }}" class="space-y-6">
+                    <form method="POST" action="{{ url_for('main.profile') }}" class="space-y-6">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <div>
                             <label for="university" class="block text-sm font-medium text-gray-700 dark:text-gray-300">University</label>
                             <select id="university" name="university" placeholder="Select or type your university" autocomplete="off" class="mt-1 block w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-600 text-gray-900 dark:text-white px-4 py-3 text-base shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 transition-all duration-200">
@@ -113,7 +114,8 @@
 
                     <!-- Delete Account Section -->
                     <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-600">
-                        <form method="POST" action="{{ url_for('delete_account') }}" id="deleteAccountForm">
+                        <form method="POST" action="{{ url_for('main.delete_account') }}" id="deleteAccountForm">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="button" onclick="showDeleteConfirmation()" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-300 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                                 Delete Account
                             </button>
@@ -143,12 +145,14 @@
                                 </div>
                             </div>
                             <div class="flex space-x-2">
-                                <form method="POST" action="{{ url_for('accept_friend', request_id=request.id) }}" class="inline">
+                                <form method="POST" action="{{ url_for('main.accept_friend', request_id=request.id) }}" class="inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <button type="submit" class="text-green-500 hover:text-white hover:bg-green-500 rounded-full p-2 transition-colors duration-300" title="Accept Request">
                                         <i class="fas fa-check text-lg"></i>
                                     </button>
                                 </form>
-                                <form method="POST" action="{{ url_for('reject_friend', request_id=request.id) }}" class="inline">
+                                <form method="POST" action="{{ url_for('main.reject_friend', request_id=request.id) }}" class="inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                     <button type="submit" class="text-red-500 hover:text-white hover:bg-red-500 rounded-full p-2 transition-colors duration-300" title="Reject Request">
                                         <i class="fas fa-times text-lg"></i>
                                     </button>
@@ -174,7 +178,8 @@
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-lg w-full relative">
         <button id="closeProfilePicModal" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-2xl">&times;</button>
         <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white text-center">Select Profile Picture</h2>
-        <form method="POST" action="{{ url_for('profile') }}" id="profilePicForm">
+        <form method="POST" action="{{ url_for('main.profile') }}" id="profilePicForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6">
                 <div class="relative">
                     <input type="radio" name="profile_picture" value="" id="modal_default_pic" class="hidden peer" {% if not current_user.profile_picture %}checked{% endif %}>

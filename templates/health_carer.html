@@ -177,7 +177,7 @@
                             <div class="flex items-center justify-between">
                                 <label for="waterGoal" class="text-sm font-medium text-gray-700 dark:text-gray-300">Daily Water Goal</label>
                                 <select id="waterGoal" class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    {% for i in range(1, 13) %}
+                                    {% for i in range(1, 9) %}
                                     <option value="{{ i * 0.5 }}" {% if i == 2 %}selected{% endif %}>{{ i * 0.5 }}L</option>
                                     {% endfor %}
                                 </select>

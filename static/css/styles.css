@@ -702,4 +702,23 @@ input:focus, select:focus, textarea:focus {
   border-radius: 1rem;
   transition: border 0.2s, box-shadow 0.2s;
 }
+
+.todo-completed {
+    opacity: 0.7;
+    background-color: rgba(243, 244, 246, 0.5) !important;
+}
+
+.todo-completed .todo-check-checked {
+    background-color: #4f46e5 !important;
+    border-color: #4f46e5 !important;
+}
+
+.todo-completed .todo-check-checked svg {
+    opacity: 1 !important;
+}
+
+.todo-completed span {
+    text-decoration: line-through;
+    color: #9ca3af !important;
+}
   
