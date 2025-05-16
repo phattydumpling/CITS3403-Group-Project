@@ -167,6 +167,43 @@ class StudyTrackerTests(unittest.TestCase):
             f"Timer did not pause correctly; time changed from {running_time} to {paused_time} which is more than 2 seconds."
     )
 
+    def test_study_timer_reset(self):
+        driver = self.driver
+
+        # Log in
+        driver.get(f"{self.base_url}/login")
+        email_field = self.wait.until(EC.presence_of_element_located((By.NAME, "username_or_email")))
+        email_field.send_keys("admin2@gmail.com")
+        password_field = self.wait.until(EC.presence_of_element_located((By.NAME, "password")))
+        password_field.send_keys("Admin123@")
+        password_field.send_keys(Keys.RETURN)
+        self.wait.until(EC.title_contains("Dashboard"))
+
+        # Go to study area
+        driver.get(f"{self.base_url}/study_area")
+        timer_display = self.wait.until(EC.visibility_of_element_located((By.ID, "timer-display")))
+
+        # Start the timer
+        start_button = self.wait.until(EC.element_to_be_clickable((By.ID, "start-button")))
+        start_button.click()
+
+        # Wait until timer changes from initial value (confirm it’s ticking)
+        initial_time = timer_display.text
+        self.wait.until(lambda d: timer_display.text != initial_time)
+
+        # New part: Press Reset immediately after starting
+        reset_button = self.wait.until(EC.element_to_be_clickable((By.ID, "reset-button")))
+        reset_button.click()
+
+        # Verify it resets to 25:00 immediately after reset
+        self.wait.until(lambda d: timer_display.text == "25:00")
+        reset_time_after_start = timer_display.text
+        self.assertEqual(reset_time_after_start, "25:00", f"Expected timer to reset to 25:00 immediately after reset, but got {reset_time_after_start}")
+
+
+        print("Timer resets to 25:00")
+
+
 
 
 
