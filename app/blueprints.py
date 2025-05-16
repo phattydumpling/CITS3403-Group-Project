@@ -1,5 +1,6 @@
 from flask import Blueprint
 
-main = Blueprint('main' , __name__)
+main = Blueprint('main', __name__)
 
-from app import models, routes 
+# Import routes after blueprint creation to avoid circular imports
+from app import routes 

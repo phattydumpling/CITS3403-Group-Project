@@ -30,7 +30,7 @@
                     </div>
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Share Data</h1>
                 </div>
-                <a href="{{ url_for('friend_leaderboard') }}" class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300">
+                <a href="{{ url_for('main.friend_leaderboard') }}" class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors duration-300">
                     <i class="fas fa-trophy mr-2"></i>
                     View Leaderboard
                 </a>
@@ -130,7 +130,7 @@
             <!-- Data Navigation Buttons -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Data Shared With You Button -->
-                <a href="{{ url_for('data_shared_with_you') }}" class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600 hover:shadow-xl transition-shadow duration-300">
+                <a href="{{ url_for('main.data_shared_with_you') }}" class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600 hover:shadow-xl transition-shadow duration-300">
                     <div class="flex items-center mb-4">
                         <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
                             <i class="fas fa-inbox text-2xl text-indigo-600 dark:text-indigo-300"></i>
@@ -141,7 +141,7 @@
                 </a>
 
                 <!-- Shared Data History Button -->
-                <a href="{{ url_for('shared_data_history') }}" class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600 hover:shadow-xl transition-shadow duration-300">
+                <a href="{{ url_for('main.shared_data_history') }}" class="bg-white dark:bg-gray-700 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-600 hover:shadow-xl transition-shadow duration-300">
                     <div class="flex items-center mb-4">
                         <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-4">
                             <i class="fas fa-history text-2xl text-indigo-600 dark:text-indigo-300"></i>

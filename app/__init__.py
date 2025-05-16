@@ -4,10 +4,21 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 import os
 from flask import url_for, current_app
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
+
+AWST = ZoneInfo("Australia/Perth")
+
+def to_awst(dt):
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(AWST)
 
 def create_app():
     app = Flask(__name__, 
@@ -27,19 +38,15 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
-    # Import and register the blueprint
-    from app.blueprints import main
-    app.register_blueprint(main)
-    
     # Initialize Flask-Login
     login_manager.init_app(app)
-    login_manager.login_view = 'login'
+    login_manager.login_view = 'main.login'
     login_manager.login_message = 'Please log in to access this page.'
     login_manager.login_message_category = 'info'
 
-    # Initialize routes
-    from app.routes import init_routes
-    init_routes(app)
+    # Register blueprints
+    from app.blueprints import main
+    app.register_blueprint(main)
 
     # Error handlers
     @app.errorhandler(404)
@@ -58,5 +65,10 @@ def create_app():
         return url_for('static', filename=filename, v=version)
 
     app.jinja_env.globals['static_file'] = static_file
+
+    # Add AWST template filter
+    @app.template_filter('awst')
+    def awst_filter(dt):
+        return to_awst(dt)
 
     return app

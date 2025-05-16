@@ -63,14 +63,14 @@
                                 </div>
                             </div>
                             <div class="flex space-x-2">
-                                <form method="POST" action="{{ url_for('accept_friend', request_id=request.id) }}" class="inline">
+                                <form method="POST" action="{{ url_for('main.accept_friend', request_id=request.id) }}" class="inline">
                                     <button type="submit"
                                             class="text-green-500 hover:text-white hover:bg-green-500 rounded-full p-2 transition-colors duration-300"
                                             title="Accept Request">
                                         <i class="fas fa-check text-lg"></i>
                                     </button>
                                 </form>
-                                <form method="POST" action="{{ url_for('reject_friend', request_id=request.id) }}" class="inline">
+                                <form method="POST" action="{{ url_for('main.reject_friend', request_id=request.id) }}" class="inline">
                                     <button type="submit"
                                             class="text-red-500 hover:text-white hover:bg-red-500 rounded-full p-2 transition-colors duration-300"
                                             title="Reject Request">

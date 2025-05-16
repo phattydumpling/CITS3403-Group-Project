@@ -5,7 +5,7 @@ let editingId = null;
 let deleteModalOpen = false;
 
 async function fetchAssessments() {
-    const res = await fetch('/api/assessments');
+    const res = await fetch('/main/api/assessments');
     assessments = await res.json();
     renderAssessments();
 }
@@ -153,7 +153,7 @@ function hideDeleteModal() {
 async function markDone(id) {
     const a = assessments.find(x => x.id == id);
     if (a) {
-        await fetch(`/api/assessments/${a.id}`, {
+        await fetch(`/main/api/assessments/${a.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ done: !a.done })
@@ -203,14 +203,14 @@ document.getElementById('assessmentForm').addEventListener('submit', async funct
     if (weight !== '') payload.weight = parseFloat(weight);
     if (id) {
         // Update
-        await fetch(`/api/assessments/${id}`, {
+        await fetch(`/main/api/assessments/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
     } else {
         // Create
-        await fetch('/api/assessments', {
+        await fetch('/main/api/assessments', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -226,7 +226,7 @@ document.getElementById('deleteModal').addEventListener('click', function(e) {
 });
 document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
     const id = this.getAttribute('data-id');
-    await fetch(`/api/assessments/${id}`, { method: 'DELETE' });
+    await fetch(`/main/api/assessments/${id}`, { method: 'DELETE' });
     hideDeleteModal();
     await fetchAssessments();
 });
