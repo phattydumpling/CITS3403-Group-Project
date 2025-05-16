@@ -94,12 +94,28 @@ The Study Tracker contains the following:
 6. **Access the Application**: Open a web browser and navigate to `http://127.0.0.1:5000`.
 
 ### Running Tests
-- To run the tests for the application, execute the following command:
+1. To run the unittests for the application, execute the following command:
    ```bash
    python -m unittest tests/unit.py # For Unittests
    Selenium.py python -m unittest tests/selenium.py # For Selenium Tests
    ```
 - Ensure that the application is running and the database is initialised before running tests to verify functionality.
+
+2. To run the selenium tests for the application, execute the following command:
+
+   **Install dependencies and start the app:**  
+   ```bash
+   pip install selenium
+   pip install webdriver-manager
+   python app.py
+   ```
+   **Run the Selenium tests in a separate terminal:**
+   ```bash
+   python selenium_test.py
+   ```
+
+
+
 
 ### References
 This project includes code and implementation generated with the assistance of GitHub Copilot, OpenAI's ChatGPT, Cursor and Stack Overflow.
