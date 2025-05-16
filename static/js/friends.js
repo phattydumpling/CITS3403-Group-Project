@@ -1,3 +1,5 @@
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
 // Modal logic for removing a friend
 function showRemoveFriendModal(username, friendId) {
     document.getElementById('friendName').textContent = username;

@@ -1,3 +1,5 @@
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
 // Timer functionality
 let timerDisplay = document.getElementById('timer-display');
 let startButton = document.getElementById('start-button');
@@ -58,7 +60,7 @@ function startTimer() {
     fetch('/study_session', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,
         },
         body: JSON.stringify({
             subject: subject,
@@ -158,7 +160,7 @@ async function endTimer() {
         const response = await fetch(`/study_session/${activeSessionId}`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,
             },
             body: JSON.stringify({
                 end_time: new Date().toISOString()
@@ -193,7 +195,7 @@ activeSessionForm.addEventListener('submit', async (e) => {
         const response = await fetch('/study_session', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json', 'X-CSRFToken': csrfToken,
             },
             body: JSON.stringify(sessionData)
         });
@@ -275,6 +277,10 @@ document.getElementById('confirmDeleteSession').addEventListener('click', async 
     try {
         const response = await fetch(`/study_session/${sessionToDelete}`, {
             method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
         });
         if (response.ok) {
             window.location.reload();
@@ -366,7 +372,7 @@ startSessionBtn.addEventListener('click', async function() {
     const notes = notesInput.value;
     const response = await fetch('/study_session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
         body: JSON.stringify({
             subject: subject,
             notes: notes,
@@ -394,7 +400,7 @@ endSessionBtn.addEventListener('click', async function() {
     // End session in backend
     await fetch(`/study_session/${activeSessionId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
         body: JSON.stringify({ end_time: new Date().toISOString() })
     });
     activeSessionId = null;

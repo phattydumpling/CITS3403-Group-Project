@@ -1,3 +1,6 @@
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+
 // Global variables
 let moodChart = null;
 let pendingDeleteId = null;
@@ -114,7 +117,8 @@ function confirmDelete() {
     fetch(`/api/mood_entries/${pendingDeleteId}`, {
         method: 'DELETE',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
         }
     })
     .then(response => {
@@ -290,6 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
             },
             body: JSON.stringify(data)
         })
@@ -422,6 +427,7 @@ function shareData() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
             },
             body: JSON.stringify({
                 friend_id: friendId,
