@@ -6,10 +6,15 @@ import os
 from flask import url_for, current_app
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
+from config import DeploymentConfig
+from flask_wtf.csrf import CSRFProtect
+
 
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
+csrf = CSRFProtect()
+
 
 AWST = ZoneInfo("Australia/Perth")
 
@@ -20,19 +25,18 @@ def to_awst(dt):
         dt = dt.replace(tzinfo=timezone.utc)
     return dt.astimezone(AWST)
 
-def create_app():
-    app = Flask(__name__, 
-                template_folder='../templates',  # Point to the templates directory at root level
-                static_folder='../static')  # Also point to the static directory at root level
-    app.secret_key = os.environ.get('SECRET_KEY', 'dev-key-for-local')  # Required for session handling
+def create_app(config_object=None):
+    app = Flask(
+        __name__,
+        template_folder='../templates',
+        static_folder='../static'
+    )
 
-    # Database configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///study_planner.sqlite'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-    # CSRF Protection
-    app.config['WTF_CSRF_ENABLED'] = True
-    app.config['WTF_CSRF_SECRET_KEY'] = 'your-csrf-secret-key'  # Change this to a secure secret key
+    # Load configuration
+    if config_object:
+        app.config.from_object(config_object)
+    else:
+        app.config.from_object(DeploymentConfig)
 
     # Initialize the database
     db.init_app(app)
@@ -44,6 +48,9 @@ def create_app():
     login_manager.login_message = 'Please log in to access this page.'
     login_manager.login_message_category = 'info'
 
+    csrf.init_app(app)  # Enable CSRF protection
+
+
     # Register blueprints
     from app.blueprints import main
     app.register_blueprint(main)
@@ -51,7 +58,10 @@ def create_app():
     # Error handlers
     @app.errorhandler(404)
     def page_not_found(e):
-        return render_template('404.html'), 404
+        return render_template('404.html', 
+                             pending_requests_count=0,
+                             accepted_requests_count=0,
+                             unread_shared_data_count=0), 404
 
     # Cache-busting static file helper
     def static_file(filename):

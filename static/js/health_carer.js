@@ -1,8 +1,10 @@
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
 // Global variables
 let moodChart = null;
 let pendingDeleteId = null;
 
-// <<<<<<< HEAD
+
 // Water Reminder Functionality
 let waterReminderInterval = null;
 let snoozeTimeout = null;
@@ -56,27 +58,26 @@ let waterData = {
     history: [],
     lastUpdated: new Date().toISOString().split('T')[0]
 };
-// =======
-// function toAWST(dateString) {
-//     const date = new Date(dateString);
-//     const options = {
-//         timeZone: 'Australia/Perth',
-//         year: 'numeric',
-//         month: '2-digit',
-//         day: '2-digit',
-//         hour: '2-digit',
-//         minute: '2-digit',
-//         hour12: false
-//     };
-//     const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(date);
-//     const y = parts.find(p => p.type === 'year').value;
-//     const m = parts.find(p => p.type === 'month').value;
-//     const d = parts.find(p => p.type === 'day').value;
-//     const h = parts.find(p => p.type === 'hour').value;
-//     const min = parts.find(p => p.type === 'minute').value;
-//     return `${y}-${m}-${d} ${h}:${min}`;
-// }
-// >>>>>>> ce1efbc2c0c59ebf8757dc8f446616729fab22ce
+
+ function toAWST(dateString) {
+     const date = new Date(dateString);
+     const options = {
+         timeZone: 'Australia/Perth',
+         year: 'numeric',
+         month: '2-digit',
+         day: '2-digit',
+         hour: '2-digit',
+         minute: '2-digit',
+         hour12: false
+     };
+     const parts = new Intl.DateTimeFormat('en-CA', options).formatToParts(date);
+     const y = parts.find(p => p.type === 'year').value;
+     const m = parts.find(p => p.type === 'month').value;
+     const d = parts.find(p => p.type === 'day').value;
+     const h = parts.find(p => p.type === 'hour').value;
+     const min = parts.find(p => p.type === 'minute').value;
+     return `${y}-${m}-${d} ${h}:${min}`;
+}
 
 function showConfirmationModal(entryId) {
     const modal = document.getElementById('confirmationModal');
@@ -114,7 +115,8 @@ function confirmDelete() {
     fetch(`/api/mood_entries/${pendingDeleteId}`, {
         method: 'DELETE',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
         }
     })
     .then(response => {
@@ -290,6 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
             },
             body: JSON.stringify(data)
         })
@@ -422,6 +425,7 @@ function shareData() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
             },
             body: JSON.stringify({
                 friend_id: friendId,
@@ -460,7 +464,24 @@ if (document.getElementById('customModal')) {
 // Close modal with Escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        closeModal();
+        const customModal = document.getElementById('customModal');
+        const confirmationModal = document.getElementById('confirmationModal');
+        
+        if (customModal && !customModal.classList.contains('hidden')) {
+            closeModal();
+        }
+        if (confirmationModal && !confirmationModal.classList.contains('hidden')) {
+            hideConfirmationModal();
+        }
+    }
+});
+
+// Add event listener for Enter key in confirmation modal
+document.addEventListener('keydown', function(e) {
+    const modal = document.getElementById('confirmationModal');
+    if (!modal.classList.contains('hidden') && e.key === 'Enter') {
+        e.preventDefault();
+        confirmDelete();
     }
 });
 

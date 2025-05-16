@@ -1,3 +1,5 @@
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
 // JavaScript for the Assessments page
 // Backend-integrated assessments array
 let assessments = [];
@@ -5,7 +7,7 @@ let editingId = null;
 let deleteModalOpen = false;
 
 async function fetchAssessments() {
-    const res = await fetch('/main/api/assessments');
+    const res = await fetch('/api/assessments');
     assessments = await res.json();
     renderAssessments();
 }
@@ -153,9 +155,9 @@ function hideDeleteModal() {
 async function markDone(id) {
     const a = assessments.find(x => x.id == id);
     if (a) {
-        await fetch(`/main/api/assessments/${a.id}`, {
+        await fetch(`/api/assessments/${a.id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
             body: JSON.stringify({ done: !a.done })
         });
         await fetchAssessments();
@@ -203,16 +205,16 @@ document.getElementById('assessmentForm').addEventListener('submit', async funct
     if (weight !== '') payload.weight = parseFloat(weight);
     if (id) {
         // Update
-        await fetch(`/main/api/assessments/${id}`, {
+        await fetch(`/api/assessments/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
             body: JSON.stringify(payload)
         });
     } else {
         // Create
-        await fetch('/main/api/assessments', {
+        await fetch('/api/assessments', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
             body: JSON.stringify(payload)
         });
     }
@@ -226,7 +228,13 @@ document.getElementById('deleteModal').addEventListener('click', function(e) {
 });
 document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
     const id = this.getAttribute('data-id');
-    await fetch(`/main/api/assessments/${id}`, { method: 'DELETE' });
+    await fetch(`/api/assessments/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        }
+    });
     hideDeleteModal();
     await fetchAssessments();
 });

@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db
+from app import db, csrf
 from app.models import User, StudySession, Task, WellnessCheck, MoodEntry, Friendship, FriendRequest, SharedData, Assessment
 from app.forms import LoginForm, RegistrationForm, StudySessionForm, TaskForm, WellnessCheckForm
 from datetime import datetime, timedelta, date, timezone, UTC
@@ -44,6 +44,7 @@ def index():
     return render_template('index.html')
 
 @main.route('/login', methods=['GET', 'POST'])
+@csrf.exempt
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -64,6 +65,7 @@ def login():
     return render_template('login.html', form=form)
 
 @main.route('/signup', methods=['GET', 'POST'])
+@csrf.exempt
 def signup():
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -168,12 +170,12 @@ def dashboard():
     ).count()
 
     # Get weekly mood average
-    week_ago = datetime.utcnow() - timedelta(days=7)
+    week_ago = datetime.now(UTC) - timedelta(days=7)
     mood_entries = MoodEntry.query.filter(
         MoodEntry.user_id == current_user.id,
         MoodEntry.created_at >= week_ago
     ).all()
-    
+        
     weekly_mood = 0
     if mood_entries:
         weekly_mood = sum(entry.mood_score for entry in mood_entries) / len(mood_entries)
@@ -211,17 +213,18 @@ def dashboard():
 @main.route('/study_area')
 @login_required
 def study_area():
-    today = datetime.today().date()
+    today_awst = datetime.now(AWST).date()
     user_id = current_user.id
 
-    # Query today's sessions
-    sessions_today = StudySession.query.filter_by(user_id=user_id).filter(StudySession.start_time >= today).all()
+    # Query today's sessions (using UTC for database query)
+    start_of_day_utc = datetime.combine(today_awst, datetime.min.time()).astimezone(UTC)
+    sessions_today = StudySession.query.filter_by(user_id=user_id).filter(StudySession.start_time >= start_of_day_utc).all()
 
     # Total time in seconds
     total_time_seconds = sum(
         (session.end_time - session.start_time).total_seconds() for session in sessions_today if session.end_time
     )
-    
+
     # Format time as HH:MM:SS string
     total_time_formatted = str(timedelta(seconds=total_time_seconds))
 
@@ -236,7 +239,7 @@ def study_area():
     # Convert times to AWST for template
     for session in recent_sessions:
         session.start_time_awst = to_awst(session.start_time)
-        session.end_time_awst = to_awst(session.end_time)
+        session.end_time_awst = to_awst(session.end_time) if session.end_time else None
 
     return render_template(
         'study_area.html',
@@ -391,15 +394,17 @@ def health_carer():
         }
         flash(f"Goals submitted: Emotional - {selected_goals['emotional']}, Physical - {selected_goals['physical']}, Study - {selected_goals['study']}", "success")
 
-    # Get user's mood entries for the past week
-    week_ago = datetime.utcnow() - timedelta(days=7)
+    # Get user's mood entries for the past week (for both GET and POST)
+    week_ago = datetime.now(UTC) - timedelta(days=7)
     mood_entries = MoodEntry.query.filter(
         MoodEntry.user_id == current_user.id,
         MoodEntry.created_at >= week_ago
     ).order_by(MoodEntry.created_at.desc()).all()
+    
     # Convert times to AWST for template
     for entry in mood_entries:
         entry.created_at_awst = to_awst(entry.created_at)
+    
     return render_template('health_carer.html', mood_entries=mood_entries, today=datetime.now(UTC).strftime('%Y-%m-%d'))
 
 @main.route('/wellness_check', methods=['GET', 'POST'])
@@ -866,7 +871,7 @@ def create_mood_entry():
 @main.route('/api/mood_entries', methods=['GET'])
 @login_required
 def get_mood_entries():
-    week_ago = datetime.utcnow() - timedelta(days=7)
+    week_ago = datetime.now(UTC) - timedelta(days=7)
     entries = MoodEntry.query.filter(
         MoodEntry.user_id == current_user.id,
         MoodEntry.created_at >= week_ago
@@ -980,16 +985,18 @@ def get_study_sessions():
     if view == 'day':
         # Get data for the current day in AWST
         start_time = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        # Convert to UTC for database query
+        start_time_utc = start_time.astimezone(UTC)
         sessions = StudySession.query.filter(
             StudySession.user_id == current_user.id,
-            StudySession.start_time >= start_time
+            StudySession.start_time >= start_time_utc
         ).all()
         
         # Group by hour
         hours = [0] * 24
         for session in sessions:
             if session.end_time:
-                # Convert session time to AWST
+                # Convert session time to AWST for display
                 session_start = to_awst(session.start_time)
                 hour = session_start.hour
                 duration = (session.end_time - session.start_time).total_seconds() / 60  # Convert to minutes
@@ -1005,16 +1012,18 @@ def get_study_sessions():
         today = now.date()
         # Find the most recent Sunday
         start_of_week = today - timedelta(days=today.weekday() + 1 if today.weekday() != 6 else 0)
+        # Convert to UTC for database query
+        start_of_week_utc = datetime.combine(start_of_week, datetime.min.time()).astimezone(UTC)
         sessions = StudySession.query.filter(
             StudySession.user_id == current_user.id,
-            StudySession.start_time >= datetime.combine(start_of_week, datetime.min.time())
+            StudySession.start_time >= start_of_week_utc
         ).all()
 
         # Group by weekday (0=Sunday, 6=Saturday)
         days = [0] * 7
         for session in sessions:
             if session.end_time:
-                # Convert session time to AWST
+                # Convert session time to AWST for display
                 session_start = to_awst(session.start_time)
                 weekday = session_start.weekday()  # 0=Monday, 6=Sunday
                 weekday = (weekday + 1) % 7      # Convert to 0=Sunday, 6=Saturday
@@ -1029,16 +1038,18 @@ def get_study_sessions():
     else:  # month view
         # Get data for the current month in AWST
         first_day = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        # Convert to UTC for database query
+        first_day_utc = first_day.astimezone(UTC)
         sessions = StudySession.query.filter(
             StudySession.user_id == current_user.id,
-            StudySession.start_time >= first_day
+            StudySession.start_time >= first_day_utc
         ).all()
 
         # Group by week of the month (1-4)
         weeks = [0] * 4
         for session in sessions:
             if session.end_time:
-                # Convert session time to AWST
+                # Convert session time to AWST for display
                 session_start = to_awst(session.start_time)
                 session_date = session_start.date()
                 # Calculate week index: 0 for days 1-7, 1 for 8-14, 2 for 15-21, 3 for 22-end
@@ -1047,10 +1058,10 @@ def get_study_sessions():
                     duration = (session.end_time - session.start_time).total_seconds() / 3600
                     weeks[week_index] += duration
 
-        return jsonify({
-            'labels': ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-            'data': weeks
-        })
+    return jsonify({
+        'labels': ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        'data': weeks
+    })
 
 @main.route('/api/unit_distribution')
 @login_required
@@ -1155,7 +1166,7 @@ def delete_shared_data(data_id):
 @login_required
 def friend_leaderboard():
     # Get the start of the current week (Sunday)
-    today = datetime.utcnow().date()
+    today = datetime.now(UTC).date()
     start_of_week = today - timedelta(days=today.weekday() + 1 if today.weekday() != 6 else 0)
     start_of_week = datetime.combine(start_of_week, datetime.min.time())
 
@@ -1202,5 +1213,5 @@ def friend_leaderboard():
     friend_study_hours.sort(key=lambda x: x['hours'], reverse=True)
 
     return render_template('friend_leaderboard.html', 
-                         friend_study_hours=friend_study_hours,
-                         start_of_week=start_of_week) 
+                            friend_study_hours=friend_study_hours,
+                            start_of_week=start_of_week) 

@@ -1,3 +1,5 @@
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
 document.addEventListener("DOMContentLoaded", function () {
     const calendarDiv = document.getElementById("flatCalendar");
 
@@ -265,7 +267,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const response = await fetch('/api/tasks', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json','X-CSRFToken': csrfToken,
                     },
                     body: JSON.stringify({ title: text })
                 });
@@ -302,7 +304,11 @@ document.addEventListener("DOMContentLoaded", function () {
         async function deleteTask(taskId) {
             try {
                 const response = await fetch(`/api/tasks/${taskId}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    }
                 });
                 if (!response.ok) {
                     console.error('Failed to delete task');
@@ -310,7 +316,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (error) {
                 console.error('Error:', error);
             }
-        }
+        }        
 
         let dragged = null;
 
@@ -348,20 +354,52 @@ document.addEventListener("DOMContentLoaded", function () {
             li.draggable = true;
             li.dataset.taskId = task.id;
 
-            // Check button (not functional, just for UI)
+            // Check button
             const checkBtn = document.createElement("button");
             checkBtn.className = "w-6 h-6 flex items-center justify-center rounded-full border-2 border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-700 mr-3 group-hover:border-indigo-500 transition-colors duration-200 focus:outline-none";
             checkBtn.innerHTML = '<svg class="w-4 h-4 text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>';
-            // Completion logic
-            checkBtn.addEventListener('click', function () {
-                li.classList.toggle('todo-completed');
-                checkBtn.classList.toggle('todo-check-checked');
+            
+            // Set initial state based on task status
+            if (task.status === 'completed') {
+                li.classList.add('todo-completed');
+                checkBtn.classList.add('todo-check-checked');
+                checkBtn.querySelector('svg').classList.remove('opacity-0');
+            }
+
+            // Add click handler for checkbox
+            checkBtn.addEventListener('click', async function () {
+                const isCompleted = li.classList.contains('todo-completed');
+                try {
+                    const response = await fetch(`/api/tasks/${task.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify({
+                            status: isCompleted ? 'pending' : 'completed'
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        li.classList.toggle('todo-completed');
+                        checkBtn.classList.toggle('todo-check-checked');
+                        span.classList.toggle('line-through');
+                    } else {
+                        console.error('Failed to update task status');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
             });
 
             // Task text
             const span = document.createElement("span");
             span.textContent = task.title;
             span.className = "flex-1 truncate text-gray-900 dark:text-white font-medium";
+            if (task.status === 'completed') {
+                span.classList.add('line-through');
+            }
 
             // Delete button
             const del = document.createElement("button");
