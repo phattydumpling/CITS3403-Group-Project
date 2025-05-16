@@ -403,24 +403,6 @@ def health_carer():
         entry.created_at_awst = to_awst(entry.created_at)
     
     return render_template('health_carer.html', mood_entries=mood_entries, today=datetime.now(UTC).strftime('%Y-%m-%d'))
-
-@main.route('/wellness_check', methods=['GET', 'POST'])
-@login_required
-def wellness_check():
-    form = WellnessCheckForm()
-    if form.validate_on_submit():
-        check = WellnessCheck(
-            user_id=current_user.id,
-            mood_score=int(form.mood_score.data),
-            stress_level=int(form.stress_level.data),
-            notes=form.notes.data
-        )
-        db.session.add(check)
-        db.session.commit()
-        flash('Wellness check recorded successfully!', 'success')
-        return redirect(url_for('main.dashboard'))
-    return render_template('wellness_check.html', form=form)
-
 # Data Sharing Route
 @main.route('/share_data')
 @login_required
