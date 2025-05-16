@@ -7,40 +7,77 @@
 | 23789621           | Kevin Tan       | phattydumpling  |
 | 24149422           | Ilakkia Valavan | Ilakkia-Valavan |
 
-# App Name
-**Smart Study Scheduler**
+# StudyNest - Study Tracker
+
 
 ## Application Overview
 
 ### Purpose
-- The Smart Study Scheduler is designed to help students manage their study sessions, track their academic progress, and maintain their mental and physical well-being. 
-- It provides tools for scheduling, task management, and health reminders, creating a holistic approach to student life.
+StudyNest is a comprehensive web application designed to support students in managing their academic and personal well-being. It combines study management tools for scheduling and task management, with health and wellness tracking in a single, integrated platform.
 
 ### Design & Functionality
-- **User  Interface**: The application features a clean and intuitive interface with light and dark mode options to enhance user experience.
-- **Dashboard**: Users can view key insights, including study hours, task completion rates, and health scores through interactive graphs.
-- **Study Area**: Users can log individual and group study sessions, track performance, and receive recommendations based on their study habits.
-- **Health Carer**: The app includes reminders for hydration, breaks, and physical activity, along with mental health resources.
-- **Data Sharing**: Users can share their study habits and achievements with peers, fostering a sense of community and competition.
+The Study Tracker contains the following:
+
+**1. Study Management**:
+- Study Area: A dedicated space for students to organise and track their study sessions
+- Assessment Tracking: Tools to manage and monitor academic assessments and deadlines
+- Study Break Timer: Integrated timer system to encourage regular breaks during study sessions
+- Study Break Ideas: Suggestions for productive breaks to maintain focus and well-being
+  
+**2. Health & Wellness**:
+- Health Carer: A feature to set and track personal wellness goals
+- Goal Setting: Customisable goal categories for physical, mental, and academic well-being
+- Progress Tracking: Visual representation of goal completion and progress
+- Wellness Monitoring: Tools to track various aspects of student health and well-being
+  
+**3. Social Features**:
+- Friend System: Connect with other students
+- Data Sharing: Share study and wellness data with friends
+- Leaderboard: Competitive element to encourage engagement
+- Notifications: System for friend requests and shared data
+  
+**4. Personal Dashboard**:
+- Overview Cards: Quick access to key metrics and information
+- Progress Visualisation: Charts and graphs showing study and wellness progress
+- Customisable Interface: Personalisable dashboard layout
+- Profile Management: User profile customisation with profile pictures
+
 
 ### Architecture
-- **Frontend**: Built using HTML, CSS (Tailwind), and JavaScript, ensuring a responsive and user-friendly design.
-- **Backend**: Developed with Flask, utilising SQLAlchemy for database interactions and Flask-WTF for form handling.
-- **Database**: SQLite is used to store user data, study sessions, tasks, and wellness checks, allowing for efficient data management.
-- **APIs**: Integration with calendar APIs for scheduling and reminders, and potential weather APIs for outdoor activity suggestions.
+**Frontend(Client-Side)**:
+- HTML for structure, with Tailwind CSS for styling and responsive design. JavaScript for client-side interactivity
+- Flask Templates (jinja2): Allows dynamic interaction with the backend.
+  
+**Backend(Server-Side)**:
+**Built using Python with Flask framework**
+- Flask 3.1.0 as the web framework
+- SQLAlchemy for database
+- Flask-Login for user authentication
+- Flask-WTF for form handling and CSRF protection
+- Flask-Migrate for database migrations
+
+**Database**:
+- SQLite database (configurable for production)
+- Database migrations managed through Alembic
+  
+**Security Features**:
+- CSRF protection
+- User authentication
+- Secure password handling
 
 ## Getting Started
 
 ### Deployment/Launch
 1. **Clone the Repository**: 
    ```bash
-   git clone <repository-url>
-   cd <repository-directory>
+   git clone https://github.com/phattydumpling/CITS3403-Group-Project/
+   cd CITS3403-Group-Project
    ```
 2. **Set Up Virtual Environment**:
    ```bash
    python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   source venv/bin/activate
+   venv\Scripts\activate # For Windows 
    ```
 3. **Install Dependencies**:
    ```bash
@@ -56,19 +93,13 @@
    ```
 6. **Access the Application**: Open a web browser and navigate to `http://127.0.0.1:5000`.
 
-### How to Use on Mac
-- Follow the same steps as outlined above for deployment and launch.
-- Ensure that you have Python installed on your Mac. You can check this by running:
-   ```bash
-   python3 --version
-   ```
-- If Python is not installed, you can download it from the [official Python website](https://www.python.org/downloads/).
-- Use `python3` instead of `python` in the commands if your system defaults to Python 2.x.
-
 ### Running Tests
 - To run the tests for the application, execute the following command:
    ```bash
-   python test_db.py
+   python -m unittest tests/unit.py # For Unittests
+   Selenium.py python -m unittest tests/selenium.py # For Selenium Tests
    ```
 - Ensure that the application is running and the database is initialised before running tests to verify functionality.
 
+### References
+This project includes code and implementation generated with the assistance of GitHub Copilot, OpenAI's ChatGPT, Cursor and Stack Overflow.
