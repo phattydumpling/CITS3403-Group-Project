@@ -6,6 +6,11 @@ app = create_app()
 migrate = Migrate(app, db)
 
 def init_db():
+    # Create instance directory if it doesn't exist
+    instance_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
+    if not os.path.exists(instance_path):
+        os.makedirs(instance_path)
+    
     with app.app_context():
         # Run any pending migrations
         upgrade()
