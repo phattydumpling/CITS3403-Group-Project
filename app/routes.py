@@ -1,16 +1,13 @@
 from flask import render_template, request, redirect, url_for, session, flash, jsonify
+from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db, csrf
+from app import db, login_manager, csrf
 from app.models import User, StudySession, Task, WellnessCheck, MoodEntry, Friendship, FriendRequest, SharedData, Assessment
 from app.forms import LoginForm, RegistrationForm, StudySessionForm, TaskForm, WellnessCheckForm
 from datetime import datetime, timedelta, date, timezone, UTC
-from flask_login import login_user, logout_user, login_required, current_user
-from app import login_manager
 from app.blueprints import main
-import logging
 from zoneinfo import ZoneInfo
-from sqlalchemy import and_
-
+import logging
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -100,7 +97,7 @@ def logout():
 @login_required
 def dashboard():
     # Get the start of the current week (Sunday)
-    today = datetime.utcnow().date()
+    today = datetime.now(UTC).date()
     start_of_week = today - timedelta(days=today.weekday() + 1 if today.weekday() != 6 else 0)
     start_of_week = datetime.combine(start_of_week, datetime.min.time())
 

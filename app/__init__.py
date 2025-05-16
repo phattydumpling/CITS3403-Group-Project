@@ -1,13 +1,12 @@
-from flask import Flask, render_template
+import os
+from flask import Flask, render_template, url_for, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
-import os
-from flask import url_for, current_app
-from datetime import datetime, timezone
+from flask_wtf.csrf import CSRFProtect
+from datetime import timezone
 from zoneinfo import ZoneInfo
 from config import DeploymentConfig
-from flask_wtf.csrf import CSRFProtect
 
 
 db = SQLAlchemy()
